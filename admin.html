@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<style>
+body{font-family:Segoe UI,Arial;background:#f4f6f8;margin:0;padding:16px}
+.card{
+ background:#fff;
+ border-radius:16px;
+ padding:20px;
+ max-width:700px;
+ margin:auto;
+ box-shadow:0 6px 14px rgba(0,0,0,.1)
+}
+table{width:100%;border-collapse:collapse;margin-top:16px}
+th,td{border:1px solid #ddd;padding:10px}
+th{background:#f0f0f0}
+.logout{background:#f44336;color:#fff;border:none;padding:10px 14px;border-radius:10px}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <button class="logout" onclick="logout()">Keluar</button>
+  <h3>Laporan Cleaner</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nama</th>
+        <th>Tanggal</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="laporan"></tbody>
+  </table>
+</div>
+
+<script>
+const role=localStorage.getItem('role');
+if(role!=='admin') location.href='login.html';
+
+const data=JSON.parse(localStorage.getItem('filled')||'{}');
+const tbody=document.getElementById('laporan');
+
+Object.keys(data).forEach(k=>{
+ const [nama,tgl]=k.split('_');
+ tbody.innerHTML+=`
+ <tr>
+  <td>${nama}</td>
+  <td>${tgl}</td>
+  <td>✔ Sudah Isi</td>
+ </tr>`;
+});
+
+function logout(){
+ localStorage.clear();
+ location.href='login.html';
+}
+</script>
+
+</body>
+</html>
