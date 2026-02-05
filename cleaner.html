@@ -1,1 +1,38 @@
-
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cleaner Task</title>
+<style>
+body{font-family:Segoe UI,Arial;background:#f4f6f8;margin:0;padding:12px}
+.card{background:#fff;border-radius:16px;padding:16px;max-width:600px;margin:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+h3{text-align:center}
+select,input,button{width:100%;padding:12px;margin:8px 0;border-radius:12px;border:1px solid #ccc}
+button{background:#4CAF50;color:#fff;border:none;font-size:16px}
+.alert{color:#d32f2f;font-size:13px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="card">
+<h3>Daily Task Cleaner</h3>
+<label>Nama Cleaner</label>
+<select id="nama">
+<option value="">-- Pilih Nama --</option>
+<option>Irfan Affandi</option>
+<option>Evillia Agustin</option>
+</select>
+<div id="alert" class="alert" style="display:none">⚠️ Pastikan nama dipilih agar tidak salah isi</div>
+<label>Tanggal</label>
+<input type="date">
+<button onclick="validasi()">Simpan</button>
+</div>
+<script>
+function validasi(){
+ if(!document.getElementById('nama').value){
+  document.getElementById('alert').style.display='block'
+ }else{alert('Data tersimpan')}
+}
+</script>
+</body>
+</html>
