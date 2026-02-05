@@ -1,1 +1,208 @@
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Cleaner</title>
+
+<style>
+body{
+  font-family:Segoe UI,Arial;
+  background:#f4f6f8;
+  margin:0;padding:12px
+}
+.card{
+  background:#fff;
+  max-width:900px;
+  margin:auto;
+  padding:16px;
+  border-radius:16px;
+  box-shadow:0 8px 20px rgba(0,0,0,.08)
+}
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap
+}
+button{
+  border:none;
+  padding:10px 14px;
+  border-radius:10px;
+  background:#1976d2;
+  color:#fff;
+  font-size:14px
+}
+.logout{background:#d32f2f}
+.warn{color:red;font-weight:600;font-size:13px}
+.date-warn{border:2px solid red}
+.progress{
+  background:#eee;
+  height:10px;
+  border-radius:10px;
+  overflow:hidden;
+  margin:12px 0
+}
+.bar{
+  background:#4CAF50;
+  height:10px;
+  width:0%
+}
+.area{
+  margin-top:14px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  overflow:hidden
+}
+.area h4{
+  margin:0;
+  padding:10px;
+  background:#f0f0f0
+}
+.task{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border-top:1px solid #eee
+}
+.task input[type="text"]{
+  flex:1;
+  padding:6px;
+  border-radius:8px;
+  border:1px solid #ccc
+}
+.footer{
+  margin-top:16px
+}
+@media(max-width:600px){
+  .task{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="top">
+    <h3 id="user"></h3>
+    <button class="logout" onclick="logout()">Keluar</button>
+  </div>
+
+  Tanggal:
+  <input type="date" id="tanggal">
+  <span id="warning" class="warn">WAJIB DIISI</span>
+
+  <div class="progress">
+    <div class="bar" id="bar"></div>
+  </div>
+
+  <!-- LOBBY -->
+  <div class="area">
+    <h4>Lobby</h4>
+    <div class="task">
+      <input type="checkbox" onchange="updateProgress()">
+      <label>Sapu & Pel</label>
+      <input type="text" placeholder="Catatan">
+    </div>
+    <div class="task">
+      <input type="checkbox" onchange="updateProgress()">
+      <label>Lap Kaca</label>
+      <input type="text" placeholder="Catatan">
+    </div>
+  </div>
+
+  <!-- TOILET -->
+  <div class="area">
+    <h4>Toilet</h4>
+    <div class="task">
+      <input type="checkbox" onchange="updateProgress()">
+      <label>Bersihkan Kloset</label>
+      <input type="text" placeholder="Catatan">
+    </div>
+    <div class="task">
+      <input type="checkbox" onchange="updateProgress()">
+      <label>Isi Sabun & Tisu</label>
+      <input type="text" placeholder="Catatan">
+    </div>
+  </div>
+
+  <!-- PANTRY -->
+  <div class="area">
+    <h4>Pantry</h4>
+    <div class="task">
+      <input type="checkbox" onchange="updateProgress()">
+      <label>Buang Sampah</label>
+      <input type="text" placeholder="Catatan">
+    </div>
+  </div>
+
+  <div class="footer">
+    <button onclick="simpan()">Simpan Task</button>
+  </div>
+
+</div>
+
+<script>
+const user = localStorage.getItem('user');
+if(!user) location.href='login.html';
+document.getElementById('user').innerText = 'Cleaner: ' + user;
+
+const inputTanggal=document.getElementById('tanggal');
+const warning=document.getElementById('warning');
+const bar=document.getElementById('bar');
+
+function setToday(){
+  let d=new Date();
+  while(d.getDay()==0||d.getDay()==6){d.setDate(d.getDate()+1);}
+  inputTanggal.valueAsDate=d;
+  cek();
+}
+
+function cek(){
+  const key=user+'_'+inputTanggal.value;
+  const data=JSON.parse(localStorage.getItem('filled')||'{}');
+  if(!data[key]){
+    warning.style.display='inline';
+    inputTanggal.classList.add('date-warn');
+  }else{
+    warning.style.display='none';
+    inputTanggal.classList.remove('date-warn');
+  }
+}
+
+function updateProgress(){
+  const all=document.querySelectorAll('.task input[type=checkbox]').length;
+  const done=document.querySelectorAll('.task input[type=checkbox]:checked').length;
+  bar.style.width=(done/all*100)+'%';
+}
+
+function simpan(){
+  const data=JSON.parse(localStorage.getItem('filled')||'{}');
+  data[user+'_'+inputTanggal.value]=true;
+  localStorage.setItem('filled',JSON.stringify(data));
+  alert('Task tersimpan');
+  cek();
+}
+
+inputTanggal.onchange=()=>{
+  const d=new Date(inputTanggal.value);
+  if(d.getDay()==0||d.getDay()==6){
+    alert('Sabtu & Minggu tidak termasuk');
+    setToday();
+  }
+  cek();
+};
+
+function logout(){
+  localStorage.removeItem('user');
+  location.href='login.html';
+}
+
+setToday();
+updateProgress();
+</script>
+
+</body>
+</html>
