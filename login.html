@@ -1,45 +1,135 @@
+<!-- ================= LOGIN.HTML ================= -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Daily Tasks Cleaner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Task Login</title>
 <style>
-body{font-family:Arial;background:#f4f6f8;padding:40px}
-.card{background:#fff;padding:20px;max-width:400px;margin:auto;border-radius:8px}
-button{width:100%;padding:14px;margin:8px 0;font-size:16px;border:none;border-radius:6px;cursor:pointer}
-.user1{background:#1976d2;color:#fff}
-.user2{background:#388e3c;color:#fff}
-.admin{position:fixed;bottom:10px;right:15px;cursor:pointer;color:#777}
+body{font-family:Segoe UI,Arial;background:#f4f6f8;margin:0;padding:16px}
+.card{background:#fff;border-radius:16px;padding:20px;max-width:420px;margin:40px auto;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+h1{text-align:center;margin-bottom:20px}
+button{width:100%;padding:16px;margin:10px 0;border:none;border-radius:14px;font-size:16px;cursor:pointer}
+.cleaner{background:#1976d2;color:#fff}
+.driver{background:#388e3c;color:#fff}
+.gs{background:#6a1b9a;color:#fff}
+.admin{position:fixed;bottom:14px;right:16px;font-size:22px;color:#999}
 </style>
 </head>
 <body>
-
-<h2 style="text-align:center">Daily Tasks Cleaner</h2>
-
 <div class="card">
-  <button class="user1" onclick="login('Irfan Affandi')">Irfan Affandi</button>
-  <button class="user2" onclick="login('Evillia Agustin')">Evillia Agustin</button>
+<h1>Daily Tasks</h1>
+<button class="cleaner" onclick="location.href='cleaner.html'">👷 Cleaner</button>
+<button class="driver" onclick="location.href='driver.html'">🚚 Driver</button>
+<button class="gs" onclick="location.href='general-service.html'">🧰 General Service</button>
 </div>
+<div class="admin">@</div>
+</body>
+</html>
 
-<div class="admin" onclick="adminLogin()">@</div>
-
+<!-- ================= CLEANER.HTML ================= -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cleaner Task</title>
+<style>
+body{font-family:Segoe UI,Arial;background:#f4f6f8;margin:0;padding:12px}
+.card{background:#fff;border-radius:16px;padding:16px;max-width:600px;margin:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+h3{text-align:center}
+select,input,button{width:100%;padding:12px;margin:8px 0;border-radius:12px;border:1px solid #ccc}
+button{background:#4CAF50;color:#fff;border:none;font-size:16px}
+.alert{color:#d32f2f;font-size:13px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="card">
+<h3>Daily Task Cleaner</h3>
+<label>Nama Cleaner</label>
+<select id="nama">
+<option value="">-- Pilih Nama --</option>
+<option>Irfan Affandi</option>
+<option>Evillia Agustin</option>
+</select>
+<div id="alert" class="alert" style="display:none">⚠️ Pastikan nama dipilih agar tidak salah isi</div>
+<label>Tanggal</label>
+<input type="date">
+<button onclick="validasi()">Simpan</button>
+</div>
 <script>
-const ADMIN_PASSWORD = 'admin123';
-
-function login(user){
-  localStorage.setItem('user', user);
-  location.href = 'dashboard.html';
-}
-
-function adminLogin(){
-  const pass = prompt('Password Admin');
-  if(pass === ADMIN_PASSWORD){
-    location.href = 'laporan.html';
-  }else{
-    alert('Password salah');
-  }
+function validasi(){
+ if(!document.getElementById('nama').value){
+  document.getElementById('alert').style.display='block'
+ }else{alert('Data tersimpan')}
 }
 </script>
+</body>
+</html>
 
+<!-- ================= DRIVER.HTML ================= -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Driver Task</title>
+<style>
+body{font-family:Segoe UI,Arial;background:#f4f6f8;margin:0;padding:12px}
+.card{background:#fff;border-radius:16px;padding:16px;max-width:600px;margin:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+h3{text-align:center}
+select,input,button{width:100%;padding:12px;margin:8px 0;border-radius:12px;border:1px solid #ccc}
+button{background:#388e3c;color:#fff;border:none;font-size:16px}
+.alert{color:#d32f2f;font-size:13px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="card">
+<h3>Daily Task Driver</h3>
+<label>Nama Driver</label>
+<select id="nama">
+<option value="">-- Pilih Nama --</option>
+<option>Ahmad Yani</option>
+<option>Sandi Suhendra</option>
+</select>
+<div id="alert" class="alert" style="display:none">⚠️ Pastikan nama dipilih agar tidak salah isi</div>
+<label>Tanggal</label>
+<input type="date">
+<button onclick="validasi()">Simpan</button>
+</div>
+<script>
+function validasi(){
+ if(!document.getElementById('nama').value){
+  document.getElementById('alert').style.display='block'
+ }else{alert('Data tersimpan')}
+}
+</script>
+</body>
+</html>
+
+<!-- ================= GENERAL-SERVICE.HTML ================= -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>General Service Task</title>
+<style>
+body{font-family:Segoe UI,Arial;background:#f4f6f8;margin:0;padding:12px}
+.card{background:#fff;border-radius:16px;padding:16px;max-width:600px;margin:auto;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+h3{text-align:center}
+input,button{width:100%;padding:12px;margin:8px 0;border-radius:12px;border:1px solid #ccc}
+button{background:#6a1b9a;color:#fff;border:none;font-size:16px}
+</style>
+</head>
+<body>
+<div class="card">
+<h3>Daily Task General Service</h3>
+<label>Nama</label>
+<input type="text" value="Abdul Apso" disabled>
+<label>Tanggal</label>
+<input type="date">
+<button>Simpan</button>
+</div>
 </body>
 </html>
