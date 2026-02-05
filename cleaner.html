@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daily Task Cleaner</title>
+<title>Login - Daily Task Cleaner</title>
 <style>
 body{
   font-family:Segoe UI,Arial;
@@ -18,7 +18,7 @@ body{
   margin:40px auto;
   box-shadow:0 8px 20px rgba(0,0,0,.12)
 }
-h3{text-align:center;margin-bottom:6px}
+h3{text-align:center}
 .role{text-align:center;font-size:13px;color:#666;margin-bottom:16px}
 select,input,button{
   width:100%;
@@ -34,23 +34,10 @@ button{
   border:none;
   font-weight:600
 }
-button.admin{
-  background:#1976d2
-}
-.alert{
-  color:#d32f2f;
-  font-size:13px;
-  margin-top:8px;
-  display:none
-}
-.toggle{
-  text-align:center;
-  margin-top:16px;
-  font-size:13px;
-  color:#1976d2;
-  cursor:pointer
-}
-.admin-box{display:none}
+button.admin{background:#1976d2}
+.alert{color:#d32f2f;font-size:13px;display:none;margin-top:8px}
+.toggle{text-align:center;margin-top:16px;font-size:13px;color:#1976d2;cursor:pointer}
+#adminBox{display:none}
 </style>
 </head>
 <body>
@@ -67,18 +54,14 @@ button.admin{
       <option>Irfan Affandi</option>
       <option>Evillia Agustin</option>
     </select>
-    <div id="alertCleaner" class="alert">
-      ⚠️ Wajib pilih nama terlebih dahulu
-    </div>
-  <button onclick="window.location.href='general.html'">
-  Lanjut
-</button>
-
+    <div id="alertCleaner" class="alert">⚠️ Wajib pilih nama</div>
+    <button onclick="loginCleaner()">Lanjut</button>
+  </div>
 
   <!-- ADMIN -->
-  <div id="adminBox" class="admin-box">
+  <div id="adminBox">
     <label>Password Admin</label>
-    <input type="password" id="adminPass" placeholder="Masukkan password">
+    <input type="password" id="adminPass">
     <div id="alertAdmin" class="alert">❌ Password salah</div>
     <button class="admin" onclick="loginAdmin()">Masuk Admin</button>
   </div>
@@ -87,15 +70,14 @@ button.admin{
 </div>
 
 <script>
-const ADMIN_PASSWORD = 'admin123';
+const ADMIN_PASSWORD='admin123';
 let isAdmin=false;
 
 function toggleRole(){
   isAdmin=!isAdmin;
   document.getElementById('cleanerBox').style.display=isAdmin?'none':'block';
   document.getElementById('adminBox').style.display=isAdmin?'block':'none';
-  document.getElementById('roleText').innerText=
-    isAdmin?'Mode: Admin':'Mode: Cleaner';
+  document.getElementById('roleText').innerText=isAdmin?'Mode: Admin':'Mode: Cleaner';
 }
 
 function loginCleaner(){
@@ -116,7 +98,7 @@ function loginAdmin(){
     return;
   }
   localStorage.setItem('role','admin');
-  location.href='general.html';
+  location.href='admin.html';
 }
 </script>
 
