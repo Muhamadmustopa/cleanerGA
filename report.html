@@ -8,7 +8,8 @@
 <style>
 :root{
   --radius:26px;
-  --shadow:0 18px 40px rgba(0,0,0,.3);
+  --shadow-soft:0 10px 25px rgba(0,0,0,.18);
+  --shadow-hover:0 20px 45px rgba(0,0,0,.28);
 }
 
 *{box-sizing:border-box}
@@ -23,44 +24,38 @@ body{
   justify-content:center;
 }
 
-/* overlay blur */
 body::before{
   content:"";
   position:fixed;
   inset:0;
-  background:linear-gradient(
-    rgba(0,0,0,.65),
-    rgba(0,0,0,.55)
-  );
-  backdrop-filter:blur(12px);
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(14px);
   z-index:-1;
 }
 
-/* container utama */
+/* APP */
 .app{
   width:100%;
   max-width:420px;
   margin:16px;
-  background:rgba(255,255,255,.94);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
+  background:rgba(255,255,255,.95);
+  border-radius:30px;
   padding:26px 22px 30px;
-  animation:fadeIn .5s ease;
+  box-shadow:0 20px 50px rgba(0,0,0,.35);
+  animation:fade .5s ease;
 }
 
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(10px)}
+@keyframes fade{
+  from{opacity:0; transform:translateY(12px)}
   to{opacity:1; transform:none}
 }
 
 /* HEADER */
 .header{
   text-align:center;
-  margin-bottom:24px;
+  margin-bottom:22px;
 }
-.header h2{
-  margin:0;
-}
+.header h2{margin:0}
 .header p{
   margin:6px 0 0;
   font-size:14px;
@@ -73,33 +68,26 @@ body::before{
   flex-direction:column;
   gap:16px;
 }
-
 input{
   padding:16px;
-  border-radius:16px;
+  border-radius:18px;
   border:1px solid #ddd;
   font-size:16px;
 }
-
 .login button{
   padding:16px;
   border:none;
-  border-radius:18px;
+  border-radius:20px;
   background:#111;
   color:#fff;
   font-size:16px;
   font-weight:600;
   cursor:pointer;
 }
-
-.login button:active{
-  transform:scale(.97);
-}
+.login button:active{transform:scale(.96)}
 
 /* DASHBOARD */
-.dashboard{
-  display:none;
-}
+.dashboard{display:none}
 
 .menu{
   display:grid;
@@ -107,41 +95,90 @@ input{
   gap:18px;
 }
 
-/* card report */
+/* BUTTON CARD */
 .card-btn{
+  position:relative;
+  overflow:hidden;
   border:none;
-  border-radius:24px;
+  border-radius:26px;
   padding:22px 16px;
-  background:#f3f5f7;
-  box-shadow:0 8px 18px rgba(0,0,0,.15);
+  background:#f4f6f8;
+  box-shadow:var(--shadow-soft);
   cursor:pointer;
-  transition:.2s;
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:12px;
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease;
 }
 
+/* hover desktop */
+@media(hover:hover){
+  .card-btn:hover{
+    transform:translateY(-6px);
+    box-shadow:var(--shadow-hover);
+  }
+}
+
+/* tap mobile */
 .card-btn:active{
   transform:scale(.96);
 }
 
+/* ripple effect */
+.card-btn::after{
+  content:"";
+  position:absolute;
+  width:0;
+  height:0;
+  background:rgba(255,255,255,.45);
+  border-radius:50%;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  opacity:0;
+}
+.card-btn:active::after{
+  width:220%;
+  height:220%;
+  opacity:1;
+  transition:width .4s ease, height .4s ease, opacity .8s;
+}
+
+/* ICON */
 .icon{
-  width:58px;
-  height:58px;
+  width:60px;
+  height:60px;
   border-radius:18px;
   display:flex;
   align-items:center;
   justify-content:center;
   font-size:26px;
   color:#fff;
+  animation:float 3s ease-in-out infinite;
 }
 
-/* warna keren */
-.rep-cleaner .icon{background:linear-gradient(135deg,#1976d2,#42a5f5)}
-.rep-k3 .icon{background:linear-gradient(135deg,#ef6c00,#ff9800)}
-.rep-ob .icon{background:linear-gradient(135deg,#2e7d32,#66bb6a)}
-.rep-summary .icon{background:linear-gradient(135deg,#6a1b9a,#ab47bc)}
+/* icon float */
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+
+/* GRADIENT */
+.rep-cleaner .icon{
+  background:linear-gradient(135deg,#1976d2,#42a5f5)
+}
+.rep-k3 .icon{
+  background:linear-gradient(135deg,#ef6c00,#ff9800)
+}
+.rep-ob .icon{
+  background:linear-gradient(135deg,#2e7d32,#66bb6a)
+}
+.rep-summary .icon{
+  background:linear-gradient(135deg,#6a1b9a,#ab47bc)
+}
 
 .card-btn span{
   font-weight:600;
@@ -150,9 +187,7 @@ input{
 
 /* mobile kecil */
 @media(max-width:360px){
-  .menu{
-    grid-template-columns:1fr;
-  }
+  .menu{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -161,7 +196,7 @@ input{
 
 <div class="app">
 
-  <!-- LOGIN ADMIN -->
+  <!-- LOGIN -->
   <div id="loginBox">
     <div class="header">
       <h2>Admin Report</h2>
@@ -178,23 +213,23 @@ input{
   <div id="dashboard" class="dashboard">
     <div class="header">
       <h2>Dashboard Report</h2>
-      <p>Monitoring & Laporan Harian</p>
+      <p>Laporan & Monitoring</p>
     </div>
 
     <div class="menu">
       <button class="card-btn rep-cleaner" onclick="location.href='report-cleaner.html'">
         <div class="icon">🧹</div>
-        <span>Report Tasks Cleaner</span>
+        <span>Report Cleaner</span>
       </button>
 
-      <button class="card-btn rep-k3" onclick="location.href='laporank3.html'">
-        <div class="icon">🦺</div>   
-        <span>Report Checklist K3</span>
+      <button class="card-btn rep-k3" onclick="location.href='reportk3.html'">
+        <div class="icon">🦺</div>
+        <span>Report K3</span>
       </button>
 
       <button class="card-btn rep-ob" onclick="location.href='report-ob.html'">
         <div class="icon">🏢</div>
-        <span>Report Driver</span>
+        <span>Report OB</span>
       </button>
 
       <button class="card-btn rep-summary" onclick="location.href='summary.html'">
@@ -212,8 +247,8 @@ const ADMIN_PASSWORD = "admin123";
 function login(){
   const pass = document.getElementById("password").value;
   if(pass === ADMIN_PASSWORD){
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("dashboard").style.display="block";
+    loginBox.style.display="none";
+    dashboard.style.display="block";
   }else{
     alert("Password salah!");
   }
