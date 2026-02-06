@@ -7,8 +7,9 @@
 
 <style>
 :root{
-  --radius:20px;
+  --radius:22px;
   --shadow:0 15px 40px rgba(0,0,0,.25);
+  --shadow-hover:0 20px 45px rgba(0,0,0,.35);
 }
 
 *{box-sizing:border-box}
@@ -23,7 +24,6 @@ body{
   justify-content:center;
 }
 
-/* overlay blur */
 body::before{
   content:"";
   position:fixed;
@@ -33,7 +33,6 @@ body::before{
   z-index:-1;
 }
 
-/* card utama */
 .app{
   width:100%;
   max-width:420px;
@@ -44,37 +43,30 @@ body::before{
   padding:24px 20px 28px;
 }
 
-/* header */
 .header{
   text-align:center;
   margin-bottom:24px;
 }
-.header h2{
-  margin:0;
-  font-size:22px;
-}
-.header p{
-  margin:6px 0 0;
-  font-size:14px;
-  color:#555;
-}
+.header h2{margin:0;font-size:22px}
+.header p{margin:6px 0 0;font-size:14px;color:#555}
 
-/* grid menu */
+/* GRID */
 .menu{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:16px;
 }
 
-/* card button */
+/* BUTTON */
 .menu button{
+  position:relative;
+  overflow:hidden;
   border:none;
   border-radius:22px;
   padding:22px 14px;
   background:#f4f6f8;
-  box-shadow:0 6px 14px rgba(0,0,0,.12);
+  box-shadow:0 8px 18px rgba(0,0,0,.15);
   cursor:pointer;
-  transition:.15s ease;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -82,41 +74,68 @@ body::before{
   gap:10px;
   font-size:15px;
   font-weight:600;
+  transition:.25s ease;
 }
 
-/* efek tap mobile */
+/* hover desktop */
+@media(hover:hover){
+  .menu button:hover{
+    transform:translateY(-6px);
+    box-shadow:var(--shadow-hover);
+  }
+}
+
+/* tap mobile */
 .menu button:active{
   transform:scale(.96);
 }
 
-/* icon bulat */
+/* ripple */
+.menu button::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle, rgba(255,255,255,.6) 10%, transparent 10%);
+  background-size:0 0;
+  background-position:center;
+  opacity:0;
+}
+.menu button:active::after{
+  background-size:250% 250%;
+  opacity:1;
+  transition:background-size .4s ease, opacity .8s;
+}
+
+/* ICON */
 .icon{
-  width:54px;
-  height:54px;
+  width:56px;
+  height:56px;
   border-radius:50%;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:24px;
+  font-size:26px;
   color:#fff;
+  animation:float 3s ease-in-out infinite;
 }
 
-/* warna */
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-5px)}
+}
+
+/* WARNA */
 .cleaner .icon{background:#1976d2}
 .k3 .icon{background:#ef6c00}
 .ob .icon{background:#2e7d32}
 .report .icon{background:#6a1b9a}
 
-/* label */
-.menu span{
-  color:#333;
-}
+/* LABEL */
+.menu span{color:#333}
 
-/* mobile kecil */
+/* MOBILE KECIL */
 @media(max-width:360px){
-  .menu{
-    grid-template-columns:1fr;
-  }
+  .menu{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -130,7 +149,7 @@ body::before{
   </div>
 
   <div class="menu">
-    <button class="cleaner" onclick="location.href='cleaner.html'">
+    <button class="cleaner" onclick="location.href='general.html'">
       <div class="icon">🧹</div>
       <span>Cleaner</span>
     </button>
@@ -140,8 +159,9 @@ body::before{
       <span>Inspeksi K3</span>
     </button>
 
+    <!-- DRIVER -->
     <button class="ob" onclick="location.href='driver.html'">
-      <div class="icon"></div>
+      <div class="icon">🚗</div>
       <span>Driver</span>
     </button>
 
@@ -154,4 +174,3 @@ body::before{
 
 </body>
 </html>
-
