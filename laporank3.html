@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan K3</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:16px;
+  font-family:Segoe UI,Arial;
+  background:#f4f6f8
+}
+.card{
+  max-width:1100px;
+  margin:auto;
+  background:#fff;
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 6px 14px rgba(0,0,0,.12)
+}
+h2{
+  margin:0 0 16px;
+  text-align:center
+}
+
+/* FILTER */
+.filter{
+  display:grid;
+  grid-template-columns:1fr 1fr 2fr;
+  gap:10px;
+  margin-bottom:14px
+}
+select,input{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:14px
+}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px
+}
+th,td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  text-align:left
+}
+th{
+  background:#f1f3f4;
+  font-weight:600
+}
+tr:hover{background:#fafafa}
+
+/* STATUS */
+.badge{
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+  display:inline-block
+}
+.aman{
+  background:#e8f5e9;
+  color:#2e7d32
+}
+.tidak{
+  background:#fdecea;
+  color:#c62828
+}
+
+.small{
+  font-size:12px;
+  color:#666;
+  text-align:center;
+  margin-top:10px
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>📊 Laporan Checklist K3</h2>
+
+  <!-- FILTER -->
+  <div class="filter">
+    <select id="filterLokasi">
+      <option value="">Semua Lokasi</option>
+    </select>
+
+    <input type="date" id="filterTanggal">
+
+    <input type="text" id="search" placeholder="Cari task / catatan...">
+  </div>
+
+  <!-- TABLE -->
+  <table>
+    <thead>
+      <tr>
+        <th>Tanggal</th>
+        <th>Lokasi</th>
+        <th>Task</th>
+        <th>Status</th>
+        <th>Catatan</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div class="small">
+    Data realtime dari Google Sheet
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL =
+'https://script.google.com/macros/s/AKfycbyknd3VCdFnL_Ut9YAKE1giBptIV_KUbt9FcQ71i7vic5UzK4tAxffF8e4A3_lWhnygfw/exec';
+
+let rawData = [];
+
+const tbody = document.getElementById('tbody');
+const fLokasi = document.getElementById('filterLokasi');
+const fTanggal = document.getElementById('filterTanggal');
+const search  = document.getElementById('search');
+
+/* LOAD DATA */
+fetch(SCRIPT_URL)
+  .then(r=>r.json())
+  .then(data=>{
+    rawData = data;
+    initFilter();
+    render();
+  });
+
+/* INIT FILTER LOKASI */
+function initFilter(){
+  const lokasiSet = [...new Set(rawData.map(d=>d.Lokasi))];
+  lokasiSet.forEach(l=>{
+    const o=document.createElement('option');
+    o.value=l;
+    o.textContent=l;
+    fLokasi.appendChild(o);
+  });
+}
+
+/* RENDER TABLE */
+function render(){
+  tbody.innerHTML='';
+
+  const fl = fLokasi.value;
+  const ft = fTanggal.value;
+  const s  = search.value.toLowerCase();
+
+  rawData
+    .filter(d=>{
+      if(fl && d.Lokasi!==fl) return false;
+      if(ft && d.Tanggal!==ft) return false;
+      if(s && !(d.Task+d.Catatan).toLowerCase().includes(s)) return false;
+      return true;
+    })
+    .forEach(d=>{
+      tbody.innerHTML+=`
+        <tr>
+          <td>${d.Tanggal}</td>
+          <td>${d.Lokasi}</td>
+          <td>${d.Task}</td>
+          <td>
+            <span class="badge ${d.Status==='AMAN'?'aman':'tidak'}">
+              ${d.Status}
+            </span>
+          </td>
+          <td>${d.Catatan||'-'}</td>
+        </tr>
+      `;
+    });
+}
+
+/* EVENT */
+[fLokasi,fTanggal,search].forEach(el=>{
+  el.addEventListener('input',render);
+});
+</script>
+
+</body>
+</html>
