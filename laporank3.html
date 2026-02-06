@@ -169,19 +169,30 @@ function normalizeDate(d){
   return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
 }
 
+/* FORMAT BULAN */
+function monthLabel(key){
+  const [y,m]=key.split('-');
+  const nama=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  return `${nama[Number(m)-1]} ${y}`;
+}
+
 /* LOAD DATA */
 fetch(SCRIPT_URL)
 .then(r=>r.json())
 .then(data=>{
-  rawData=data.map(d=>({
-    ...d,
-    TanggalFix: normalizeDate(d.Tanggal)
-  }));
+  rawData=data.map(d=>{
+    const fix=normalizeDate(d.Tanggal);
+    return{
+      ...d,
+      TanggalFix: fix,
+      MonthKey: fix.substring(0,7)
+    }
+  });
   initLokasi();
   render();
 });
 
-/* INIT FILTER LOKASI */
+/* FILTER LOKASI */
 function initLokasi(){
   [...new Set(rawData.map(d=>d.Lokasi))]
   .forEach(l=>{
@@ -192,7 +203,7 @@ function initLokasi(){
   });
 }
 
-/* RENDER */
+/* RENDER GROUP BY MONTH */
 function render(){
   tbody.innerHTML='';
   mobile.innerHTML='';
@@ -201,32 +212,60 @@ function render(){
   const ft=fTanggal.value;
   const s=search.value.toLowerCase();
 
-  rawData
-  .filter(d=>{
+  const filtered=rawData.filter(d=>{
     if(fl && d.Lokasi!==fl) return false;
     if(ft && d.TanggalFix!==ft) return false;
     if(s && !(d.Task+d.Catatan).toLowerCase().includes(s)) return false;
     return true;
-  })
-  .forEach(d=>{
+  });
+
+  const groups={};
+  filtered.forEach(d=>{
+    if(!groups[d.MonthKey]) groups[d.MonthKey]=[];
+    groups[d.MonthKey].push(d);
+  });
+
+  Object.keys(groups).sort().reverse().forEach(month=>{
+    /* DESKTOP HEADER */
     tbody.innerHTML+=`
       <tr>
-        <td>${d.Tanggal}</td>
-        <td>${d.Lokasi}</td>
-        <td>${d.Task}</td>
-        <td><span class="badge ${d.Status==='AMAN'?'aman':'tidak'}">${d.Status}</span></td>
-        <td>${d.Catatan||'-'}</td>
+        <td colspan="5" style="background:#eef3f8;font-weight:600">
+          📅 ${monthLabel(month)}
+        </td>
       </tr>`;
 
+    /* MOBILE HEADER */
     mobile.innerHTML+=`
-      <div class="card-item">
-        <b>Tanggal</b>${d.Tanggal}
-        <b>Lokasi</b>${d.Lokasi}
-        <b>Task</b>${d.Task}
-        <b>Status</b>
-        <span class="badge ${d.Status==='AMAN'?'aman':'tidak'}">${d.Status}</span>
-        <b>Catatan</b>${d.Catatan||'-'}
+      <div style="font-weight:600;margin:16px 0 6px">
+        📅 ${monthLabel(month)}
       </div>`;
+
+    groups[month].forEach(d=>{
+      tbody.innerHTML+=`
+        <tr>
+          <td>${d.Tanggal}</td>
+          <td>${d.Lokasi}</td>
+          <td>${d.Task}</td>
+          <td>
+            <span class="badge ${d.Status==='AMAN'?'aman':'tidak'}">
+              ${d.Status}
+            </span>
+          </td>
+          <td>${d.Catatan||'-'}</td>
+        </tr>`;
+
+      mobile.innerHTML+=`
+        <div class="card-item">
+          <b>Tanggal</b>${d.Tanggal}
+          <b>Lokasi</b>${d.Lokasi}
+          <b>Task</b>${d.Task}
+          <b>Status</b>
+          <span class="badge ${d.Status==='AMAN'?'aman':'tidak'}">
+            ${d.Status}
+          </span>
+          <b>Catatan</b>${d.Catatan||'-'}
+        </div>`;
+    });
   });
 }
 
@@ -235,6 +274,7 @@ function render(){
   el.addEventListener('input',render);
 });
 </script>
+
 
 </body>
 </html>
