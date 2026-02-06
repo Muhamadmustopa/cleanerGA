@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist K3</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:14px;
+  font-family:Segoe UI,Arial;
+  background:#f4f6f8
+}
+.card{
+  max-width:480px;
+  margin:auto;
+  background:#fff;
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 6px 14px rgba(0,0,0,.12)
+}
+h3{text-align:center;margin:6px 0 14px}
+label{font-size:14px;font-weight:600}
+select,input,textarea,button{
+  width:100%;
+  margin-top:8px;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #ccc;
+  font-size:14px
+}
+textarea{resize:none}
+.task{
+  border:1px solid #e0e0e0;
+  border-radius:12px;
+  padding:12px;
+  margin-top:12px
+}
+.task-title{
+  font-weight:600;
+  margin-bottom:8px
+}
+.task-row{
+  display:flex;
+  align-items:center;
+  gap:10px
+}
+.task-row input[type=checkbox]{
+  width:20px;
+  height:20px
+}
+button{
+  background:#4CAF50;
+  color:#fff;
+  border:none;
+  font-size:16px;
+  font-weight:600;
+  margin-top:18px
+}
+.small{
+  font-size:12px;
+  color:#666;
+  text-align:center;
+  margin-top:8px
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h3>Checklist K3 Harian</h3>
+
+  <!-- LOKASI -->
+  <label>Lokasi</label>
+  <select id="lokasi" onchange="renderTasks(this.value)">
+    <option value="">-- Pilih Lokasi --</option>
+    <option>MTH Square (Head Office)</option>
+    <option>Bizpark 3 (Warehouse)</option>
+  </select>
+
+  <!-- TANGGAL -->
+  <label>Tanggal</label>
+  <input type="date" id="tanggal">
+
+  <!-- TASK -->
+  <div id="taskList"></div>
+
+  <button onclick="simpan()">Simpan</button>
+  <div class="small">Data otomatis tersimpan ke Google Sheet</div>
+</div>
+
+<script>
+/* ================= CONFIG ================= */
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyknd3VCdFnL_Ut9YAKE1giBptIV_KUbt9FcQ71i7vic5UzK4tAxffF8e4A3_lWhnygfw/exec';
+
+/* ================= TASK PER LOKASI ================= */
+const taskByLocation = {
+  "MTH Square (Head Office)": [
+    'Pengecekan APAR (Tekanan,Handle,Pengunci,Pengait,Label EXP)',
+    'Jalur evakuasi aman/Tidak lepas',
+    'Stock Obat-Obatan P3K Tersedia(Kasih keterangan bila ada yang kosong)',
+    'Lantai tidak licin',
+    'Pencahayaan Lampu berfungsi',
+    'Panel listrik tertutup'
+    'Colokan Listrik Berfungsi Baik'
+    'Perawatan Pest Contrtol'
+    'Stock Air Minum Tersedia (kasih keterangan Qty terakhir)'
+    'Kursi dan Meja Kerja,R Meeting'
+    'CCTV Berfungsi Baik'
+  
+  
+  
+    
+  ],
+  "Bizpark 3 (Warehouse)": [
+    'APAR area gudang tersedia',
+    'Pengecekan APAR (Tekanan,Handle,Pengunci,Pengait,Label EXP)',
+    'Hand Pallet Berfungsi Baik',
+    'Rak penyimpanan Stabil dan Rapih',
+    'Lantai gudang tidak licin',
+    'Inspeksi sepatu safety karyawan gudang',
+    'Area loading bersih'
+    'Kursi dan Meja Kerja,R Meeting'
+    'CCTV Berfungsi Baik'
+    'Pencahayaan Lampu berfungsi',
+    'Panel listrik tertutup'
+    'Colokan Listrik Berfungsi Baik'
+  
+  ]
+};
+
+const taskList = document.getElementById('taskList');
+let activeTasks = [];
+
+/* ================= RENDER TASK ================= */
+function renderTasks(lokasi){
+  taskList.innerHTML='';
+  activeTasks = taskByLocation[lokasi] || [];
+
+  activeTasks.forEach((task,i)=>{
+    taskList.innerHTML += `
+      <div class="task">
+        <div class="task-title">${i+1}. ${task}</div>
+        <div class="task-row">
+          <label>
+            <input type="checkbox" id="check${i}">
+            Aman
+          </label>
+        </div>
+        <textarea id="note${i}" rows="2" placeholder="Keterangan (jika ada)"></textarea>
+      </div>
+    `;
+  });
+}
+
+/* ================= SET TANGGAL KERJA ================= */
+function setToday(){
+  let d=new Date();
+  while(d.getDay()==0 || d.getDay()==6){
+    d.setDate(d.getDate()+1);
+  }
+  document.getElementById('tanggal').valueAsDate=d;
+}
+setToday();
+
+/* ================= SIMPAN ================= */
+function simpan(){
+  const lokasi=document.getElementById('lokasi').value;
+  const tanggal=document.getElementById('tanggal').value;
+
+  if(!lokasi || !tanggal){
+    alert('Lokasi dan tanggal wajib diisi');
+    return;
+  }
+
+  const detail=[];
+  activeTasks.forEach((task,i)=>{
+    detail.push({
+      task: task,
+      status: document.getElementById('check'+i).checked ? 'AMAN' : 'TIDAK AMAN',
+      catatan: document.getElementById('note'+i).value
+    });
+  });
+
+  fetch(SCRIPT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      lokasi,
+      tanggal,
+      detail
+    })
+  })
+  .then(r=>r.text())
+  .then(()=>{
+    alert('Checklist K3 berhasil disimpan');
+    location.reload();
+  })
+  .catch(()=>{
+    alert('Gagal mengirim data');
+  });
+}
+</script>
+
+</body>
+</html>
