@@ -13,18 +13,37 @@ body{
   font-family:Segoe UI,Arial;
   background:#f4f6f8
 }
+
+/* BACK */
+.back-btn{
+  position:fixed;
+  top:14px;
+  left:14px;
+  background:#1976D2;
+  color:#fff;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  font-size:20px;
+  box-shadow:0 4px 10px rgba(0,0,0,.25);
+  z-index:999
+}
+
+/* CARD */
 .card{
   max-width:1100px;
-  margin:auto;
+  margin:50px auto 0;
   background:#fff;
   border-radius:16px;
   padding:18px;
   box-shadow:0 6px 14px rgba(0,0,0,.12)
 }
-h2{
-  margin:0 0 16px;
-  text-align:center
-}
+
+h2{text-align:center;margin:0 0 16px}
 
 /* FILTER */
 .filter{
@@ -48,8 +67,7 @@ table{
 }
 th,td{
   padding:10px;
-  border-bottom:1px solid #eee;
-  text-align:left
+  border-bottom:1px solid #eee
 }
 th{
   background:#f1f3f4;
@@ -62,28 +80,33 @@ tr:hover{background:#fafafa}
   padding:4px 10px;
   border-radius:999px;
   font-size:12px;
-  font-weight:600;
-  display:inline-block
+  font-weight:600
 }
-.aman{
-  background:#e8f5e9;
-  color:#2e7d32
-}
-.tidak{
-  background:#fdecea;
-  color:#c62828
-}
+.aman{background:#e8f5e9;color:#2e7d32}
+.tidak{background:#fdecea;color:#c62828}
 
-.small{
-  font-size:12px;
-  color:#666;
-  text-align:center;
-  margin-top:10px
+/* MOBILE CARD VIEW */
+@media(max-width:720px){
+  table,thead{display:none}
+  .row{
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:12px;
+    padding:12px;
+    margin-bottom:10px
+  }
+  .row div{
+    margin-bottom:6px;
+    font-size:13px
+  }
+  .label{font-weight:600;color:#555}
 }
 </style>
 </head>
 
 <body>
+
+<a href="k3.html" class="back-btn" title="Kembali">⬅</a>
 
 <div class="card">
   <h2>📊 Laporan Checklist K3</h2>
@@ -93,13 +116,11 @@ tr:hover{background:#fafafa}
     <select id="filterLokasi">
       <option value="">Semua Lokasi</option>
     </select>
-
     <input type="date" id="filterTanggal">
-
-    <input type="text" id="search" placeholder="Cari task / catatan...">
+    <input type="text" id="search" placeholder="Cari task / catatan">
   </div>
 
-  <!-- TABLE -->
+  <!-- TABLE DESKTOP -->
   <table>
     <thead>
       <tr>
@@ -113,35 +134,46 @@ tr:hover{background:#fafafa}
     <tbody id="tbody"></tbody>
   </table>
 
-  <div class="small">
-    Data realtime dari Google Sheet
-  </div>
+  <!-- MOBILE -->
+  <div id="mobile"></div>
 </div>
 
 <script>
 const SCRIPT_URL =
 'https://script.google.com/macros/s/AKfycbyknd3VCdFnL_Ut9YAKE1giBptIV_KUbt9FcQ71i7vic5UzK4tAxffF8e4A3_lWhnygfw/exec';
 
-let rawData = [];
+let rawData=[];
 
-const tbody = document.getElementById('tbody');
-const fLokasi = document.getElementById('filterLokasi');
-const fTanggal = document.getElementById('filterTanggal');
-const search  = document.getElementById('search');
+const tbody=document.getElementById('tbody');
+const mobile=document.getElementById('mobile');
+const fLokasi=document.getElementById('filterLokasi');
+const fTanggal=document.getElementById('filterTanggal');
+const search=document.getElementById('search');
 
-/* LOAD DATA */
+/* NORMALIZE DATE */
+function normalizeDate(d){
+  if(!d) return '';
+  if(d.includes('-')) return d; // sudah yyyy-mm-dd
+  const p=d.split('/');
+  return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+}
+
+/* LOAD */
 fetch(SCRIPT_URL)
-  .then(r=>r.json())
-  .then(data=>{
-    rawData = data;
-    initFilter();
-    render();
-  });
+.then(r=>r.json())
+.then(data=>{
+  rawData=data.map(d=>({
+    ...d,
+    TanggalFix: normalizeDate(d.Tanggal)
+  }));
+  initFilter();
+  render();
+});
 
-/* INIT FILTER LOKASI */
+/* FILTER LOKASI */
 function initFilter(){
-  const lokasiSet = [...new Set(rawData.map(d=>d.Lokasi))];
-  lokasiSet.forEach(l=>{
+  [...new Set(rawData.map(d=>d.Lokasi))]
+  .forEach(l=>{
     const o=document.createElement('option');
     o.value=l;
     o.textContent=l;
@@ -149,36 +181,42 @@ function initFilter(){
   });
 }
 
-/* RENDER TABLE */
+/* RENDER */
 function render(){
   tbody.innerHTML='';
+  mobile.innerHTML='';
 
-  const fl = fLokasi.value;
-  const ft = fTanggal.value;
-  const s  = search.value.toLowerCase();
+  const fl=fLokasi.value;
+  const ft=fTanggal.value;
+  const s=search.value.toLowerCase();
 
-  rawData
-    .filter(d=>{
-      if(fl && d.Lokasi!==fl) return false;
-      if(ft && d.Tanggal!==ft) return false;
-      if(s && !(d.Task+d.Catatan).toLowerCase().includes(s)) return false;
-      return true;
-    })
-    .forEach(d=>{
-      tbody.innerHTML+=`
-        <tr>
-          <td>${d.Tanggal}</td>
-          <td>${d.Lokasi}</td>
-          <td>${d.Task}</td>
-          <td>
-            <span class="badge ${d.Status==='AMAN'?'aman':'tidak'}">
-              ${d.Status}
-            </span>
-          </td>
-          <td>${d.Catatan||'-'}</td>
-        </tr>
-      `;
-    });
+  rawData.filter(d=>{
+    if(fl && d.Lokasi!==fl) return false;
+    if(ft && d.TanggalFix!==ft) return false;
+    if(s && !(d.Task+d.Catatan).toLowerCase().includes(s)) return false;
+    return true;
+  })
+  .forEach(d=>{
+    tbody.innerHTML+=`
+      <tr>
+        <td>${d.Tanggal}</td>
+        <td>${d.Lokasi}</td>
+        <td>${d.Task}</td>
+        <td><span class="badge ${d.Status==='AMAN'?'aman':'tidak'}">${d.Status}</span></td>
+        <td>${d.Catatan||'-'}</td>
+      </tr>`;
+
+    mobile.innerHTML+=`
+      <div class="row">
+        <div><span class="label">Tanggal:</span> ${d.Tanggal}</div>
+        <div><span class="label">Lokasi:</span> ${d.Lokasi}</div>
+        <div><span class="label">Task:</span> ${d.Task}</div>
+        <div><span class="label">Status:</span>
+          <span class="badge ${d.Status==='AMAN'?'aman':'tidak'}">${d.Status}</span>
+        </div>
+        <div><span class="label">Catatan:</span> ${d.Catatan||'-'}</div>
+      </div>`;
+  });
 }
 
 /* EVENT */
