@@ -73,7 +73,6 @@ button{
 <div class="card">
   <h3>Checklist K3 Harian</h3>
 
-  <!-- LOKASI -->
   <label>Lokasi</label>
   <select id="lokasi">
     <option value="">-- Pilih Lokasi --</option>
@@ -81,11 +80,9 @@ button{
     <option value="BIZ">Bizpark 3 (Warehouse)</option>
   </select>
 
-  <!-- TANGGAL -->
   <label>Tanggal</label>
   <input type="date" id="tanggal">
 
-  <!-- TASK -->
   <div id="taskList" class="hidden"></div>
 
   <button onclick="simpan()">Simpan Checklist</button>
@@ -98,31 +95,31 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyknd3VCdFnL_Ut9YAKE
 /* TASK PER LOKASI */
 const taskByLocation = {
   MTH: [
-    'Pengecekan APAR (Tekanan,Handle,Pengunci,Pengait,Label EXP)',
-    'Jalur evakuasi aman/Tidak lepas',
-    'Stock Obat-Obatan P3K Tersedia(Kasih keterangan bila ada yang kosong)',
+    'Pengecekan APAR (Tekanan, Handle, Pengunci, Pengait, Label EXP)',
+    'Jalur evakuasi aman / tidak terhalang',
+    'Stok obat P3K tersedia (beri keterangan bila kosong)',
     'Lantai tidak licin',
-    'Pencahayaan Lampu berfungsi',
-    'Panel listrik tertutup'
-    'Colokan Listrik Berfungsi Baik'
-    'Perawatan Pest Contrtol'
-    'Stock Air Minum Tersedia (kasih keterangan Qty terakhir)'
-    'Kursi dan Meja Kerja,R Meeting'
-    'CCTV Berfungsi Baik'
+    'Pencahayaan lampu berfungsi',
+    'Panel listrik tertutup',
+    'Colokan listrik berfungsi baik',
+    'Perawatan pest control',
+    'Stok air minum tersedia (qty terakhir)',
+    'Kursi dan meja kerja / ruang meeting',
+    'CCTV berfungsi baik'
   ],
   BIZ: [
     'APAR area gudang tersedia',
-    'Pengecekan APAR (Tekanan,Handle,Pengunci,Pengait,Label EXP)',
-    'Hand Pallet Berfungsi Baik',
-    'Rak penyimpanan Stabil dan Rapih',
+    'Pengecekan APAR (Tekanan, Handle, Pengunci, Pengait, Label EXP)',
+    'Hand pallet berfungsi baik',
+    'Rak penyimpanan stabil dan rapi',
     'Lantai gudang tidak licin',
     'Inspeksi sepatu safety karyawan gudang',
-    'Area loading bersih'
-    'Kursi dan Meja Kerja,R Meeting'
-    'CCTV Berfungsi Baik'
-    'Pencahayaan Lampu berfungsi',
-    'Panel listrik tertutup'
-    'Colokan Listrik Berfungsi Baik'
+    'Area loading bersih',
+    'Kursi dan meja kerja / ruang meeting',
+    'CCTV berfungsi baik',
+    'Pencahayaan lampu berfungsi',
+    'Panel listrik tertutup',
+    'Colokan listrik berfungsi baik'
   ]
 };
 
@@ -139,7 +136,7 @@ function setToday(){
 }
 setToday();
 
-/* RENDER TASK SETELAH PILIH LOKASI */
+/* RENDER TASK */
 lokasiSelect.addEventListener('change',()=>{
   const loc = lokasiSelect.value;
   taskList.innerHTML='';
@@ -148,6 +145,7 @@ lokasiSelect.addEventListener('change',()=>{
   if(!loc) return;
 
   const tasks = taskByLocation[loc];
+
   tasks.forEach((t,i)=>{
     taskList.innerHTML+=`
       <div class="task">
@@ -189,11 +187,7 @@ function simpan(){
 
   fetch(SCRIPT_URL,{
     method:'POST',
-    body: JSON.stringify({
-      lokasi,
-      tanggal,
-      detail
-    })
+    body: JSON.stringify({ lokasi, tanggal, detail })
   })
   .then(r=>r.text())
   .then(()=>{
