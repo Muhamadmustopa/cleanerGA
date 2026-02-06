@@ -4,11 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Cleaner</title>
+
 <style>
 body{
   font-family:Segoe UI,Arial;
   background:#f4f6f8;
-  margin:0;padding:16px
+  margin:0;
+  padding:16px
 }
 .card{
   background:#fff;
@@ -24,11 +26,24 @@ body{
   align-items:center
 }
 select,input{
+  width:100%;
   padding:10px;
   border-radius:10px;
   border:1px solid #ccc;
   margin-top:6px
 }
+button{
+  padding:14px;
+  width:100%;
+  border:none;
+  border-radius:14px;
+  font-size:15px;
+  margin-top:16px;
+  background:#4CAF50;
+  color:#fff
+}
+
+/* ===== DESKTOP TABLE ===== */
 table{
   width:100%;
   border-collapse:collapse;
@@ -40,19 +55,21 @@ th,td{
   font-size:14px
 }
 th{background:#f0f0f0}
-button{
-  padding:12px 18px;
-  border:none;
-  border-radius:12px;
-  font-size:14px;
-  cursor:pointer
+
+/* ===== MOBILE MODE ===== */
+@media(max-width:768px){
+  table,thead{display:none}
+  .task-card{
+    border:1px solid #ddd;
+    border-radius:14px;
+    padding:12px;
+    margin-top:12px
+  }
+  .task-card b{display:block;margin-bottom:6px}
 }
-.save{background:#4CAF50;color:#fff}
-.logout{background:#f44336;color:#fff}
-.warn{color:#d32f2f;font-size:13px}
-.date-warn{border:2px solid #d32f2f}
 </style>
 </head>
+
 <body>
 
 <div class="card">
@@ -61,60 +78,60 @@ button{
       <strong id="userName"></strong><br>
       <small>Daily Task Cleaner</small>
     </div>
-    <button class="logout" onclick="logout()">Keluar</button>
   </div>
 
   <br>
 
-  <!-- LOKASI -->
-  <label>Lokasi Kerja</label><br>
+  <label>Lokasi Kerja</label>
   <select id="lokasi" onchange="renderTask()">
     <option value="">-- Pilih Lokasi --</option>
-    <option value="MTHS">MTH Square (Head Office)</option>
-    <option value="BIZPARK">Bizpark 3 (Warehouse)</option>
+    <option value="MTHS">MTH Square (HO)</option>
+    <option value="BIZPARK">Bizpark 3</option>
   </select>
 
-  <br><br>
-
-  <!-- TANGGAL -->
-  <label>Tanggal</label><br>
+  <label>Tanggal</label>
   <input type="date" id="tanggal">
-  <span id="warning" class="warn">Wajib Diisi</span>
 
-  <!-- TASK -->
   <table>
     <thead>
       <tr>
         <th>Area</th>
-        <th>List Pekerjaan</th>
-        <th>Checklist Status</th>
+        <th>Task</th>
+        <th>Status</th>
         <th>Keterangan</th>
       </tr>
     </thead>
     <tbody id="taskBody"></tbody>
   </table>
 
-  <br>
-  <button class="save" onclick="simpan()">Simpan</button>
+  <div id="mobileTask"></div>
+
+  <button onclick="simpan()">Simpan</button>
 </div>
 
 <script>
-/* ====== PROTEKSI LOGIN ====== */
-const role=localStorage.getItem('role');
+const SCRIPT_URL='PASTE_WEBAPP_URL_DISINI';
+
 const user=localStorage.getItem('cleaner_name');
-if(role!=='cleaner'||!user) location.href='login.html';
+if(!user) location.href='login.html';
 document.getElementById('userName').innerText=user;
 
-/* ====== TASK PER LOKASI ====== */
 const taskByLocation={
-  MTHS:[
+ MTHS:[
     {area:'Area Kerja',task:'Sapu & Pel Lantai'},
     {area:'Area Kerja',task:'Vacum Karpet Lantai'},
     {area:'Area Kerja',task:'Lap Pintu Kaca'},
+    {area:'Area Kerja',task:'Menyalakan Lampu,AC,dan Air Purifier'},
     {area:'Area Kerja',task:'Bersihkan meja,kursi lemari area kerja'},
     {area:'Area Kerja',task:'Lap Pintu Kaca'},
-    {area:'Pantry',task:'Buang Sampah'},
-    {area:'Koridor',task:'Pel Lantai'}
+    {area:'Area Kerja',task:'Menyiapkan minum untuk BoD'},
+    {area:'Area Kerja',task:'Koordinasi menjadi PIC Receptionist'},
+    {area:'Area Kerja',task:'Membersihkan tempat sampah di Area Kerja'},
+    {area:'Pantry',task:'Buang Sampah ke TPS'},
+    {area:'Pantry',task:'Pembersihan alat makan dan wastafel cek saluran pembuangan'},
+    {area:'Pantry',task:'Koordinasi menjadi PIC Receptionist'},
+    {area:'Pantry',task:'Lap Kulkas dan Pembersihan secara berkala'}
+   
   ],
   BIZPARK:[
     {area:'Gudang B05/C01',task:'Sapu & Pel Lantai Area Gudang'},
@@ -127,100 +144,73 @@ const taskByLocation={
     {area:'Office',task:'Bersihkan meja R meeting dan meja kerja lain nya'},
     {area:'Pantry',task:'Sapu Pel Lantai'},
     {area:'Pantry',task:'Pembersihan alat makan dan wastafel'},
-    {area:'Pantry',task:'Memastikan bersih sampah di area Pantry dan Office'},
-    
-    
-    {area:'Loading Dock',task:'Bersihkan Area'},
-    {area:'Toilet',task:'Cek & Bersihkan'},
-    {area:'Area Parkir',task:'Pungut Sampah'},
-    {area:'Kantor Warehouse',task:'Lap Meja'}
+    {area:'Pantry',task:'Memastikan bersih sampah di area Pantry dan Office'}
   ]
 };
 
 const tbody=document.getElementById('taskBody');
-const lokasiSelect=document.getElementById('lokasi');
-const inputTanggal=document.getElementById('tanggal');
-const warning=document.getElementById('warning');
+const mobile=document.getElementById('mobileTask');
 
-/* ====== RENDER TASK ====== */
 function renderTask(){
-  const lokasi=lokasiSelect.value;
+  const lokasi=document.getElementById('lokasi').value;
   tbody.innerHTML='';
+  mobile.innerHTML='';
   if(!lokasi) return;
 
-  taskByLocation[lokasi].forEach(t=>{
+  taskByLocation[lokasi].forEach((t,i)=>{
     tbody.innerHTML+=`
-    <tr>
-      <td>${t.area}</td>
-      <td>${t.task}</td>
-      <td style="text-align:center">
-        <input type="checkbox">
-      </td>
-      <td><input></td>
-    </tr>`;
+      <tr>
+        <td>${t.area}</td>
+        <td>${t.task}</td>
+        <td><input type="checkbox" id="ck${i}"></td>
+        <td><input id="nt${i}"></td>
+      </tr>`;
+
+    mobile.innerHTML+=`
+      <div class="task-card">
+        <b>${t.area}</b>
+        ${t.task}<br><br>
+        <label>
+          <input type="checkbox" id="mck${i}"> Selesai
+        </label>
+        <input id="mnt${i}" placeholder="Catatan">
+      </div>`;
   });
-  cek();
 }
 
-/* ====== TANGGAL ====== */
-function setToday(){
-  let d=new Date();
-  while(d.getDay()==0||d.getDay()==6){
-    d.setDate(d.getDate()+1);
-  }
-  inputTanggal.valueAsDate=d;
-  cek();
-}
-
-function cek(){
-  const lokasi=lokasiSelect.value;
-  if(!lokasi||!inputTanggal.value) return;
-
-  const key=user+'_'+lokasi+'_'+inputTanggal.value;
-  const data=JSON.parse(localStorage.getItem('filled')||'{}');
-
-  if(!data[key]){
-    warning.style.display='inline';
-    inputTanggal.classList.add('date-warn');
-  }else{
-    warning.style.display='none';
-    inputTanggal.classList.remove('date-warn');
-  }
-}
-
-/* ====== SIMPAN ====== */
 function simpan(){
-  const lokasi=lokasiSelect.value;
-  if(!lokasi){
-    alert('Pilih lokasi terlebih dahulu');
+  const lokasi=document.getElementById('lokasi').value;
+  const tanggal=document.getElementById('tanggal').value;
+  if(!lokasi||!tanggal){
+    alert('Lokasi & tanggal wajib diisi');
     return;
   }
 
-  const key=user+'_'+lokasi+'_'+inputTanggal.value;
-  const data=JSON.parse(localStorage.getItem('filled')||'{}');
-  data[key]=true;
-  localStorage.setItem('filled',JSON.stringify(data));
+  const detail=[];
+  taskByLocation[lokasi].forEach((t,i)=>{
+    const ck=document.getElementById('ck'+i)||document.getElementById('mck'+i);
+    const nt=document.getElementById('nt'+i)||document.getElementById('mnt'+i);
+    detail.push({
+      area:t.area,
+      task:t.task,
+      status:ck.checked?'SELESAI':'BELUM',
+      catatan:nt.value
+    });
+  });
 
-  alert('Checklist tersimpan');
-  cek();
+  fetch(SCRIPT_URL,{
+    method:'POST',
+    body:JSON.stringify({
+      nama:user,
+      lokasi,
+      tanggal,
+      detail
+    })
+  }).then(()=>{
+    alert('Data tersimpan ke Google Sheet');
+    location.reload();
+  });
 }
-
-/* ====== EVENT ====== */
-inputTanggal.onchange=()=>{
-  const d=new Date(inputTanggal.value);
-  if(d.getDay()==0||d.getDay()==6){
-    alert('Sabtu & Minggu tidak termasuk');
-    setToday();
-  }
-  cek();
-};
-
-function logout(){
-  localStorage.clear();
-  location.href='login.html';
-}
-
-setToday();
 </script>
 
 </body>
