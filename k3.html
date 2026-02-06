@@ -48,8 +48,7 @@ textarea{resize:none}
   gap:10px
 }
 .task-row input[type=checkbox]{
-  width:20px;
-  height:20px
+  width:20px;height:20px
 }
 button{
   background:#4CAF50;
@@ -65,6 +64,7 @@ button{
   text-align:center;
   margin-top:8px
 }
+.hidden{display:none}
 </style>
 </head>
 
@@ -75,10 +75,10 @@ button{
 
   <!-- LOKASI -->
   <label>Lokasi</label>
-  <select id="lokasi" onchange="renderTasks(this.value)">
+  <select id="lokasi">
     <option value="">-- Pilih Lokasi --</option>
-    <option>MTH Square (Head Office)</option>
-    <option>Bizpark 3 (Warehouse)</option>
+    <option value="MTH">MTH Square (Head Office)</option>
+    <option value="BIZ">Bizpark 3 (Warehouse)</option>
   </select>
 
   <!-- TANGGAL -->
@@ -86,19 +86,18 @@ button{
   <input type="date" id="tanggal">
 
   <!-- TASK -->
-  <div id="taskList"></div>
+  <div id="taskList" class="hidden"></div>
 
-  <button onclick="simpan()">Simpan</button>
+  <button onclick="simpan()">Simpan Checklist</button>
   <div class="small">Data otomatis tersimpan ke Google Sheet</div>
 </div>
 
 <script>
-/* ================= CONFIG ================= */
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyknd3VCdFnL_Ut9YAKE1giBptIV_KUbt9FcQ71i7vic5UzK4tAxffF8e4A3_lWhnygfw/exec';
 
-/* ================= TASK PER LOKASI ================= */
+/* TASK PER LOKASI */
 const taskByLocation = {
-  "MTH Square (Head Office)": [
+  MTH: [
     'Pengecekan APAR (Tekanan,Handle,Pengunci,Pengait,Label EXP)',
     'Jalur evakuasi aman/Tidak lepas',
     'Stock Obat-Obatan P3K Tersedia(Kasih keterangan bila ada yang kosong)',
@@ -110,12 +109,8 @@ const taskByLocation = {
     'Stock Air Minum Tersedia (kasih keterangan Qty terakhir)'
     'Kursi dan Meja Kerja,R Meeting'
     'CCTV Berfungsi Baik'
-  
-  
-  
-    
   ],
-  "Bizpark 3 (Warehouse)": [
+  BIZ: [
     'APAR area gudang tersedia',
     'Pengecekan APAR (Tekanan,Handle,Pengunci,Pengait,Label EXP)',
     'Hand Pallet Berfungsi Baik',
@@ -128,67 +123,73 @@ const taskByLocation = {
     'Pencahayaan Lampu berfungsi',
     'Panel listrik tertutup'
     'Colokan Listrik Berfungsi Baik'
-  
   ]
 };
 
 const taskList = document.getElementById('taskList');
-let activeTasks = [];
+const lokasiSelect = document.getElementById('lokasi');
 
-/* ================= RENDER TASK ================= */
-function renderTasks(lokasi){
-  taskList.innerHTML='';
-  activeTasks = taskByLocation[lokasi] || [];
-
-  activeTasks.forEach((task,i)=>{
-    taskList.innerHTML += `
-      <div class="task">
-        <div class="task-title">${i+1}. ${task}</div>
-        <div class="task-row">
-          <label>
-            <input type="checkbox" id="check${i}">
-            Aman
-          </label>
-        </div>
-        <textarea id="note${i}" rows="2" placeholder="Keterangan (jika ada)"></textarea>
-      </div>
-    `;
-  });
-}
-
-/* ================= SET TANGGAL KERJA ================= */
+/* SET TANGGAL KERJA */
 function setToday(){
   let d=new Date();
-  while(d.getDay()==0 || d.getDay()==6){
+  while(d.getDay()==0||d.getDay()==6){
     d.setDate(d.getDate()+1);
   }
   document.getElementById('tanggal').valueAsDate=d;
 }
 setToday();
 
-/* ================= SIMPAN ================= */
-function simpan(){
-  const lokasi=document.getElementById('lokasi').value;
-  const tanggal=document.getElementById('tanggal').value;
+/* RENDER TASK SETELAH PILIH LOKASI */
+lokasiSelect.addEventListener('change',()=>{
+  const loc = lokasiSelect.value;
+  taskList.innerHTML='';
+  taskList.classList.add('hidden');
 
-  if(!lokasi || !tanggal){
+  if(!loc) return;
+
+  const tasks = taskByLocation[loc];
+  tasks.forEach((t,i)=>{
+    taskList.innerHTML+=`
+      <div class="task">
+        <div class="task-title">${i+1}. ${t}</div>
+        <div class="task-row">
+          <label>
+            <input type="checkbox" id="check${i}">
+            Aman
+          </label>
+        </div>
+        <textarea id="note${i}" rows="2"
+          placeholder="Keterangan (jika ada)"></textarea>
+      </div>
+    `;
+  });
+
+  taskList.classList.remove('hidden');
+});
+
+/* SIMPAN */
+function simpan(){
+  const lokasi = lokasiSelect.options[lokasiSelect.selectedIndex].text;
+  const tanggal = document.getElementById('tanggal').value;
+  const locKey = lokasiSelect.value;
+
+  if(!locKey || !tanggal){
     alert('Lokasi dan tanggal wajib diisi');
     return;
   }
 
-  const detail=[];
-  activeTasks.forEach((task,i)=>{
-    detail.push({
-      task: task,
-      status: document.getElementById('check'+i).checked ? 'AMAN' : 'TIDAK AMAN',
-      catatan: document.getElementById('note'+i).value
-    });
-  });
+  const tasks = taskByLocation[locKey];
+  const detail = tasks.map((t,i)=>({
+    task: t,
+    status: document.getElementById('check'+i).checked
+      ? 'AMAN'
+      : 'TIDAK AMAN',
+    catatan: document.getElementById('note'+i).value
+  }));
 
   fetch(SCRIPT_URL,{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
+    body: JSON.stringify({
       lokasi,
       tanggal,
       detail
@@ -196,11 +197,11 @@ function simpan(){
   })
   .then(r=>r.text())
   .then(()=>{
-    alert('Checklist K3 berhasil disimpan');
+    alert('Checklist K3 tersimpan');
     location.reload();
   })
   .catch(()=>{
-    alert('Gagal mengirim data');
+    alert('Gagal kirim data');
   });
 }
 </script>
