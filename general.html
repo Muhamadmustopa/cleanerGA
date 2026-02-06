@@ -23,8 +23,6 @@ body{
   border-radius:18px;
   padding:18px;
   box-shadow:0 8px 20px rgba(0,0,0,.12);
-  position:relative;
-  z-index:1;
 }
 
 /* HEADER */
@@ -102,8 +100,6 @@ button.save{
   font-size:16px;
   font-weight:600;
   cursor:pointer;
-  position:relative;
-  z-index:10;
 }
 
 /* MOBILE */
@@ -120,11 +116,21 @@ button.save{
 
   <div class="header">
     <div>
-      <strong id="userName"></strong><br>
-      <small>Checklist Cleaner Harian</small>
+      <strong>Checklist Cleaner Harian</strong><br>
+      <small>Isi checklist sesuai area kerja</small>
     </div>
     <button class="logout" onclick="logout()">Keluar</button>
   </div>
+
+  <!-- USER -->
+  <label>Nama Cleaner</label>
+  <select id="cleaner">
+    <option value="">-- Pilih Cleaner --</option>
+    <option value="Irfan Affandi">Irfan Affandi</option>
+    <option value="Evillia Agustin">Evillia Agustin</option>
+  </select>
+
+  <br><br>
 
   <!-- LOKASI -->
   <label>Lokasi Kerja</label>
@@ -150,58 +156,58 @@ button.save{
 /* ================== KONFIG ================== */
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7ziY9k2Frrmnp-YNRbPDVtppIb7UE3m5Ww6iEdRkeKdw5S7k-rGQrivZxhVQbXxXs/exec';
 
-/* ================== LOGIN ================== */
-const user = localStorage.getItem('cleaner_name');
-if(!user) location.href='login.html';
-document.getElementById('userName').innerText = user;
+/* ================== ELEMENT ================== */
+const cleanerSelect = document.getElementById('cleaner');
+const lokasiSelect  = document.getElementById('lokasi');
+const tanggalInput  = document.getElementById('tanggal');
+const taskContainer = document.getElementById('taskContainer');
+
+/* ================== AUTO ISI CLEANER (JIKA ADA) ================== */
+const savedUser = localStorage.getItem('cleaner_name');
+if(savedUser){
+  cleanerSelect.value = savedUser;
+}
+
+/* ================== SIMPAN KE LOCAL STORAGE ================== */
+cleanerSelect.addEventListener('change',()=>{
+  localStorage.setItem('cleaner_name', cleanerSelect.value);
+});
 
 /* ================== TASK DATA ================== */
 const taskByLocation = {
   MTH:[
-   {area:'Area Kerja',task:'Sapu & Pel Lantai'},
+    {area:'Area Kerja',task:'Sapu & Pel Lantai'},
     {area:'Area Kerja',task:'Vacum Karpet Lantai'},
     {area:'Area Kerja',task:'Lap Pintu Kaca'},
-    {area:'Area Kerja',task:'Menyalakan Lampu,AC,dan Air Purifier'},
-    {area:'Area Kerja',task:'Bersihkan meja,kursi lemari area kerja'},
-    {area:'Area Kerja',task:'Pembersihan sabang sabang kotoran sudut tembok atas'},
+    {area:'Area Kerja',task:'Menyalakan Lampu, AC, dan Air Purifier'},
+    {area:'Area Kerja',task:'Bersihkan meja, kursi, lemari'},
+    {area:'Area Kerja',task:'Membersihkan sudut tembok atas'},
     {area:'Area Kerja',task:'Menyiapkan minum untuk BoD'},
-    {area:'Area Kerja',task:'Koordinasi menjadi PIC Receptionist'},
-    {area:'Area Kerja',task:'Membersihkan tempat sampah di Area Kerja'},
-    {area:'Pantry',task:'Buang Sampah ke TPS'},
-    {area:'Pantry',task:'Pembersihan alat makan dan wastafel cek saluran pembuangan'},
-    {area:'Pantry',task:'Koordinasi menjadi PIC Receptionist'},
-    {area:'Pantry',task:'Lap Kulkas dan Pembersihan secara berkala'}
-   
+    {area:'Area Kerja',task:'PIC Receptionist'},
+    {area:'Area Kerja',task:'Membersihkan tempat sampah'},
+    {area:'Pantry',task:'Buang sampah ke TPS'},
+    {area:'Pantry',task:'Bersihkan alat makan & wastafel'},
+    {area:'Pantry',task:'Lap kulkas secara berkala'}
   ],
   BIZ:[
-    {area:'Gudang B05/C01',task:'Sapu & Pel Lantai Area Gudang'},
-    {area:'Gudang B05/C01',task:'Sapu Halaman Depan C01/B05'},
-    {area:'Gudang B05/C01',task:'Pembersihan Besi Racking dan Dus Produk'},
-    {area:'Gudang B05/C01',task:'Pembersihan sarang2 di langit2 gudang'},
-    {area:'Gudang B05/C01',task:'Menyiram tanaman halaman'},
-    {area:'Gudang B05/C01',task:'Memastikan bersih sampah di area gudang'},
+    {area:'Gudang',task:'Sapu & Pel Lantai Gudang'},
+    {area:'Gudang',task:'Sapu halaman depan'},
+    {area:'Gudang',task:'Bersihkan racking & dus produk'},
+    {area:'Gudang',task:'Bersihkan sarang di langit-langit'},
+    {area:'Gudang',task:'Menyiram tanaman'},
     {area:'Office',task:'Sapu & Pel Lantai'},
-    {area:'Office',task:'Bersihkan meja R meeting dan meja kerja lain nya'},
-    {area:'Pantry',task:'Sapu Pel Lantai'},
-    {area:'Pantry',task:'Pembersihan alat makan dan wastafel'},
-    {area:'Pantry',task:'Memastikan bersih sampah di area Pantry dan Office'}
+    {area:'Office',task:'Bersihkan meja kerja & meeting'},
+    {area:'Pantry',task:'Bersihkan pantry & wastafel'}
   ]
 };
 
-const taskContainer = document.getElementById('taskContainer');
-const lokasiSelect = document.getElementById('lokasi');
-const tanggalInput = document.getElementById('tanggal');
-
 /* ================== DEFAULT TANGGAL ================== */
-(function setToday(){
-  const d=new Date();
-  tanggalInput.valueAsDate=d;
-})();
+tanggalInput.valueAsDate = new Date();
 
 /* ================== RENDER TASK ================== */
 function renderTask(){
-  const lokasi = lokasiSelect.value;
   taskContainer.innerHTML='';
+  const lokasi = lokasiSelect.value;
   if(!lokasi) return;
 
   taskByLocation[lokasi].forEach((t,i)=>{
@@ -215,11 +221,7 @@ function renderTask(){
           Selesai
         </label>
 
-        <input
-          type="text"
-          id="note${i}"
-          class="note"
-          placeholder="Catatan (opsional)">
+        <input type="text" id="note${i}" class="note" placeholder="Catatan (opsional)">
       </div>
     `;
   });
@@ -227,24 +229,25 @@ function renderTask(){
 
 /* ================== SIMPAN ================== */
 function simpan(){
-  const lokasi = lokasiSelect.value;
+  const cleaner = cleanerSelect.value;
+  const lokasi  = lokasiSelect.value;
   const tanggal = tanggalInput.value;
 
-  if(!lokasi || !tanggal){
-    alert('Lokasi dan tanggal wajib diisi');
+  if(!cleaner || !lokasi || !tanggal){
+    alert('Nama cleaner, lokasi, dan tanggal wajib diisi');
     return;
   }
 
   const payload = [];
   taskByLocation[lokasi].forEach((t,i)=>{
     payload.push({
-      cleaner: user,
+      cleaner,
       tanggal,
       lokasi,
-      area: t.area,
-      task: t.task,
-      status: document.getElementById('check'+i).checked ? 'SELESAI' : 'BELUM',
-      catatan: document.getElementById('note'+i).value
+      area:t.area,
+      task:t.task,
+      status:document.getElementById('check'+i).checked ? 'SELESAI' : 'BELUM',
+      catatan:document.getElementById('note'+i).value
     });
   });
 
