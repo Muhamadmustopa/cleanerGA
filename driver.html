@@ -6,38 +6,53 @@
 <title>Checklist Driver Harian</title>
 
 <style>
+:root{
+  --primary:#1976d2;
+  --success:#4CAF50;
+  --danger:#f44336;
+  --border:#e0e0e0;
+  --bg:#f4f6f8;
+}
+
 *{box-sizing:border-box}
+
 body{
   margin:0;
-  padding:16px;
+  padding:14px;
   font-family:Segoe UI,Arial;
   background:linear-gradient(180deg,#e3f2fd,#f4f6f8);
 }
+
 .card{
   max-width:900px;
   margin:auto;
   background:#fff;
   border-radius:18px;
-  padding:18px;
+  padding:16px;
   box-shadow:0 8px 20px rgba(0,0,0,.12);
 }
+
 .header{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:10px;
   margin-bottom:12px;
 }
 .header strong{font-size:16px}
+
 .logout{
-  background:#f44336;
+  background:var(--danger);
   color:#fff;
   border:none;
   padding:10px 14px;
   border-radius:12px;
   cursor:pointer;
 }
+
+/* FORM */
 label{font-size:14px;font-weight:600}
-select,input{
+select,input,textarea{
   width:100%;
   padding:12px;
   border-radius:12px;
@@ -48,61 +63,78 @@ select,input{
 
 /* SECTION */
 .section{
-  border:1px solid #e0e0e0;
-  border-radius:14px;
+  border:1px solid var(--border);
+  border-radius:16px;
   padding:14px;
   margin-top:14px;
 }
 .section h4{
-  margin:0 0 10px;
+  margin:0 0 12px;
   font-size:15px;
-  color:#1976d2;
+  color:var(--primary);
 }
 
-/* ITEM */
-.row{
-  display:flex;
+/* PERJALANAN */
+.trip{
+  display:grid;
+  grid-template-columns:1fr;
   gap:8px;
   margin-bottom:8px;
 }
-.row input{flex:1}
-.check-row{
-  display:flex;
-  gap:8px;
-  margin-bottom:8px;
-  font-size:14px;
-}
-.note{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
+.trip input{width:100%}
+
+/* GRID CHECKBOX */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;
 }
 
-button.add{
-  background:#e3f2fd;
-  border:1px dashed #1976d2;
-  padding:10px;
-  border-radius:10px;
+.item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
   cursor:pointer;
-  margin-top:6px;
+  user-select:none;
 }
-button.save{
+.item input{
+  width:18px;
+  height:18px;
+  accent-color:var(--primary);
+}
+.item.active{
+  background:#e3f2fd;
+  border-color:var(--primary);
+}
+
+.note{margin-top:10px}
+
+/* BUTTON */
+.add{
+  width:100%;
+  background:#e3f2fd;
+  border:1px dashed var(--primary);
+  padding:12px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+.save{
   width:100%;
   margin-top:18px;
   padding:14px;
   border:none;
-  border-radius:14px;
-  background:#4CAF50;
+  border-radius:16px;
+  background:var(--success);
   color:#fff;
   font-size:16px;
   font-weight:600;
   cursor:pointer;
 }
-button.save:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
+.save:disabled{opacity:.6;cursor:not-allowed}
 </style>
 </head>
 
@@ -113,7 +145,7 @@ button.save:disabled{
   <div class="header">
     <div>
       <strong>Checklist Driver Harian</strong><br>
-      <small>1 driver 1 laporan per hari</small>
+      <small> 1 laporan • 1 hari</small>
     </div>
     <button class="logout" onclick="logout()">Keluar</button>
   </div>
@@ -132,161 +164,105 @@ button.save:disabled{
   <label>Tanggal</label>
   <input type="date" id="tanggal">
 
-  <!-- ================= PERJALANAN ================= -->
+  <!-- PERJALANAN -->
   <div class="section">
-    <h4>🚗 Perjalanan Hari Ini</h4>
+    <h4>🚗 Pengantaran Pengguna</h4>
     <div id="tripList"></div>
     <button class="add" onclick="addTrip()">+ Tambah Tujuan</button>
   </div>
 
-  <!-- ================= KENDARAAN ================= -->
+  <!-- KENDARAAN -->
   <div class="section">
     <h4>🔧 Pengecekan Kendaraan</h4>
-
-    <label class="check-row">
-      <input type="checkbox" data-kendaraan="Oli Mesin"> Oli Mesin
-    </label>
-    <label class="check-row">
-      <input type="checkbox" data-kendaraan="Ban"> Ban
-    </label>
-    <label class="check-row">
-      <input type="checkbox" data-kendaraan="Lampu & Klakson"> Lampu & Klakson
-    </label>
-    <label class="check-row">
-      <input type="checkbox" data-kendaraan="BBM"> BBM
-    </label>
-
-    <input class="note" id="noteKendaraan" placeholder="Catatan kendaraan">
+    <div class="grid">
+      <label class="item"><input type="checkbox" data-kendaraan="Oli Mesin">Oli Mesin</label>
+      <label class="item"><input type="checkbox" data-kendaraan="Ban">Ban</label>
+      <label class="item"><input type="checkbox" data-kendaraan="Lampu & Klakson">Lampu & Klakson</label>
+      <label class="item"><input type="checkbox" data-kendaraan="BBM">BBM</label>
+    </div>
+    <textarea class="note" id="noteKendaraan" placeholder="Catatan kendaraan"></textarea>
   </div>
 
-  <!-- ================= TUGAS LAIN ================= -->
+  <!-- TUGAS LAIN -->
   <div class="section">
     <h4>📦 Tugas Lainnya</h4>
-
-    <label class="check-row">
-      <input type="checkbox" data-tugas="Angkut Barang"> Angkut Barang
-    </label>
-    <label class="check-row">
-      <input type="checkbox" data-tugas="Jaga Meja Frontliner"> Jaga Meja Frontliner
-    </label>
-    <label class="check-row">
-      <input type="checkbox" data-tugas="Tugas Lain"> Tugas Lain
-    </label>
-
-    <input class="note" id="noteTugas" placeholder="Catatan tugas lain">
+    <div class="grid">
+      <label class="item"><input type="checkbox" data-tugas="Angkut Barang">Angkut Barang</label>
+      <label class="item"><input type="checkbox" data-tugas="Jaga Meja Frontliner">Jaga Meja Frontliner</label>
+      <label class="item"><input type="checkbox" data-tugas="Tugas Lain">Tugas Lain</label>
+    </div>
+    <textarea class="note" id="noteTugas" placeholder="Catatan tugas lain"></textarea>
   </div>
 
   <button class="save" id="btnSave" onclick="simpan()">Simpan Laporan Harian</button>
 </div>
 
 <script>
-/* ================== CONFIG ================== */
-const SCRIPT_URL = 'PASTE_URL_WEB_APP_KAMU';
+/* ================= CONFIG ================= */
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxA-NxXHCwt0q6s9J3vnx2BZbKqkaRyJeLfqAPge7Oy2cPMKr1sRuuXMW7jP7YVUyJL/exec';
 
-/* ================== DEFAULT ================== */
+/* DEFAULT TANGGAL */
 document.getElementById('tanggal').valueAsDate = new Date();
 
-/* ================== CEK DUPLIKAT ================== */
+/* CHECKBOX EFFECT */
+document.querySelectorAll('.item input').forEach(c=>{
+  c.addEventListener('change',()=>c.parentElement.classList.toggle('active',c.checked));
+});
+
+/* CEK DUPLIKAT */
 function cekSudahSubmit(){
-  const d = document.getElementById('driver').value;
-  const t = document.getElementById('tanggal').value;
-  if(!d || !t) return;
+  const d = driver.value, t = tanggal.value;
+  if(!d||!t) return;
 
   fetch(`${SCRIPT_URL}?driver=${encodeURIComponent(d)}&tanggal=${t}`)
     .then(r=>r.json())
     .then(res=>{
-      const btn = document.getElementById('btnSave');
-      if(res.exists){
-        alert('❌ Checklist tanggal ini sudah pernah diisi');
-        btn.disabled = true;
-      }else{
-        btn.disabled = false;
-      }
+      btnSave.disabled = res.exists;
+      if(res.exists) alert('❌ Checklist tanggal ini sudah diisi');
     });
 }
+driver.onchange = cekSudahSubmit;
+tanggal.onchange = cekSudahSubmit;
 
-document.getElementById('driver').addEventListener('change',cekSudahSubmit);
-document.getElementById('tanggal').addEventListener('change',cekSudahSubmit);
-
-/* ================== TRIP ================== */
+/* PERJALANAN */
 function addTrip(){
-  const div = document.createElement('div');
-  div.className='row';
+  const div=document.createElement('div');
+  div.className='trip';
   div.innerHTML=`
     <input placeholder="Tujuan">
-    <input placeholder="Jam (contoh 09.00 - 11.00)">
+    <input placeholder="Jam (09.00 - 11.00)">
   `;
-  document.getElementById('tripList').appendChild(div);
+  tripList.appendChild(div);
 }
 
-/* ================== SIMPAN ================== */
+/* SIMPAN */
 function simpan(){
-  const driver  = document.getElementById('driver').value;
-  const tanggal = document.getElementById('tanggal').value;
-
-  if(!driver || !tanggal){
-    alert('Nama driver & tanggal wajib diisi');
-    return;
+  if(!driver.value||!tanggal.value){
+    alert('Driver & tanggal wajib diisi');return;
   }
 
-  const payload = [];
+  const payload=[];
 
-  // PERJALANAN
-  document.querySelectorAll('#tripList .row').forEach(r=>{
-    const tujuan = r.children[0].value;
-    const jam    = r.children[1].value;
-    if(tujuan){
-      payload.push({
-        driver,tanggal,
-        kategori:'PERJALANAN',
-        detail:`${tujuan} (${jam})`,
-        status:'SELESAI',
-        catatan:''
-      });
-    }
+  document.querySelectorAll('#tripList .trip').forEach(r=>{
+    const t=r.children[0].value;
+    const j=r.children[1].value;
+    if(t) payload.push({driver:driver.value,tanggal:tanggal.value,kategori:'PERJALANAN',detail:`${t} (${j})`,status:'SELESAI',catatan:''});
   });
 
-  // KENDARAAN
   document.querySelectorAll('[data-kendaraan]').forEach(c=>{
-    payload.push({
-      driver,tanggal,
-      kategori:'KENDARAAN',
-      detail:c.dataset.kendaraan,
-      status:c.checked?'OK':'TIDAK',
-      catatan:document.getElementById('noteKendaraan').value
-    });
+    payload.push({driver:driver.value,tanggal:tanggal.value,kategori:'KENDARAAN',detail:c.dataset.kendaraan,status:c.checked?'OK':'TIDAK',catatan:noteKendaraan.value});
   });
 
-  // TUGAS LAIN
   document.querySelectorAll('[data-tugas]').forEach(c=>{
-    if(c.checked){
-      payload.push({
-        driver,tanggal,
-        kategori:'TUGAS_LAIN',
-        detail:c.dataset.tugas,
-        status:'SELESAI',
-        catatan:document.getElementById('noteTugas').value
-      });
-    }
+    if(c.checked) payload.push({driver:driver.value,tanggal:tanggal.value,kategori:'TUGAS_LAIN',detail:c.dataset.tugas,status:'SELESAI',catatan:noteTugas.value});
   });
 
-  fetch(SCRIPT_URL,{
-    method:'POST',
-    body:JSON.stringify(payload)
-  })
-  .then(r=>r.json())
-  .then(res=>{
-    if(res.status==='DUPLICATE'){
-      alert('❌ Data sudah pernah disubmit');
-      return;
-    }
-    alert('✅ Laporan driver berhasil disimpan');
-    location.reload();
-  })
-  .catch(()=>alert('Gagal menyimpan data'));
+  fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)})
+    .then(r=>r.json())
+    .then(()=>{alert('✅ Laporan berhasil disimpan');location.reload();})
+    .catch(()=>alert('❌ Gagal menyimpan'));
 }
 
-/* ================== LOGOUT ================== */
 function logout(){
   localStorage.clear();
   location.href='login.html';
