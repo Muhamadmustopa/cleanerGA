@@ -3,256 +3,203 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laporan Driver Harian</title>
+<title>Laporan Driver</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-*{box-sizing:border-box}
 body{
   margin:0;padding:16px;
   font-family:Segoe UI,Arial;
-  background:linear-gradient(180deg,#e3f2fd,#f4f6f8);
+  background:#f4f6f8;
 }
 
-/* BACK */
-.back{
-  position:fixed;top:14px;left:14px;
-  width:44px;height:44px;
-  border-radius:50%;
-  background:#1976d2;color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  text-decoration:none;font-size:20px;
-  box-shadow:0 4px 10px rgba(0,0,0,.25);
-}
-
-/* CARD */
 .card{
   max-width:1200px;
-  margin:60px auto 0;
+  margin:auto;
   background:#fff;
-  border-radius:16px;
-  padding:18px;
-  box-shadow:0 6px 14px rgba(0,0,0,.12);
-}
-h2{text-align:center;margin-bottom:16px}
-
-/* DASHBOARD */
-.dashboard{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:14px;margin-bottom:18px;
-}
-.box{
-  border:1px solid #eee;
-  border-radius:12px;
-  padding:12px;
-  background:#fafafa;
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 8px 20px rgba(0,0,0,.12);
 }
 
-/* FILTER */
-.filter{
+.filters{
   display:grid;
-  grid-template-columns:1fr 1fr 1fr 2fr;
-  gap:10px;margin-bottom:14px;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
 }
+@media(max-width:700px){
+  .filters{grid-template-columns:1fr}
+}
+
 select,input{
-  padding:10px;border-radius:10px;
+  padding:12px;
+  border-radius:12px;
   border:1px solid #ccc;
-  font-size:14px;
+}
+
+button{
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  background:#1976d2;
+  color:#fff;
+  cursor:pointer;
 }
 
 /* TABLE */
+.table-wrap{
+  margin-top:16px;
+  max-height:420px;
+  overflow:auto;
+  border-radius:12px;
+  border:1px solid #ddd;
+}
+
 table{
   width:100%;
   border-collapse:collapse;
   font-size:14px;
 }
-th,td{
+
+thead th{
+  position:sticky;
+  top:0;
+  background:#1976d2;
+  color:#fff;
   padding:10px;
+}
+
+td{
+  padding:8px;
   border-bottom:1px solid #eee;
 }
-th{background:#f1f3f4}
 
-/* STATUS */
-.badge{
-  padding:4px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:600;
+/* DASHBOARD */
+.dashboard{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-top:16px;
 }
-.ok{background:#e8f5e9;color:#2e7d32}
-.tidak{background:#fdecea;color:#c62828}
-.done{background:#e3f2fd;color:#1565c0}
-
-/* MOBILE */
-@media(max-width:720px){
-  table,thead{display:none}
-  .row{
-    border:1px solid #eee;
-    border-radius:12px;
-    padding:12px;margin-bottom:10px;
-  }
-  .label{font-weight:600;color:#555}
+@media(max-width:900px){
+  .dashboard{grid-template-columns:1fr}
 }
 </style>
 </head>
 
 <body>
 
-<a href="login.html" class="back">⬅</a>
-
 <div class="card">
+
   <h2>📊 Dashboard Laporan Driver</h2>
+
+  <!-- FILTER -->
+  <div class="filters">
+    <select id="filterDriver">
+      <option value="">Semua Driver</option>
+      <option>Ahmad Yani</option>
+      <option>Sandi Suhendra</option>
+    </select>
+
+    <input type="month" id="filterBulan">
+
+    <button onclick="loadData()">Terapkan Filter</button>
+  </div>
 
   <!-- DASHBOARD -->
   <div class="dashboard">
-    <div class="box"><canvas id="chartTrip"></canvas></div>
-    <div class="box"><canvas id="chartKendaraan"></canvas></div>
-    <div class="box"><canvas id="chartKategori"></canvas></div>
-  </div>
-
-  <!-- FILTER -->
-  <div class="filter">
-    <select id="fDriver"><option value="">Semua Driver</option></select>
-    <select id="fKategori">
-      <option value="">Semua Kategori</option>
-      <option>PERJALANAN</option>
-      <option>KENDARAAN</option>
-      <option>TUGAS_LAIN</option>
-    </select>
-    <input type="date" id="fTanggal">
-    <input type="text" id="search" placeholder="Cari detail / catatan">
+    <canvas id="chartKategori"></canvas>
+    <canvas id="chartStatus"></canvas>
   </div>
 
   <!-- TABLE -->
-  <table>
-    <thead>
-      <tr>
-        <th>Tanggal</th>
-        <th>Driver</th>
-        <th>Kategori</th>
-        <th>Detail</th>
-        <th>Status</th>
-        <th>Catatan</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Driver</th>
+          <th>Kategori</th>
+          <th>Detail</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
 
-  <div id="mobile"></div>
 </div>
 
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxA-NxXHCwt0q6s9J3vnx2BZbKqkaRyJeLfqAPge7Oy2cPMKr1sRuuXMW7jP7YVUyJL/exec';
+const SCRIPT_URL = 'PASTE_URL_WEBAPP_KAMU';
 
-let raw=[];
-let chartTrip,chartKendaraan,chartKategori;
+let chartKategori, chartStatus;
 
-const tbody=document.getElementById('tbody');
-const mobile=document.getElementById('mobile');
-const fDriver=document.getElementById('fDriver');
-const fKategori=document.getElementById('fKategori');
-const fTanggal=document.getElementById('fTanggal');
-const search=document.getElementById('search');
+async function loadData(){
+  const driver = document.getElementById('filterDriver').value;
+  const bulan  = document.getElementById('filterBulan').value;
 
-/* LOAD DATA */
-fetch(SCRIPT_URL)
-.then(r=>r.json())
-.then(d=>{
-  raw=d;
-  initDriver();
-  render();
-});
+  const url = `${SCRIPT_URL}?action=report&driver=${driver}&bulan=${bulan}`;
+  const res = await fetch(url).then(r=>r.json());
+  const data = res.data || [];
 
-/* INIT DRIVER */
-function initDriver(){
-  [...new Set(raw.map(d=>d.Driver))].forEach(n=>{
-    const o=document.createElement('option');
-    o.value=n;o.textContent=n;
-    fDriver.appendChild(o);
-  });
+  renderTable(data);
+  renderChart(data);
 }
 
-/* RENDER */
-function render(){
+function renderTable(data){
+  const tbody = document.getElementById('tableBody');
   tbody.innerHTML='';
-  mobile.innerHTML='';
 
-  const data=raw.filter(d=>{
-    if(fDriver.value && d.Driver!==fDriver.value) return false;
-    if(fKategori.value && d.Kategori!==fKategori.value) return false;
-    if(fTanggal.value && d.Tanggal!==fTanggal.value) return false;
-    if(search.value && !(d.Detail+(d.Catatan||'')).toLowerCase().includes(search.value.toLowerCase())) return false;
-    return true;
-  });
-
-  data.forEach(d=>{
-    const badge =
-      d.Status==='OK' ? 'ok' :
-      d.Status==='TIDAK' ? 'tidak' : 'done';
-
+  data.slice(0,10).forEach(d=>{
     tbody.innerHTML+=`
       <tr>
-        <td>${d.Tanggal}</td>
-        <td>${d.Driver}</td>
-        <td>${d.Kategori}</td>
-        <td>${d.Detail}</td>
-        <td><span class="badge ${badge}">${d.Status}</span></td>
-        <td>${d.Catatan||'-'}</td>
+        <td>${d.tanggal}</td>
+        <td>${d.driver}</td>
+        <td>${d.kategori}</td>
+        <td>${d.detail}</td>
+        <td>${d.status}</td>
       </tr>`;
-
-    mobile.innerHTML+=`
-      <div class="row">
-        <div><span class="label">Tanggal:</span> ${d.Tanggal}</div>
-        <div><span class="label">Driver:</span> ${d.Driver}</div>
-        <div><span class="label">Kategori:</span> ${d.Kategori}</div>
-        <div><span class="label">Detail:</span> ${d.Detail}</div>
-        <div><span class="label">Status:</span>
-          <span class="badge ${badge}">${d.Status}</span>
-        </div>
-        <div><span class="label">Catatan:</span> ${d.Catatan||'-'}</div>
-      </div>`;
-  });
-
-  charting(data);
-}
-
-/* CHART */
-function charting(data){
-  /* PERJALANAN */
-  const t={};
-  data.filter(d=>d.Kategori==='PERJALANAN')
-      .forEach(d=>t[d.Tanggal]=(t[d.Tanggal]||0)+1);
-
-  chartTrip?.destroy();
-  chartTrip=new Chart(document.getElementById('chartTrip'),{
-    type:'line',
-    data:{labels:Object.keys(t),datasets:[{label:'Perjalanan',data:Object.values(t),borderColor:'#1976d2'}]}
-  });
-
-  /* KENDARAAN */
-  const ok=data.filter(d=>d.Kategori==='KENDARAAN'&&d.Status==='OK').length;
-  const td=data.filter(d=>d.Kategori==='KENDARAAN'&&d.Status==='TIDAK').length;
-
-  chartKendaraan?.destroy();
-  chartKendaraan=new Chart(document.getElementById('chartKendaraan'),{
-    type:'doughnut',
-    data:{labels:['OK','TIDAK'],datasets:[{data:[ok,td],backgroundColor:['#2e7d32','#c62828']}]}
-  });
-
-  /* KATEGORI */
-  const k={};
-  data.forEach(d=>k[d.Kategori]=(k[d.Kategori]||0)+1);
-
-  chartKategori?.destroy();
-  chartKategori=new Chart(document.getElementById('chartKategori'),{
-    type:'bar',
-    data:{labels:Object.keys(k),datasets:[{label:'Total',data:Object.values(k),backgroundColor:'#1976d2'}]}
   });
 }
 
-[fDriver,fKategori,fTanggal,search].forEach(e=>e.addEventListener('input',render));
+function renderChart(data){
+  const byKategori = {};
+  const byStatus = {};
+
+  data.forEach(d=>{
+    byKategori[d.kategori]=(byKategori[d.kategori]||0)+1;
+    byStatus[d.status]=(byStatus[d.status]||0)+1;
+  });
+
+  if(chartKategori) chartKategori.destroy();
+  if(chartStatus) chartStatus.destroy();
+
+  chartKategori = new Chart(
+    document.getElementById('chartKategori'),
+    {
+      type:'pie',
+      data:{
+        labels:Object.keys(byKategori),
+        datasets:[{data:Object.values(byKategori)}]
+      }
+    }
+  );
+
+  chartStatus = new Chart(
+    document.getElementById('chartStatus'),
+    {
+      type:'pie',
+      data:{
+        labels:Object.keys(byStatus),
+        datasets:[{data:Object.values(byStatus)}]
+      }
+    }
+  );
+}
+
+loadData();
 </script>
 
 </body>
