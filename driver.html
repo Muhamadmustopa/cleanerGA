@@ -93,8 +93,13 @@ input,select,textarea{
     <button class="logout" onclick="logout()">Keluar</button>
   </div>
 
+  <!-- DRIVER -->
   <label>Nama Driver</label>
-  <input id="driver" disabled>
+  <select id="driver">
+    <option value="">-- Pilih Driver --</option>
+    <option value="Ahmad Yani">Ahmad Yani</option>
+    <option value="Sandi Suhendra">Sandi Suhendra</option>
+  </select>
 
   <br><br>
 
@@ -145,21 +150,25 @@ const tripList  = document.getElementById('tripList');
 const noteKend  = document.getElementById('noteKendaraan');
 const noteTugas = document.getElementById('noteTugas');
 
-/* ======================
-   SESSION DRIVER FIX
-====================== */
+/* === SESSION DRIVER FIX === */
 const savedDriver = localStorage.getItem('driver_name');
-
-if(!savedDriver || savedDriver.trim()===''){
-  alert('❌ Session login driver tidak ditemukan');
-  location.replace('login.html');
-}else{
+if(savedDriver){
   elDriver.value = savedDriver;
-  elTanggal.valueAsDate = new Date();
   taskArea.classList.remove('hidden');
 }
 
-/* CHECKBOX UI */
+elDriver.addEventListener('change',()=>{
+  if(elDriver.value){
+    localStorage.setItem('driver_name', elDriver.value);
+    taskArea.classList.remove('hidden');
+  }else{
+    taskArea.classList.add('hidden');
+  }
+});
+
+elTanggal.valueAsDate = new Date();
+
+/* UI CHECKBOX */
 document.querySelectorAll('.item input').forEach(c=>{
   c.addEventListener('change',()=>{
     c.parentElement.classList.toggle('active',c.checked);
@@ -170,31 +179,26 @@ document.querySelectorAll('.item input').forEach(c=>{
 function addTrip(){
   const d=document.createElement('div');
   d.className='trip';
-  d.innerHTML=`
-    <input placeholder="Tujuan">
-    <input placeholder="Jam">
-  `;
+  d.innerHTML=`<input placeholder="Tujuan"><input placeholder="Jam">`;
   tripList.appendChild(d);
 }
 
 /* SIMPAN */
 function simpan(){
-  if(!elTanggal.value){
-    alert('Tanggal wajib diisi');
+  if(!elDriver.value){
+    alert('Pilih driver dulu');
     return;
   }
 
   const payload=[];
 
   document.querySelectorAll('#tripList .trip').forEach(r=>{
-    const tujuan=r.children[0].value;
-    const jam=r.children[1].value;
-    if(tujuan){
+    if(r.children[0].value){
       payload.push({
         driver:elDriver.value,
         tanggal:elTanggal.value,
         kategori:'PERJALANAN',
-        detail:`${tujuan} ${jam}`,
+        detail:`${r.children[0].value} ${r.children[1].value}`,
         status:'SELESAI',
         catatan:''
       });
