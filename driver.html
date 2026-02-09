@@ -144,8 +144,8 @@ select,input,textarea{
 
   <div class="header">
     <div>
-      <strong>Checklist Driver Harian</strong><br>
-      <small> 1 laporan • 1 hari</small>
+      <strong>Checklist Driver Daily</strong><br>
+      <small> Pencatatan Laporan Tugas Harian Driver</small>
     </div>
     <button class="logout" onclick="logout()">Keluar</button>
   </div>
@@ -173,12 +173,13 @@ select,input,textarea{
 
   <!-- KENDARAAN -->
   <div class="section">
-    <h4>🔧 Pengecekan Kendaraan</h4>
+    <h4>🔧 Perawatan Kendaraan</h4>
     <div class="grid">
-      <label class="item"><input type="checkbox" data-kendaraan="Oli Mesin">Oli Mesin</label>
-      <label class="item"><input type="checkbox" data-kendaraan="Ban">Ban</label>
-      <label class="item"><input type="checkbox" data-kendaraan="Lampu & Klakson">Lampu & Klakson</label>
-      <label class="item"><input type="checkbox" data-kendaraan="BBM">BBM</label>
+      <label class="item"><input type="checkbox" data-kendaraan="Oli Mesin">Pencucian Mobil</label>
+      <label class="item"><input type="checkbox" data-kendaraan="Manasin">Memanaskan Mesin Mobil</label>
+      <label class="item"><input type="checkbox" data-kendaraan="Ban">Pengecekan Semua Ban</label>
+      <label class="item"><input type="checkbox" data-kendaraan="Lampu & Klakson">Pengecekan Lampu & Klakson</label>
+      <label class="item"><input type="checkbox" data-kendaraan="BBM">Pengecekan BBM & Pencatatan Kilometer</label>
     </div>
     <textarea class="note" id="noteKendaraan" placeholder="Catatan kendaraan"></textarea>
   </div>
@@ -187,14 +188,14 @@ select,input,textarea{
   <div class="section">
     <h4>📦 Tugas Lainnya</h4>
     <div class="grid">
-      <label class="item"><input type="checkbox" data-tugas="Angkut Barang">Angkut Barang</label>
-      <label class="item"><input type="checkbox" data-tugas="Jaga Meja Frontliner">Jaga Meja Frontliner</label>
-      <label class="item"><input type="checkbox" data-tugas="Tugas Lain">Tugas Lain</label>
+      <label class="item"><input type="checkbox" data-tugas="Angkut Barang">Angkat-Angkut Barang</label>
+      <label class="item"><input type="checkbox" data-tugas="Jaga Meja Frontliner">Stand by PIC Frontliner</label>
+      <label class="item"><input type="checkbox" data-tugas="Tugas Lain">Tugas Lain-Lain</label>
     </div>
     <textarea class="note" id="noteTugas" placeholder="Catatan tugas lain"></textarea>
   </div>
 
-  <button class="save" id="btnSave" onclick="simpan()">Simpan Laporan Harian</button>
+  <button class="save" id="btnSave" onclick="simpan()">Simpan</button>
 </div>
 
 <script>
