@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8"> 
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checklist Driver Daily</title>
 
@@ -13,7 +13,6 @@
   --border:#e0e0e0;
 }
 *{box-sizing:border-box}
-
 body{
   margin:0;padding:14px;
   font-family:Segoe UI,Arial;
@@ -25,83 +24,32 @@ body{
   padding:16px;
   box-shadow:0 8px 20px rgba(0,0,0,.12);
 }
-.header{
-  display:flex;justify-content:space-between;align-items:center;
-}
-.logout{
-  background:var(--danger);color:#fff;border:none;
-  padding:10px 14px;border-radius:12px;
-}
-label{font-size:14px;font-weight:600}
-input,select,textarea{
-  width:100%;padding:12px;
-  border-radius:12px;border:1px solid #ccc;
-  margin-top:6px;
-}
-
+.hidden{display:none}
 .section{
   border:1px solid var(--border);
   border-radius:16px;
-  padding:14px;
-  margin-top:14px;
+  padding:14px;margin-top:14px;
 }
-.section h4{margin:0 0 12px;color:var(--primary)}
-
-.trip{display:grid;gap:8px;margin-bottom:8px}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:10px;
+button{
+  padding:12px;border:none;border-radius:12px;
 }
-.item{
-  display:flex;align-items:center;gap:10px;
-  padding:12px;border:1px solid var(--border);
-  border-radius:12px;cursor:pointer;
-}
-.item input{accent-color:var(--primary)}
-.item.active{
-  background:#e3f2fd;border-color:var(--primary);
-}
-
-.add{
-  width:100%;padding:12px;
-  background:#e3f2fd;
-  border:1px dashed var(--primary);
-  border-radius:12px;
-}
-.save{
-  width:100%;margin-top:18px;
-  padding:14px;border:none;
-  border-radius:16px;
-  background:var(--success);
-  color:#fff;font-size:16px;
-}
-.hidden{display:none}
+.save{background:var(--success);color:#fff;width:100%;margin-top:16px}
+.item{display:flex;gap:10px}
+.item.active{background:#e3f2fd}
 </style>
 </head>
 
 <body>
 
 <div class="card">
+  <strong>Checklist Driver Daily</strong><br><br>
 
-  <div class="header">
-    <div>
-      <strong>Checklist Driver Daily</strong><br>
-      <small>Pencatatan Tugas Harian</small>
-    </div>
-    <button class="logout" onclick="logout()">Keluar</button>
-  </div>
-
-  <!-- DRIVER -->
   <label>Nama Driver</label>
   <select id="driver">
-    <option value="">-- Pilih Driver --</option>
-    <option value="Ahmad Yani">Ahmad Yani</option>
-    <option value="Sandi Suhendra">Sandi Suhendra</option>
-  </select>
-
-  <br><br>
+    <option value="">-- Pilih --</option>
+    <option>Ahmad Yani</option>
+    <option>Sandi Suhendra</option>
+  </select><br><br>
 
   <label>Tanggal</label>
   <input type="date" id="tanggal">
@@ -109,31 +57,16 @@ input,select,textarea{
   <div id="taskArea" class="hidden">
 
     <div class="section">
-      <h4>🚗 Pengantaran Pengguna</h4>
+      <h4>🚗 Perjalanan</h4>
       <div id="tripList"></div>
-      <button class="add" onclick="addTrip()">+ Tambah Tujuan</button>
+      <button onclick="addTrip()">+ Tambah Tujuan</button>
     </div>
 
     <div class="section">
-      <h4>🔧 Perawatan Kendaraan</h4>
-      <div class="grid">
-        <label class="item"><input type="checkbox" data-kendaraan="Cuci Mobil">Cuci Mobil</label>
-        <label class="item"><input type="checkbox" data-kendaraan="Panaskan Mesin">Panaskan Mesin</label>
-        <label class="item"><input type="checkbox" data-kendaraan="Checklist Mobil">Checklist Pengecekan Mobil</label>
-        <label class="item"><input type="checkbox" data-kendaraan="Lampu & Klakson">Lampu, Semua Ban</label>
-        <label class="item"><input type="checkbox" data-kendaraan="BBM & KM">Pengecekan BBM & KiloMeter</label>
-      </div>
-      <textarea id="noteKendaraan" placeholder="Catatan kendaraan"></textarea>
-    </div>
-
-    <div class="section">
-      <h4>📦 Tugas Lainnya</h4>
-      <div class="grid">
-        <label class="item"><input type="checkbox" data-tugas="Angkut Barang">Angkut Barang</label>
-        <label class="item"><input type="checkbox" data-tugas="Frontliner">Standby Frontliner</label>
-        <label class="item"><input type="checkbox" data-tugas="Lainnya">Tugas Lain</label>
-      </div>
-      <textarea id="noteTugas" placeholder="Catatan tugas lain"></textarea>
+      <h4>🔧 Kendaraan</h4>
+      <label class="item"><input type="checkbox" data-k="Cuci Mobil">Cuci Mobil</label>
+      <label class="item"><input type="checkbox" data-k="Panaskan Mesin">Panaskan Mesin</label>
+      <textarea id="noteK" placeholder="Catatan kendaraan"></textarea>
     </div>
 
     <button class="save" onclick="simpan()">Simpan</button>
@@ -141,86 +74,46 @@ input,select,textarea{
 </div>
 
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxA-NxXHCwt0q6s9J3vnx2BZbKqkaRyJeLfqAPge7Oy2cPMKr1sRuuXMW7jP7YVUyJL/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgajiNxIg_NbBBWyMv9Cxa7kew_RSgcRV3cmg4PgWdXgXZpu2Os9Eyfq4pM-Us8_Bp/exec';
 
-const elDriver  = document.getElementById('driver');
-const elTanggal = document.getElementById('tanggal');
-const taskArea  = document.getElementById('taskArea');
-const tripList  = document.getElementById('tripList');
-const noteKend  = document.getElementById('noteKendaraan');
-const noteTugas = document.getElementById('noteTugas');
+const driver = document.getElementById('driver');
+const tanggal = document.getElementById('tanggal');
+const taskArea = document.getElementById('taskArea');
+const tripList = document.getElementById('tripList');
+const noteK = document.getElementById('noteK');
 
-async function cekDuplikat(){
-  if(!elDriver.value || !elTanggal.value) return false;
+tanggal.valueAsDate = new Date();
 
-  const url = `${SCRIPT_URL}?driver=${encodeURIComponent(elDriver.value)}&tanggal=${elTanggal.value}`;
-  const res = await fetch(url);
-  const json = await res.json();
-
-  return json.exists === true;
-}
-
-
-/* === SESSION DRIVER FIX === */
-const savedDriver = localStorage.getItem('driver_name');
-if(savedDriver){
-  elDriver.value = savedDriver;
-  taskArea.classList.remove('hidden');
-}
-
-elDriver.addEventListener('change',()=>{
-  if(elDriver.value){
-    localStorage.setItem('driver_name', elDriver.value);
-    taskArea.classList.remove('hidden');
-  }else{
-    taskArea.classList.add('hidden');
-  }
+driver.addEventListener('change',()=>{
+  taskArea.classList.toggle('hidden',!driver.value);
 });
 
-elTanggal.valueAsDate = new Date();
-
-/* UI CHECKBOX */
-document.querySelectorAll('.item input').forEach(c=>{
-  c.addEventListener('change',()=>{
-    c.parentElement.classList.toggle('active',c.checked);
-  });
-});
-
-/* TRIP */
 function addTrip(){
   const d=document.createElement('div');
-  d.className='trip';
   d.innerHTML=`<input placeholder="Tujuan"><input placeholder="Jam">`;
   tripList.appendChild(d);
 }
 
-/* SIMPAN */
+async function cekDuplikat(){
+  const url = `${SCRIPT_URL}?action=check&driver=${driver.value}&tanggal=${tanggal.value}`;
+  const r = await fetch(url);
+  const j = await r.json();
+  return j.exists;
+}
+
 async function simpan(){
-  if(!elDriver.value){
-    alert('Pilih driver dulu');
-    return;
-  }
-
-  if(!elTanggal.value){
-    alert('Tanggal wajib diisi');
-    return;
-  }
-
-  // === CEK DUPLIKAT ===
-  const sudahAda = await cekDuplikat();
-  if(sudahAda){
-    alert('❌ Data driver & tanggal ini sudah pernah diisi');
+  if(await cekDuplikat()){
+    alert('❌ Data sudah ada');
     return;
   }
 
   const payload=[];
 
-  // PERJALANAN
-  document.querySelectorAll('#tripList .trip').forEach(r=>{
+  document.querySelectorAll('#tripList div').forEach(r=>{
     if(r.children[0].value){
       payload.push({
-        driver:elDriver.value,
-        tanggal:elTanggal.value,
+        driver:driver.value,
+        tanggal:tanggal.value,
         kategori:'PERJALANAN',
         detail:`${r.children[0].value} ${r.children[1].value}`,
         status:'SELESAI',
@@ -229,61 +122,29 @@ async function simpan(){
     }
   });
 
-  // KENDARAAN
-  document.querySelectorAll('[data-kendaraan]').forEach(c=>{
+  document.querySelectorAll('[data-k]').forEach(c=>{
     payload.push({
-      driver:elDriver.value,
-      tanggal:elTanggal.value,
+      driver:driver.value,
+      tanggal:tanggal.value,
       kategori:'KENDARAAN',
-      detail:c.dataset.kendaraan,
-      status:c.checked ? 'OK' : 'TIDAK',
-      catatan:noteKend.value
+      detail:c.dataset.k,
+      status:c.checked?'OK':'TIDAK',
+      catatan:noteK.value
     });
   });
 
-  // TUGAS LAIN
-  document.querySelectorAll('[data-tugas]').forEach(c=>{
-    if(c.checked){
-      payload.push({
-        driver:elDriver.value,
-        tanggal:elTanggal.value,
-        kategori:'TUGAS_LAIN',
-        detail:c.dataset.tugas,
-        status:'SELESAI',
-        catatan:noteTugas.value
-      });
-    }
-  });
-
-  if(payload.length === 0){
-    alert('Tidak ada data untuk disimpan');
-    return;
-  }
-
-  // === SUBMIT ===
-  fetch(SCRIPT_URL,{
+  const res = await fetch(SCRIPT_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify(payload)
-  })
-  .then(r=>r.json())
-  .then(res=>{
-    if(res.status === 'SUCCESS'){
-      alert('✅ Data berhasil disimpan ke GSheet');
-      location.reload();
-    }else if(res.status === 'DUPLICATE'){
-      alert('❌ Data sudah ada');
-    }else{
-      alert('⚠️ Gagal menyimpan data');
-    }
-  })
-  .catch(err=>alert(err.message));
-}
+  }).then(r=>r.json());
 
-
-function logout(){
-  localStorage.removeItem('driver_name');
-  location.replace('login.html');
+  if(res.status==='SUCCESS'){
+    alert('✅ Tersimpan');
+    location.reload();
+  }else{
+    alert('❌ Gagal');
+  }
 }
 </script>
 
