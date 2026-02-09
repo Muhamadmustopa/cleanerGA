@@ -138,28 +138,28 @@ input,select,textarea{
 <script>
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxA-NxXHCwt0q6s9J3vnx2BZbKqkaRyJeLfqAPge7Oy2cPMKr1sRuuXMW7jP7YVUyJL/exec';
 
-const elDriver   = document.getElementById('driver');
-const elTanggal  = document.getElementById('tanggal');
-const taskArea   = document.getElementById('taskArea');
-const tripList   = document.getElementById('tripList');
-const noteKend   = document.getElementById('noteKendaraan');
-const noteTugas  = document.getElementById('noteTugas');
+const elDriver  = document.getElementById('driver');
+const elTanggal = document.getElementById('tanggal');
+const taskArea  = document.getElementById('taskArea');
+const tripList  = document.getElementById('tripList');
+const noteKend  = document.getElementById('noteKendaraan');
+const noteTugas = document.getElementById('noteTugas');
 
-/* SESSION */
-const savedDriver =
-  localStorage.getItem('driver_name') ||
-  localStorage.getItem('cleaner_name');
+/* ======================
+   SESSION DRIVER FIX
+====================== */
+const savedDriver = localStorage.getItem('driver_name');
 
-if(!savedDriver){
-  alert('Session habis, silakan login ulang');
-  location.href='login.html';
+if(!savedDriver || savedDriver.trim()===''){
+  alert('❌ Session login driver tidak ditemukan');
+  location.replace('login.html');
+}else{
+  elDriver.value = savedDriver;
+  elTanggal.valueAsDate = new Date();
+  taskArea.classList.remove('hidden');
 }
 
-elDriver.value = savedDriver;
-elTanggal.valueAsDate = new Date();
-taskArea.classList.remove('hidden');
-
-/* UI CHECKBOX */
+/* CHECKBOX UI */
 document.querySelectorAll('.item input').forEach(c=>{
   c.addEventListener('change',()=>{
     c.parentElement.classList.toggle('active',c.checked);
@@ -239,14 +239,12 @@ function simpan(){
       location.reload();
     }
   })
-  .catch(err=>{
-    alert('Error: '+err.message);
-  });
+  .catch(err=>alert(err.message));
 }
 
 function logout(){
-  localStorage.clear();
-  location.href='login.html';
+  localStorage.removeItem('driver_name');
+  location.replace('login.html');
 }
 </script>
 
