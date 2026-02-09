@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan Driver Harian</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;padding:16px;
+  font-family:Segoe UI,Arial;
+  background:linear-gradient(180deg,#e3f2fd,#f4f6f8);
+}
+
+/* BACK */
+.back{
+  position:fixed;top:14px;left:14px;
+  width:44px;height:44px;
+  border-radius:50%;
+  background:#1976d2;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;font-size:20px;
+}
+
+/* CARD */
+.card{
+  max-width:1200px;
+  margin:60px auto 0;
+  background:#fff;
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 6px 14px rgba(0,0,0,.12);
+}
+h2{text-align:center;margin-bottom:16px}
+
+/* DASHBOARD */
+.dashboard{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:14px;margin-bottom:18px;
+}
+.box{
+  border:1px solid #eee;
+  border-radius:12px;
+  padding:12px;
+  background:#fafafa;
+}
+
+/* FILTER */
+.filter{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr 2fr;
+  gap:10px;margin-bottom:14px;
+}
+select,input{
+  padding:10px;border-radius:10px;
+  border:1px solid #ccc;
+}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+th,td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+}
+th{background:#f1f3f4}
+
+/* STATUS */
+.badge{
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+}
+.ok{background:#e8f5e9;color:#2e7d32}
+.tidak{background:#fdecea;color:#c62828}
+.done{background:#e3f2fd;color:#1565c0}
+
+/* MOBILE */
+@media(max-width:720px){
+  table,thead{display:none}
+  .row{
+    border:1px solid #eee;
+    border-radius:12px;
+    padding:12px;margin-bottom:10px;
+  }
+  .label{font-weight:600;color:#555}
+}
+</style>
+</head>
+
+<body>
+
+<a href="login.html" class="back">⬅</a>
+
+<div class="card">
+  <h2>📊 Dashboard Laporan Driver</h2>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard">
+    <div class="box"><canvas id="chartTrip"></canvas></div>
+    <div class="box"><canvas id="chartKendaraan"></canvas></div>
+    <div class="box"><canvas id="chartKategori"></canvas></div>
+  </div>
+
+  <!-- FILTER -->
+  <div class="filter">
+    <select id="fDriver"><option value="">Semua Driver</option></select>
+    <select id="fKategori">
+      <option value="">Semua Kategori</option>
+      <option>PERJALANAN</option>
+      <option>KENDARAAN</option>
+      <option>TUGAS_LAIN</option>
+    </select>
+    <input type="date" id="fTanggal">
+    <input type="text" id="search" placeholder="Cari detail / catatan">
+  </div>
+
+  <!-- TABLE -->
+  <table>
+    <thead>
+      <tr>
+        <th>Tanggal</th>
+        <th>Driver</th>
+        <th>Kategori</th>
+        <th>Detail</th>
+        <th>Status</th>
+        <th>Catatan</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div id="mobile"></div>
+</div>
+
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxA-NxXHCwt0q6s9J3vnx2BZbKqkaRyJeLfqAPge7Oy2cPMKr1sRuuXMW7jP7YVUyJL/exec';
+
+let raw=[];
+let chartTrip,chartKendaraan,chartKategori;
+
+const tbody=document.getElementById('tbody');
+const mobile=document.getElementById('mobile');
+const fDriver=document.getElementById('fDriver');
+const fKategori=document.getElementById('fKategori');
+const fTanggal=document.getElementById('fTanggal');
+const search=document.getElementById('search');
+
+/* LOAD DATA */
+fetch(SCRIPT_URL)
+.then(r=>r.json())
+.then(d=>{
+  raw=d;
+  initDriver();
+  render();
+});
+
+/* INIT DRIVER */
+function initDriver(){
+  [...new Set(raw.map(d=>d.driver))].forEach(n=>{
+    const o=document.createElement('option');
+    o.value=n;o.textContent=n;
+    fDriver.appendChild(o);
+  });
+}
+
+/* RENDER */
+function render(){
+  tbody.innerHTML='';
+  mobile.innerHTML='';
+
+  const data=raw.filter(d=>{
+    if(fDriver.value && d.driver!==fDriver.value) return false;
+    if(fKategori.value && d.kategori!==fKategori.value) return false;
+    if(fTanggal.value && d.tanggal!==fTanggal.value) return false;
+    if(search.value && !(d.detail+(d.catatan||'')).toLowerCase().includes(search.value.toLowerCase())) return false;
+    return true;
+  });
+
+  data.forEach(d=>{
+    const badge =
+      d.status==='OK' ? 'ok' :
+      d.status==='TIDAK' ? 'tidak' : 'done';
+
+    tbody.innerHTML+=`
+      <tr>
+        <td>${d.tanggal}</td>
+        <td>${d.driver}</td>
+        <td>${d.kategori}</td>
+        <td>${d.detail}</td>
+        <td><span class="badge ${badge}">${d.status}</span></td>
+        <td>${d.catatan||'-'}</td>
+      </tr>`;
+
+    mobile.innerHTML+=`
+      <div class="row">
+        <div><span class="label">Tanggal:</span> ${d.tanggal}</div>
+        <div><span class="label">Driver:</span> ${d.driver}</div>
+        <div><span class="label">Kategori:</span> ${d.kategori}</div>
+        <div><span class="label">Detail:</span> ${d.detail}</div>
+        <div><span class="label">Status:</span>
+          <span class="badge ${badge}">${d.status}</span>
+        </div>
+        <div><span class="label">Catatan:</span> ${d.catatan||'-'}</div>
+      </div>`;
+  });
+
+  charting(data);
+}
+
+/* CHART */
+function charting(data){
+  /* TRIP */
+  const t={};
+  data.filter(d=>d.kategori==='PERJALANAN')
+      .forEach(d=>t[d.tanggal]=(t[d.tanggal]||0)+1);
+
+  chartTrip?.destroy();
+  chartTrip=new Chart(chartTrip?.canvas||document.getElementById('chartTrip'),{
+    type:'line',
+    data:{labels:Object.keys(t),datasets:[{label:'Perjalanan',data:Object.values(t),borderColor:'#1976d2'}]}
+  });
+
+  /* KENDARAAN */
+  const ok=data.filter(d=>d.kategori==='KENDARAAN'&&d.status==='OK').length;
+  const td=data.filter(d=>d.kategori==='KENDARAAN'&&d.status==='TIDAK').length;
+
+  chartKendaraan?.destroy();
+  chartKendaraan=new Chart(chartKendaraan?.canvas||document.getElementById('chartKendaraan'),{
+    type:'doughnut',
+    data:{labels:['OK','TIDAK'],datasets:[{data:[ok,td],backgroundColor:['#2e7d32','#c62828']}]}
+  });
+
+  /* KATEGORI */
+  const k={};
+  data.forEach(d=>k[d.kategori]=(k[d.kategori]||0)+1);
+
+  chartKategori?.destroy();
+  chartKategori=new Chart(chartKategori?.canvas||document.getElementById('chartKategori'),{
+    type:'bar',
+    data:{labels:Object.keys(k),datasets:[{label:'Total',data:Object.values(k),backgroundColor:'#1976d2'}]}
+  });
+}
+
+[fDriver,fKategori,fTanggal,search].forEach(e=>e.addEventListener('input',render));
+</script>
+
+</body>
+</html>
