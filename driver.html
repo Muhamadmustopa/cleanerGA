@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checklist Driver Harian</title>
+<title>Checklist Driver Daily</title>
 
 <style>
 :root{
@@ -11,130 +11,73 @@
   --success:#4CAF50;
   --danger:#f44336;
   --border:#e0e0e0;
-  --bg:#f4f6f8;
 }
-
 *{box-sizing:border-box}
 
 body{
-  margin:0;
-  padding:14px;
+  margin:0;padding:14px;
   font-family:Segoe UI,Arial;
   background:linear-gradient(180deg,#e3f2fd,#f4f6f8);
 }
-
 .card{
-  max-width:900px;
-  margin:auto;
-  background:#fff;
-  border-radius:18px;
+  max-width:900px;margin:auto;
+  background:#fff;border-radius:18px;
   padding:16px;
   box-shadow:0 8px 20px rgba(0,0,0,.12);
 }
-
 .header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  margin-bottom:12px;
+  display:flex;justify-content:space-between;align-items:center;
 }
-.header strong{font-size:16px}
-
 .logout{
-  background:var(--danger);
-  color:#fff;
-  border:none;
-  padding:10px 14px;
-  border-radius:12px;
-  cursor:pointer;
+  background:var(--danger);color:#fff;border:none;
+  padding:10px 14px;border-radius:12px;
 }
-
-/* FORM */
 label{font-size:14px;font-weight:600}
-select,input,textarea{
-  width:100%;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid #ccc;
+input,select,textarea{
+  width:100%;padding:12px;
+  border-radius:12px;border:1px solid #ccc;
   margin-top:6px;
-  font-size:14px;
 }
 
-/* SECTION */
 .section{
   border:1px solid var(--border);
   border-radius:16px;
   padding:14px;
   margin-top:14px;
 }
-.section h4{
-  margin:0 0 12px;
-  font-size:15px;
-  color:var(--primary);
-}
+.section h4{margin:0 0 12px;color:var(--primary)}
 
-/* PERJALANAN */
-.trip{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:8px;
-  margin-bottom:8px;
-}
-.trip input{width:100%}
+.trip{display:grid;gap:8px;margin-bottom:8px}
 
-/* GRID CHECKBOX */
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:10px;
 }
-
 .item{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:12px;
-  border:1px solid var(--border);
-  border-radius:12px;
-  cursor:pointer;
-  user-select:none;
+  display:flex;align-items:center;gap:10px;
+  padding:12px;border:1px solid var(--border);
+  border-radius:12px;cursor:pointer;
 }
-.item input{
-  width:18px;
-  height:18px;
-  accent-color:var(--primary);
-}
+.item input{accent-color:var(--primary)}
 .item.active{
-  background:#e3f2fd;
-  border-color:var(--primary);
+  background:#e3f2fd;border-color:var(--primary);
 }
 
-.note{margin-top:10px}
-
-/* BUTTON */
 .add{
-  width:100%;
+  width:100%;padding:12px;
   background:#e3f2fd;
   border:1px dashed var(--primary);
-  padding:12px;
   border-radius:12px;
-  cursor:pointer;
 }
-
 .save{
-  width:100%;
-  margin-top:18px;
-  padding:14px;
-  border:none;
+  width:100%;margin-top:18px;
+  padding:14px;border:none;
   border-radius:16px;
   background:var(--success);
-  color:#fff;
-  font-size:16px;
-  font-weight:600;
-  cursor:pointer;
+  color:#fff;font-size:16px;
 }
-.save:disabled{opacity:.6;cursor:not-allowed}
+.hidden{display:none}
 </style>
 </head>
 
@@ -145,109 +88,88 @@ select,input,textarea{
   <div class="header">
     <div>
       <strong>Checklist Driver Daily</strong><br>
-      <small> Pencatatan Laporan Tugas Harian Driver</small>
+      <small>Pencatatan Tugas Harian</small>
     </div>
     <button class="logout" onclick="logout()">Keluar</button>
   </div>
 
-  <!-- DRIVER -->
+  <!-- DRIVER (AUTO) -->
   <label>Nama Driver</label>
-  <select id="driver">
-    <option value="">-- Pilih Driver --</option>
-    <option>Ahmad Yani</option>
-    <option>Sandi Suhendra</option>
-  </select>
+  <input id="driver" disabled>
 
   <br><br>
 
-  <!-- TANGGAL -->
   <label>Tanggal</label>
   <input type="date" id="tanggal">
 
-  <!-- PERJALANAN -->
-  <div class="section">
-    <h4>🚗 Pengantaran Pengguna</h4>
-    <div id="tripList"></div>
-    <button class="add" onclick="addTrip()">+ Tambah Tujuan</button>
-  </div>
+  <!-- SEMUA TASK -->
+  <div id="taskArea" class="hidden">
 
-  <!-- KENDARAAN -->
-  <div class="section">
-    <h4>🔧 Perawatan Kendaraan</h4>
-    <div class="grid">
-      <label class="item"><input type="checkbox" data-kendaraan="Oli Mesin">Pencucian Mobil</label>
-      <label class="item"><input type="checkbox" data-kendaraan="Manasin">Memanaskan Mesin Mobil</label>
-      <label class="item"><input type="checkbox" data-kendaraan="Ban">Pengecekan Semua Ban</label>
-      <label class="item"><input type="checkbox" data-kendaraan="Lampu & Klakson">Pengecekan Lampu & Klakson</label>
-      <label class="item"><input type="checkbox" data-kendaraan="BBM">Pengecekan BBM & Pencatatan Kilometer</label>
+    <div class="section">
+      <h4>🚗 Pengantaran Pengguna</h4>
+      <div id="tripList"></div>
+      <button class="add" onclick="addTrip()">+ Tambah Tujuan</button>
     </div>
-    <textarea class="note" id="noteKendaraan" placeholder="Catatan kendaraan"></textarea>
-  </div>
 
-  <!-- TUGAS LAIN -->
-  <div class="section">
-    <h4>📦 Tugas Lainnya</h4>
-    <div class="grid">
-      <label class="item"><input type="checkbox" data-tugas="Angkut Barang">Angkat-Angkut Barang</label>
-      <label class="item"><input type="checkbox" data-tugas="Jaga Meja Frontliner">Stand by PIC Frontliner</label>
-      <label class="item"><input type="checkbox" data-tugas="Tugas Lain">Tugas Lain-Lain</label>
+    <div class="section">
+      <h4>🔧 Perawatan Kendaraan</h4>
+      <div class="grid">
+        <label class="item"><input type="checkbox" data-kendaraan="Cuci Mobil">Cuci Mobil</label>
+        <label class="item"><input type="checkbox" data-kendaraan="Panaskan Mesin">Panaskan Mesin</label>
+        <label class="item"><input type="checkbox" data-kendaraan="Ban">Mengisi Checklist Pengecekan Mobil</label>
+        <label class="item"><input type="checkbox" data-kendaraan="Lampu & Klakson">Mengecek Semua Ban ,Lampu & Klakson</label>
+        <label class="item"><input type="checkbox" data-kendaraan="BBM & KM">BBM & Kilometer</label>
+      </div>
+      <textarea id="noteKendaraan" placeholder="Catatan kendaraan"></textarea>
     </div>
-    <textarea class="note" id="noteTugas" placeholder="Catatan tugas lain"></textarea>
-  </div>
 
-  <button class="save" id="btnSave" onclick="simpan()">Simpan</button>
+    <div class="section">
+      <h4>📦 Tugas Lainnya</h4>
+      <div class="grid">
+        <label class="item"><input type="checkbox" data-tugas="Angkut Barang">Angkut Barang</label>
+        <label class="item"><input type="checkbox" data-tugas="Frontliner">Standby Frontliner</label>
+        <label class="item"><input type="checkbox" data-tugas="Lainnya">Tugas Lain</label>
+      </div>
+      <textarea id="noteTugas" placeholder="Catatan tugas lain"></textarea>
+    </div>
+
+    <button class="save" id="btnSave" onclick="simpan()">Simpan</button>
+  </div>
 </div>
 
 <script>
-/* ================= CONFIG ================= */
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxA-NxXHCwt0q6s9J3vnx2BZbKqkaRyJeLfqAPge7Oy2cPMKr1sRuuXMW7jP7YVUyJL/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxA-NxXHCwt0q6s9J3vnx2BZbKqkaRyJeLfqAPge7Oy2cPMKr1sRuuXMW7jP7YVUyJL/exec';
 
-/* DEFAULT TANGGAL */
-document.getElementById('tanggal').valueAsDate = new Date();
+/* AUTO DRIVER */
+const savedDriver = localStorage.getItem('cleaner_name') || localStorage.getItem('driver_name');
+if(!savedDriver){
+  alert('Session habis, silakan login ulang');
+  location.href='login.html';
+}
+driver.value = savedDriver;
+taskArea.classList.remove('hidden');
 
-/* CHECKBOX EFFECT */
+tanggal.valueAsDate=new Date();
+
+/* CHECKBOX UI */
 document.querySelectorAll('.item input').forEach(c=>{
-  c.addEventListener('change',()=>c.parentElement.classList.toggle('active',c.checked));
+  c.onchange=()=>c.parentElement.classList.toggle('active',c.checked);
 });
 
-/* CEK DUPLIKAT */
-function cekSudahSubmit(){
-  const d = driver.value, t = tanggal.value;
-  if(!d||!t) return;
-
-  fetch(`${SCRIPT_URL}?driver=${encodeURIComponent(d)}&tanggal=${t}`)
-    .then(r=>r.json())
-    .then(res=>{
-      btnSave.disabled = res.exists;
-      if(res.exists) alert('❌ Checklist tanggal ini sudah diisi');
-    });
-}
-driver.onchange = cekSudahSubmit;
-tanggal.onchange = cekSudahSubmit;
-
-/* PERJALANAN */
+/* TRIP */
 function addTrip(){
-  const div=document.createElement('div');
-  div.className='trip';
-  div.innerHTML=`
-    <input placeholder="Tujuan">
-    <input placeholder="Jam (09.00 - 11.00)">
-  `;
-  tripList.appendChild(div);
+  const d=document.createElement('div');
+  d.className='trip';
+  d.innerHTML=`<input placeholder="Tujuan"><input placeholder="Jam">`;
+  tripList.appendChild(d);
 }
 
 /* SIMPAN */
 function simpan(){
-  if(!driver.value||!tanggal.value){
-    alert('Driver & tanggal wajib diisi');return;
-  }
-
   const payload=[];
-
   document.querySelectorAll('#tripList .trip').forEach(r=>{
-    const t=r.children[0].value;
-    const j=r.children[1].value;
-    if(t) payload.push({driver:driver.value,tanggal:tanggal.value,kategori:'PERJALANAN',detail:`${t} (${j})`,status:'SELESAI',catatan:''});
+    if(r.children[0].value)
+      payload.push({driver:driver.value,tanggal:tanggal.value,kategori:'PERJALANAN',detail:`${r.children[0].value} (${r.children[1].value})`,status:'SELESAI',catatan:''});
   });
 
   document.querySelectorAll('[data-kendaraan]').forEach(c=>{
@@ -255,13 +177,12 @@ function simpan(){
   });
 
   document.querySelectorAll('[data-tugas]').forEach(c=>{
-    if(c.checked) payload.push({driver:driver.value,tanggal:tanggal.value,kategori:'TUGAS_LAIN',detail:c.dataset.tugas,status:'SELESAI',catatan:noteTugas.value});
+    if(c.checked)
+      payload.push({driver:driver.value,tanggal:tanggal.value,kategori:'TUGAS_LAIN',detail:c.dataset.tugas,status:'SELESAI',catatan:noteTugas.value});
   });
 
   fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)})
-    .then(r=>r.json())
-    .then(()=>{alert('✅ Laporan berhasil disimpan');location.reload();})
-    .catch(()=>alert('❌ Gagal menyimpan'));
+    .then(()=>{alert('✅ Berhasil disimpan');location.reload();});
 }
 
 function logout(){
