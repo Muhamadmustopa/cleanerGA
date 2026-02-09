@@ -169,10 +169,10 @@ input,select,textarea{
       <h4>🔧 Perawatan Kendaraan</h4>
       <div class="grid">
         <label class="item"><input type="checkbox" data-kendaraan="Cuci Mobil">Cuci Mobil</label>
-        <label class="item"><input type="checkbox" data-kendaraan="Panaskan Mesin">Panaskan Mesin</label>
-        <label class="item"><input type="checkbox" data-kendaraan="Checklist Mobil">Checklist Mobil</label>
-        <label class="item"><input type="checkbox" data-kendaraan="Lampu & Ban">Lampu & Ban</label>
-        <label class="item"><input type="checkbox" data-kendaraan="BBM & KM">BBM & KM</label>
+        <label class="item"><input type="checkbox" data-kendaraan="Panaskan Mesin">Panaskan Mesin Mobil</label>
+        <label class="item"><input type="checkbox" data-kendaraan="Checklist Mobil">Checklist Pengecekan Mobil</label>
+        <label class="item"><input type="checkbox" data-kendaraan="Lampu & Ban">Cek Lampu & Semua Ban</label>
+        <label class="item"><input type="checkbox" data-kendaraan="BBM & KM">Cek BBM & Kilometer</label>
       </div>
       <textarea id="noteKendaraan" placeholder="Catatan kendaraan"></textarea>
     </div>
@@ -181,7 +181,7 @@ input,select,textarea{
       <h4>📦 Tugas Lainnya</h4>
       <div class="grid">
         <label class="item"><input type="checkbox" data-tugas="Angkut Barang">Angkut Barang</label>
-        <label class="item"><input type="checkbox" data-tugas="Frontliner">Frontliner</label>
+        <label class="item"><input type="checkbox" data-tugas="Frontliner">Stand by Frontliner</label>
         <label class="item"><input type="checkbox" data-tugas="Lainnya">Tugas Lain</label>
       </div>
       <textarea id="noteTugas" placeholder="Catatan tugas lain"></textarea>
@@ -192,7 +192,8 @@ input,select,textarea{
 </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgajiNxIg_NbBBWyMv9Cxa7kew_RSgcRV3cmg4PgWdXgXZpu2Os9Eyfq4pM-Us8_Bp/exec';
+const SCRIPT_URL =
+'https://script.google.com/macros/s/AKfycbx52fcscRuhoGmsH1L5pVlVJs47d8Ggie1DEnDl3M7812XM0gHn3yAjcgM9eeVuuyfS/exec';
 
 const elDriver=document.getElementById('driver');
 const elTanggal=document.getElementById('tanggal');
@@ -205,7 +206,10 @@ elTanggal.valueAsDate=new Date();
 
 /* SESSION */
 const saved=localStorage.getItem('driver_name');
-if(saved){elDriver.value=saved;taskArea.classList.remove('hidden');}
+if(saved){
+  elDriver.value=saved;
+  taskArea.classList.remove('hidden');
+}
 
 elDriver.onchange=()=>{
   if(elDriver.value){
@@ -216,7 +220,7 @@ elDriver.onchange=()=>{
   }
 };
 
-/* CHECKBOX UI */
+/* UI CHECKBOX */
 document.addEventListener('change',e=>{
   if(e.target.matches('.item input')){
     e.target.parentElement.classList.toggle('active',e.target.checked);
@@ -231,42 +235,36 @@ function addTrip(){
   tripList.appendChild(d);
 }
 
-/* CEK DUPLIKAT */
-async function cekDuplikat(){
-  const url=`${SCRIPT_URL}?driver=${encodeURIComponent(elDriver.value)}&tanggal=${elTanggal.value}`;
-  const r=await fetch(url);
-  const j=await r.json();
-  return j.exists===true;
-}
-
 /* SIMPAN */
 async function simpan(){
-  if(!elDriver.value){alert('Pilih driver');return;}
-
-  if(await cekDuplikat()){
-    alert('❌ Data tanggal ini sudah diisi');
+  if(!elDriver.value){
+    alert('Pilih driver');
     return;
   }
 
   const payload=[];
 
+  /* PERJALANAN */
   document.querySelectorAll('#tripList .trip').forEach(r=>{
-    if(r.children[0].value){
+    const tujuan=r.children[0].value.trim();
+    const jam=r.children[1].value.trim();
+    if(tujuan){
       payload.push({
-        driver:elDriver.value,
         tanggal:elTanggal.value,
+        driver:elDriver.value,
         kategori:'PERJALANAN',
-        detail:r.children[0].value+' '+r.children[1].value,
+        detail: tujuan + (jam ? ' ('+jam+')' : ''),
         status:'SELESAI',
         catatan:''
       });
     }
   });
 
+  /* KENDARAAN */
   document.querySelectorAll('[data-kendaraan]').forEach(c=>{
     payload.push({
-      driver:elDriver.value,
       tanggal:elTanggal.value,
+      driver:elDriver.value,
       kategori:'KENDARAAN',
       detail:c.dataset.kendaraan,
       status:c.checked?'OK':'TIDAK',
@@ -274,10 +272,11 @@ async function simpan(){
     });
   });
 
+  /* TUGAS LAIN */
   document.querySelectorAll('[data-tugas]:checked').forEach(c=>{
     payload.push({
-      driver:elDriver.value,
       tanggal:elTanggal.value,
+      driver:elDriver.value,
       kategori:'TUGAS_LAIN',
       detail:c.dataset.tugas,
       status:'SELESAI',
@@ -285,17 +284,31 @@ async function simpan(){
     });
   });
 
-  const res=await fetch(SCRIPT_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(payload)
-  }).then(r=>r.json());
+  if(payload.length===0){
+    alert('Tidak ada data untuk disimpan');
+    return;
+  }
 
-  if(res.status==='SUCCESS'){
-    alert('✅ Data berhasil masuk GSheet');
-    location.reload();
-  }else{
-    alert('❌ Gagal menyimpan');
+  try{
+    const res=await fetch(SCRIPT_URL,{
+      method:'POST',
+      body: JSON.stringify(payload)
+    });
+
+    const json=await res.json();
+
+    if(json.status==='SUCCESS'){
+      alert('✅ Data berhasil masuk GSheet');
+      location.reload();
+    }else if(json.status==='DUPLICATE'){
+      alert('⚠️ Data sudah ada');
+    }else{
+      alert('❌ Gagal menyimpan');
+      console.log(json);
+    }
+
+  }catch(err){
+    alert('ERROR: '+err.message);
   }
 }
 
@@ -304,6 +317,7 @@ function logout(){
   location.href='login.html';
 }
 </script>
+
 
 </body>
 </html>
