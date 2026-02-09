@@ -17,7 +17,7 @@
 
 body{
   margin:0;
-  padding:14px;
+  padding:16px;
   font-family:Segoe UI,Arial;
   background:linear-gradient(180deg,#e3f2fd,#f4f6f8);
 }
@@ -27,7 +27,7 @@ body{
   margin:auto;
   background:#fff;
   border-radius:18px;
-  padding:16px;
+  padding:18px;
   box-shadow:0 8px 20px rgba(0,0,0,.12);
 }
 
@@ -35,6 +35,7 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:12px;
 }
 
 .logout{
@@ -43,6 +44,7 @@ body{
   border:none;
   padding:10px 14px;
   border-radius:12px;
+  cursor:pointer;
 }
 
 label{font-size:14px;font-weight:600}
@@ -59,7 +61,7 @@ input,select,textarea{
   border:1px solid var(--border);
   border-radius:16px;
   padding:14px;
-  margin-top:14px;
+  margin-top:16px;
 }
 
 .section h4{
@@ -67,20 +69,16 @@ input,select,textarea{
   color:var(--primary)
 }
 
-/* ===== GRID RESPONSIVE ===== */
+/* GRID */
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:10px;
+  gap:12px;
+}
+@media(max-width:600px){
+  .grid{grid-template-columns:1fr}
 }
 
-@media(max-width:480px){
-  .grid{
-    grid-template-columns:1fr;
-  }
-}
-
-/* ITEM */
 .item{
   display:flex;
   align-items:flex-start;
@@ -89,10 +87,6 @@ input,select,textarea{
   border:1px solid var(--border);
   border-radius:12px;
   cursor:pointer;
-}
-
-.item span{
-  line-height:1.3;
 }
 
 .item input{
@@ -107,8 +101,12 @@ input,select,textarea{
 
 .trip{
   display:grid;
+  grid-template-columns:1fr 120px;
   gap:8px;
   margin-bottom:8px;
+}
+@media(max-width:480px){
+  .trip{grid-template-columns:1fr}
 }
 
 .add{
@@ -121,13 +119,14 @@ input,select,textarea{
 
 .save{
   width:100%;
-  margin-top:18px;
+  margin-top:20px;
   padding:14px;
   border:none;
   border-radius:16px;
   background:var(--success);
   color:#fff;
   font-size:16px;
+  cursor:pointer;
 }
 
 .hidden{display:none}
@@ -160,33 +159,30 @@ input,select,textarea{
 
   <div id="taskArea" class="hidden">
 
-    <!-- PERJALANAN -->
     <div class="section">
       <h4>🚗 Pengantaran</h4>
       <div id="tripList"></div>
       <button class="add" onclick="addTrip()">+ Tambah Tujuan</button>
     </div>
 
-    <!-- KENDARAAN -->
     <div class="section">
       <h4>🔧 Perawatan Kendaraan</h4>
       <div class="grid">
-        <label class="item"><input type="checkbox" data-kendaraan="Cuci Mobil"><span>Cuci Mobil</span></label>
-        <label class="item"><input type="checkbox" data-kendaraan="Panaskan Mesin"><span>Panaskan Mesin</span></label>
-        <label class="item"><input type="checkbox" data-kendaraan="Checklist Mobil"><span>Checklist Pengecekan Mobil</span></label>
-        <label class="item"><input type="checkbox" data-kendaraan="Lampu & Ban"><span>Lampu & Semua Ban</span></label>
-        <label class="item"><input type="checkbox" data-kendaraan="BBM & KM"><span>BBM & Kilometer</span></label>
+        <label class="item"><input type="checkbox" data-kendaraan="Cuci Mobil">Cuci Mobil</label>
+        <label class="item"><input type="checkbox" data-kendaraan="Panaskan Mesin">Panaskan Mesin</label>
+        <label class="item"><input type="checkbox" data-kendaraan="Checklist Mobil">Checklist Mobil</label>
+        <label class="item"><input type="checkbox" data-kendaraan="Lampu & Ban">Lampu & Ban</label>
+        <label class="item"><input type="checkbox" data-kendaraan="BBM & KM">BBM & KM</label>
       </div>
       <textarea id="noteKendaraan" placeholder="Catatan kendaraan"></textarea>
     </div>
 
-    <!-- TUGAS LAIN -->
     <div class="section">
       <h4>📦 Tugas Lainnya</h4>
       <div class="grid">
-        <label class="item"><input type="checkbox" data-tugas="Angkut Barang"><span>Angkut Barang</span></label>
-        <label class="item"><input type="checkbox" data-tugas="Frontliner"><span>Standby Frontliner</span></label>
-        <label class="item"><input type="checkbox" data-tugas="Lainnya"><span>Tugas Lain</span></label>
+        <label class="item"><input type="checkbox" data-tugas="Angkut Barang">Angkut Barang</label>
+        <label class="item"><input type="checkbox" data-tugas="Frontliner">Frontliner</label>
+        <label class="item"><input type="checkbox" data-tugas="Lainnya">Tugas Lain</label>
       </div>
       <textarea id="noteTugas" placeholder="Catatan tugas lain"></textarea>
     </div>
@@ -198,30 +194,27 @@ input,select,textarea{
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgajiNxIg_NbBBWyMv9Cxa7kew_RSgcRV3cmg4PgWdXgXZpu2Os9Eyfq4pM-Us8_Bp/exec';
 
-const elDriver = document.getElementById('driver');
-const elTanggal = document.getElementById('tanggal');
-const taskArea  = document.getElementById('taskArea');
-const tripList  = document.getElementById('tripList');
-const noteKend  = document.getElementById('noteKendaraan');
-const noteTugas = document.getElementById('noteTugas');
+const elDriver=document.getElementById('driver');
+const elTanggal=document.getElementById('tanggal');
+const taskArea=document.getElementById('taskArea');
+const tripList=document.getElementById('tripList');
+const noteKend=document.getElementById('noteKendaraan');
+const noteTugas=document.getElementById('noteTugas');
 
-elTanggal.valueAsDate = new Date();
+elTanggal.valueAsDate=new Date();
 
-/* SESSION DRIVER */
-const savedDriver = localStorage.getItem('driver_name');
-if(savedDriver){
-  elDriver.value = savedDriver;
-  taskArea.classList.remove('hidden');
-}
+/* SESSION */
+const saved=localStorage.getItem('driver_name');
+if(saved){elDriver.value=saved;taskArea.classList.remove('hidden');}
 
-elDriver.addEventListener('change',()=>{
+elDriver.onchange=()=>{
   if(elDriver.value){
     localStorage.setItem('driver_name',elDriver.value);
     taskArea.classList.remove('hidden');
   }else{
     taskArea.classList.add('hidden');
   }
-});
+};
 
 /* CHECKBOX UI */
 document.addEventListener('change',e=>{
@@ -230,29 +223,28 @@ document.addEventListener('change',e=>{
   }
 });
 
-/* ADD TRIP */
+/* TRIP */
 function addTrip(){
   const d=document.createElement('div');
   d.className='trip';
-  d.innerHTML = `
-    <input placeholder="Tujuan">
-    <input placeholder="Jam">
-  `;
+  d.innerHTML='<input placeholder="Tujuan"><input placeholder="Jam">';
   tripList.appendChild(d);
 }
 
 /* CEK DUPLIKAT */
 async function cekDuplikat(){
-  const url = `${SCRIPT_URL}?action=check&driver=${encodeURIComponent(elDriver.value)}&tanggal=${elTanggal.value}`;
-  const r = await fetch(url);
-  const j = await r.json();
-  return j.exists === true;
+  const url=`${SCRIPT_URL}?driver=${encodeURIComponent(elDriver.value)}&tanggal=${elTanggal.value}`;
+  const r=await fetch(url);
+  const j=await r.json();
+  return j.exists===true;
 }
 
 /* SIMPAN */
 async function simpan(){
+  if(!elDriver.value){alert('Pilih driver');return;}
+
   if(await cekDuplikat()){
-    alert('❌ Data sudah ada');
+    alert('❌ Data tanggal ini sudah diisi');
     return;
   }
 
@@ -264,7 +256,7 @@ async function simpan(){
         driver:elDriver.value,
         tanggal:elTanggal.value,
         kategori:'PERJALANAN',
-        detail:`${r.children[0].value} ${r.children[1].value}`,
+        detail:r.children[0].value+' '+r.children[1].value,
         status:'SELESAI',
         catatan:''
       });
@@ -293,14 +285,14 @@ async function simpan(){
     });
   });
 
-  const res = await fetch(SCRIPT_URL,{
+  const res=await fetch(SCRIPT_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify(payload)
   }).then(r=>r.json());
 
   if(res.status==='SUCCESS'){
-    alert('✅ Data tersimpan');
+    alert('✅ Data berhasil masuk GSheet');
     location.reload();
   }else{
     alert('❌ Gagal menyimpan');
@@ -309,7 +301,7 @@ async function simpan(){
 
 function logout(){
   localStorage.removeItem('driver_name');
-  location.replace('login.html');
+  location.href='login.html';
 }
 </script>
 
