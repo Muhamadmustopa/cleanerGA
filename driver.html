@@ -1,1 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist Driver Daily</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  padding:16px;
+  font-family:Segoe UI,Arial;
+  background:linear-gradient(180deg,#e3f2fd,#f4f6f8);
+}
+
+/* CARD */
+.card{
+  max-width:900px;
+  margin:auto;
+  background:#fff;
+  border-radius:18px;
+  padding:18px;
+  box-shadow:0 8px 20px rgba(0,0,0,.12);
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+.header strong{font-size:16px}
+.logout{
+  background:#f44336;
+  color:#fff;
+  border:none;
+  padding:10px 14px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+/* FORM */
+label{
+  font-size:14px;
+  font-weight:600;
+}
+select,input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #ccc;
+  margin-top:6px;
+  font-size:14px;
+}
+
+/* TASK CARD */
+.task-card{
+  border:1px solid #e0e0e0;
+  border-radius:14px;
+  padding:12px;
+  margin-top:12px;
+  background:#fff;
+}
+.task-area{
+  font-size:13px;
+  font-weight:600;
+  color:#1976d2;
+  margin-bottom:4px;
+}
+.task-name{
+  font-size:14px;
+  margin-bottom:10px;
+}
+.check-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px;
+  font-size:14px;
+}
+.note{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+}
+
+/* BUTTON */
+button.save{
+  width:100%;
+  margin-top:18px;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  background:#4CAF50;
+  color:#fff;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* MOBILE */
+@media(max-width:600px){
+  body{padding:10px}
+  .card{padding:14px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="header">
+    <div>
+      <strong>Checklist Driver Harian</strong><br>
+      <small>Isi checklist sesuai tugas driver</small>
+    </div>
+    <button class="logout" onclick="logout()">Keluar</button>
+  </div>
+
+  <!-- DRIVER -->
+  <label>Nama Driver</label>
+  <select id="driver">
+    <option value="">-- Pilih Driver --</option>
+    <option value="Ahmad Yani">Ahmad Yani</option>
+    <option value="Sandi Suhendra">Sandi Suhendra</option>
+  </select>
+
+  <br><br>
+
+  <!-- LOKASI / RUTE -->
+  <label>Lokasi / Rute</label>
+  <select id="lokasi" onchange="renderTask()">
+    <option value="">-- Pilih Rute --</option>
+    <option value="POOL">Pool Kendaraan</option>
+    <option value="RUTE">Rute Operasional</option>
+  </select>
+
+  <br><br>
+
+  <!-- TANGGAL -->
+  <label>Tanggal</label>
+  <input type="date" id="tanggal">
+
+  <!-- TASK LIST -->
+  <div id="taskContainer"></div>
+
+  <button class="save" onclick="simpan()">Simpan Checklist</button>
+</div>
+
+<script>
+/* ================== KONFIG ================== */
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7ziY9k2Frrmnp-YNRbPDVtppIb7UE3m5Ww6iEdRkeKdw5S7k-rGQrivZxhVQbXxXs/exec';
+
+/* ================== ELEMENT ================== */
+const driverSelect  = document.getElementById('driver');
+const lokasiSelect  = document.getElementById('lokasi');
+const tanggalInput  = document.getElementById('tanggal');
+const taskContainer = document.getElementById('taskContainer');
+
+/* ================== AUTO ISI DRIVER ================== */
+const savedDriver = localStorage.getItem('driver_name');
+if(savedDriver){
+  driverSelect.value = savedDriver;
+}
+
+driverSelect.addEventListener('change',()=>{
+  localStorage.setItem('driver_name', driverSelect.value);
+});
+
+/* ================== TASK DRIVER ================== */
+const taskByLocation = {
+  POOL:[
+    {area:'Kendaraan',task:'Cek kondisi mesin'},
+    {area:'Kendaraan',task:'Cek oli & air radiator'},
+    {area:'Kendaraan',task:'Cek tekanan ban'},
+    {area:'Kendaraan',task:'Cek lampu & klakson'},
+    {area:'Kendaraan',task:'Membersihkan kabin kendaraan'},
+    {area:'Administrasi',task:'Isi buku kendaraan'}
+  ],
+  RUTE:[
+    {area:'Operasional',task:'Berangkat sesuai jadwal'},
+    {area:'Operasional',task:'Patuhi rute yang ditentukan'},
+    {area:'Operasional',task:'Cek BBM selama perjalanan'},
+    {area:'Operasional',task:'Laporkan kendala di perjalanan'},
+    {area:'Operasional',task:'Kembali ke pool dengan aman'}
+  ]
+};
+
+/* ================== DEFAULT TANGGAL ================== */
+tanggalInput.valueAsDate = new Date();
+
+/* ================== RENDER TASK ================== */
+function renderTask(){
+  taskContainer.innerHTML='';
+  const lokasi = lokasiSelect.value;
+  if(!lokasi) return;
+
+  taskByLocation[lokasi].forEach((t,i)=>{
+    taskContainer.innerHTML += `
+      <div class="task-card">
+        <div class="task-area">${t.area}</div>
+        <div class="task-name">${t.task}</div>
+
+        <label class="check-row">
+          <input type="checkbox" id="check${i}">
+          Selesai
+        </label>
+
+        <input type="text" id="note${i}" class="note" placeholder="Catatan (opsional)">
+      </div>
+    `;
+  });
+}
+
+/* ================== SIMPAN ================== */
+function simpan(){
+  const driver  = driverSelect.value;
+  const lokasi  = lokasiSelect.value;
+  const tanggal = tanggalInput.value;
+
+  if(!driver || !lokasi || !tanggal){
+    alert('Nama driver, rute, dan tanggal wajib diisi');
+    return;
+  }
+
+  const payload = [];
+  taskByLocation[lokasi].forEach((t,i)=>{
+    payload.push({
+      driver,
+      tanggal,
+      lokasi,
+      area:t.area,
+      task:t.task,
+      status:document.getElementById('check'+i).checked ? 'SELESAI' : 'BELUM',
+      catatan:document.getElementById('note'+i).value
+    });
+  });
+
+  fetch(SCRIPT_URL,{
+    method:'POST',
+    body:JSON.stringify(payload)
+  })
+  .then(r=>r.text())
+  .then(()=>{
+    alert('Checklist driver berhasil disimpan');
+    location.reload();
+  })
+  .catch(()=>{
+    alert('Gagal menyimpan data');
+  });
+}
+
+/* ================== LOGOUT ================== */
+function logout(){
+  localStorage.clear();
+  location.href='login.html';
+}
+</script>
+
+</body>
+</html>
 
