@@ -3,19 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checklist Driver Daily</title>
+<title>Checklist Driver Harian</title>
 
 <style>
 *{box-sizing:border-box}
-
 body{
   margin:0;
   padding:16px;
   font-family:Segoe UI,Arial;
   background:linear-gradient(180deg,#e3f2fd,#f4f6f8);
 }
-
-/* CARD */
 .card{
   max-width:900px;
   margin:auto;
@@ -24,8 +21,6 @@ body{
   padding:18px;
   box-shadow:0 8px 20px rgba(0,0,0,.12);
 }
-
-/* HEADER */
 .header{
   display:flex;
   justify-content:space-between;
@@ -41,12 +36,7 @@ body{
   border-radius:12px;
   cursor:pointer;
 }
-
-/* FORM */
-label{
-  font-size:14px;
-  font-weight:600;
-}
+label{font-size:14px;font-weight:600}
 select,input{
   width:100%;
   padding:12px;
@@ -56,27 +46,28 @@ select,input{
   font-size:14px;
 }
 
-/* TASK CARD */
-.task-card{
+/* SECTION */
+.section{
   border:1px solid #e0e0e0;
   border-radius:14px;
-  padding:12px;
-  margin-top:12px;
-  background:#fff;
+  padding:14px;
+  margin-top:14px;
 }
-.task-area{
-  font-size:13px;
-  font-weight:600;
+.section h4{
+  margin:0 0 10px;
+  font-size:15px;
   color:#1976d2;
-  margin-bottom:4px;
 }
-.task-name{
-  font-size:14px;
-  margin-bottom:10px;
+
+/* ITEM */
+.row{
+  display:flex;
+  gap:8px;
+  margin-bottom:8px;
 }
+.row input{flex:1}
 .check-row{
   display:flex;
-  align-items:center;
   gap:8px;
   margin-bottom:8px;
   font-size:14px;
@@ -88,7 +79,14 @@ select,input{
   border:1px solid #ccc;
 }
 
-/* BUTTON */
+button.add{
+  background:#e3f2fd;
+  border:1px dashed #1976d2;
+  padding:10px;
+  border-radius:10px;
+  cursor:pointer;
+  margin-top:6px;
+}
 button.save{
   width:100%;
   margin-top:18px;
@@ -101,11 +99,9 @@ button.save{
   font-weight:600;
   cursor:pointer;
 }
-
-/* MOBILE */
-@media(max-width:600px){
-  body{padding:10px}
-  .card{padding:14px}
+button.save:disabled{
+  opacity:.6;
+  cursor:not-allowed;
 }
 </style>
 </head>
@@ -117,7 +113,7 @@ button.save{
   <div class="header">
     <div>
       <strong>Checklist Driver Harian</strong><br>
-      <small>Isi checklist sesuai tugas driver</small>
+      <small>1 driver 1 laporan per hari</small>
     </div>
     <button class="logout" onclick="logout()">Keluar</button>
   </div>
@@ -126,18 +122,8 @@ button.save{
   <label>Nama Driver</label>
   <select id="driver">
     <option value="">-- Pilih Driver --</option>
-    <option value="Ahmad Yani">Ahmad Yani</option>
-    <option value="Sandi Suhendra">Sandi Suhendra</option>
-  </select>
-
-  <br><br>
-
-  <!-- LOKASI / RUTE -->
-  <label>Lokasi / Rute</label>
-  <select id="lokasi" onchange="renderTask()">
-    <option value="">-- Pilih Rute --</option>
-    <option value="POOL">Pool Kendaraan</option>
-    <option value="RUTE">Rute Operasional</option>
+    <option>Ahmad Yani</option>
+    <option>Sandi Suhendra</option>
   </select>
 
   <br><br>
@@ -146,113 +132,158 @@ button.save{
   <label>Tanggal</label>
   <input type="date" id="tanggal">
 
-  <!-- TASK LIST -->
-  <div id="taskContainer"></div>
+  <!-- ================= PERJALANAN ================= -->
+  <div class="section">
+    <h4>🚗 Perjalanan Hari Ini</h4>
+    <div id="tripList"></div>
+    <button class="add" onclick="addTrip()">+ Tambah Tujuan</button>
+  </div>
 
-  <button class="save" onclick="simpan()">Simpan Checklist</button>
+  <!-- ================= KENDARAAN ================= -->
+  <div class="section">
+    <h4>🔧 Pengecekan Kendaraan</h4>
+
+    <label class="check-row">
+      <input type="checkbox" data-kendaraan="Oli Mesin"> Oli Mesin
+    </label>
+    <label class="check-row">
+      <input type="checkbox" data-kendaraan="Ban"> Ban
+    </label>
+    <label class="check-row">
+      <input type="checkbox" data-kendaraan="Lampu & Klakson"> Lampu & Klakson
+    </label>
+    <label class="check-row">
+      <input type="checkbox" data-kendaraan="BBM"> BBM
+    </label>
+
+    <input class="note" id="noteKendaraan" placeholder="Catatan kendaraan">
+  </div>
+
+  <!-- ================= TUGAS LAIN ================= -->
+  <div class="section">
+    <h4>📦 Tugas Lainnya</h4>
+
+    <label class="check-row">
+      <input type="checkbox" data-tugas="Angkut Barang"> Angkut Barang
+    </label>
+    <label class="check-row">
+      <input type="checkbox" data-tugas="Jaga Meja Frontliner"> Jaga Meja Frontliner
+    </label>
+    <label class="check-row">
+      <input type="checkbox" data-tugas="Tugas Lain"> Tugas Lain
+    </label>
+
+    <input class="note" id="noteTugas" placeholder="Catatan tugas lain">
+  </div>
+
+  <button class="save" id="btnSave" onclick="simpan()">Simpan Laporan Harian</button>
 </div>
 
 <script>
-/* ================== KONFIG ================== */
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7ziY9k2Frrmnp-YNRbPDVtppIb7UE3m5Ww6iEdRkeKdw5S7k-rGQrivZxhVQbXxXs/exec';
+/* ================== CONFIG ================== */
+const SCRIPT_URL = 'PASTE_URL_WEB_APP_KAMU';
 
-/* ================== ELEMENT ================== */
-const driverSelect  = document.getElementById('driver');
-const lokasiSelect  = document.getElementById('lokasi');
-const tanggalInput  = document.getElementById('tanggal');
-const taskContainer = document.getElementById('taskContainer');
+/* ================== DEFAULT ================== */
+document.getElementById('tanggal').valueAsDate = new Date();
 
-/* ================== AUTO ISI DRIVER ================== */
-const savedDriver = localStorage.getItem('driver_name');
-if(savedDriver){
-  driverSelect.value = savedDriver;
+/* ================== CEK DUPLIKAT ================== */
+function cekSudahSubmit(){
+  const d = document.getElementById('driver').value;
+  const t = document.getElementById('tanggal').value;
+  if(!d || !t) return;
+
+  fetch(`${SCRIPT_URL}?driver=${encodeURIComponent(d)}&tanggal=${t}`)
+    .then(r=>r.json())
+    .then(res=>{
+      const btn = document.getElementById('btnSave');
+      if(res.exists){
+        alert('❌ Checklist tanggal ini sudah pernah diisi');
+        btn.disabled = true;
+      }else{
+        btn.disabled = false;
+      }
+    });
 }
 
-driverSelect.addEventListener('change',()=>{
-  localStorage.setItem('driver_name', driverSelect.value);
-});
+document.getElementById('driver').addEventListener('change',cekSudahSubmit);
+document.getElementById('tanggal').addEventListener('change',cekSudahSubmit);
 
-/* ================== TASK DRIVER ================== */
-const taskByLocation = {
-  POOL:[
-    {area:'Kendaraan',task:'Cek kondisi mesin'},
-    {area:'Kendaraan',task:'Cek oli & air radiator'},
-    {area:'Kendaraan',task:'Cek tekanan ban'},
-    {area:'Kendaraan',task:'Cek lampu & klakson'},
-    {area:'Kendaraan',task:'Membersihkan kabin kendaraan'},
-    {area:'Administrasi',task:'Isi buku kendaraan'}
-  ],
-  RUTE:[
-    {area:'Operasional',task:'Berangkat sesuai jadwal'},
-    {area:'Operasional',task:'Patuhi rute yang ditentukan'},
-    {area:'Operasional',task:'Cek BBM selama perjalanan'},
-    {area:'Operasional',task:'Laporkan kendala di perjalanan'},
-    {area:'Operasional',task:'Kembali ke pool dengan aman'}
-  ]
-};
-
-/* ================== DEFAULT TANGGAL ================== */
-tanggalInput.valueAsDate = new Date();
-
-/* ================== RENDER TASK ================== */
-function renderTask(){
-  taskContainer.innerHTML='';
-  const lokasi = lokasiSelect.value;
-  if(!lokasi) return;
-
-  taskByLocation[lokasi].forEach((t,i)=>{
-    taskContainer.innerHTML += `
-      <div class="task-card">
-        <div class="task-area">${t.area}</div>
-        <div class="task-name">${t.task}</div>
-
-        <label class="check-row">
-          <input type="checkbox" id="check${i}">
-          Selesai
-        </label>
-
-        <input type="text" id="note${i}" class="note" placeholder="Catatan (opsional)">
-      </div>
-    `;
-  });
+/* ================== TRIP ================== */
+function addTrip(){
+  const div = document.createElement('div');
+  div.className='row';
+  div.innerHTML=`
+    <input placeholder="Tujuan">
+    <input placeholder="Jam (contoh 09.00 - 11.00)">
+  `;
+  document.getElementById('tripList').appendChild(div);
 }
 
 /* ================== SIMPAN ================== */
 function simpan(){
-  const driver  = driverSelect.value;
-  const lokasi  = lokasiSelect.value;
-  const tanggal = tanggalInput.value;
+  const driver  = document.getElementById('driver').value;
+  const tanggal = document.getElementById('tanggal').value;
 
-  if(!driver || !lokasi || !tanggal){
-    alert('Nama driver, rute, dan tanggal wajib diisi');
+  if(!driver || !tanggal){
+    alert('Nama driver & tanggal wajib diisi');
     return;
   }
 
   const payload = [];
-  taskByLocation[lokasi].forEach((t,i)=>{
+
+  // PERJALANAN
+  document.querySelectorAll('#tripList .row').forEach(r=>{
+    const tujuan = r.children[0].value;
+    const jam    = r.children[1].value;
+    if(tujuan){
+      payload.push({
+        driver,tanggal,
+        kategori:'PERJALANAN',
+        detail:`${tujuan} (${jam})`,
+        status:'SELESAI',
+        catatan:''
+      });
+    }
+  });
+
+  // KENDARAAN
+  document.querySelectorAll('[data-kendaraan]').forEach(c=>{
     payload.push({
-      driver,
-      tanggal,
-      lokasi,
-      area:t.area,
-      task:t.task,
-      status:document.getElementById('check'+i).checked ? 'SELESAI' : 'BELUM',
-      catatan:document.getElementById('note'+i).value
+      driver,tanggal,
+      kategori:'KENDARAAN',
+      detail:c.dataset.kendaraan,
+      status:c.checked?'OK':'TIDAK',
+      catatan:document.getElementById('noteKendaraan').value
     });
+  });
+
+  // TUGAS LAIN
+  document.querySelectorAll('[data-tugas]').forEach(c=>{
+    if(c.checked){
+      payload.push({
+        driver,tanggal,
+        kategori:'TUGAS_LAIN',
+        detail:c.dataset.tugas,
+        status:'SELESAI',
+        catatan:document.getElementById('noteTugas').value
+      });
+    }
   });
 
   fetch(SCRIPT_URL,{
     method:'POST',
     body:JSON.stringify(payload)
   })
-  .then(r=>r.text())
-  .then(()=>{
-    alert('Checklist driver berhasil disimpan');
+  .then(r=>r.json())
+  .then(res=>{
+    if(res.status==='DUPLICATE'){
+      alert('❌ Data sudah pernah disubmit');
+      return;
+    }
+    alert('✅ Laporan driver berhasil disimpan');
     location.reload();
   })
-  .catch(()=>{
-    alert('Gagal menyimpan data');
-  });
+  .catch(()=>alert('Gagal menyimpan data'));
 }
 
 /* ================== LOGOUT ================== */
@@ -264,4 +295,3 @@ function logout(){
 
 </body>
 </html>
-
