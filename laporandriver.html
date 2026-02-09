@@ -8,52 +8,76 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+:root{
+  --primary:#1976d2;
+  --bg:#f4f6f8;
+}
+*{box-sizing:border-box}
+
 body{
-  margin:0;padding:16px;
+  margin:0;
+  padding:16px;
   font-family:Segoe UI,Arial;
-  background:#f4f6f8;
+  background:var(--bg);
 }
 
 .card{
-  max-width:1200px;
+  max-width:1100px;
   margin:auto;
   background:#fff;
   border-radius:18px;
-  padding:16px;
+  padding:18px;
   box-shadow:0 8px 20px rgba(0,0,0,.12);
 }
 
-.filters{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-}
-@media(max-width:700px){
-  .filters{grid-template-columns:1fr}
+/* HEADER */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:16px;
 }
 
-select,input{
-  padding:12px;
-  border-radius:12px;
+/* FILTER */
+.filter-bar{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;
+  margin-bottom:16px;
+}
+
+select,input,button{
+  padding:10px;
+  border-radius:10px;
   border:1px solid #ccc;
 }
 
 button{
-  padding:12px;
-  border-radius:12px;
+  background:var(--primary);
+  color:white;
   border:none;
-  background:#1976d2;
-  color:#fff;
   cursor:pointer;
+}
+
+/* DASHBOARD */
+.dashboard{
+  display:grid;
+  grid-template-columns:300px 1fr;
+  gap:16px;
+}
+
+@media(max-width:768px){
+  .dashboard{
+    grid-template-columns:1fr;
+  }
 }
 
 /* TABLE */
 .table-wrap{
-  margin-top:16px;
-  max-height:420px;
-  overflow:auto;
-  border-radius:12px;
   border:1px solid #ddd;
+  border-radius:12px;
+  overflow:hidden;
 }
 
 table{
@@ -63,11 +87,24 @@ table{
 }
 
 thead th{
-  position:sticky;
-  top:0;
-  background:#1976d2;
+  background:var(--primary);
   color:#fff;
   padding:10px;
+  position:sticky;
+  top:0;
+  z-index:1;
+}
+
+tbody{
+  display:block;
+  max-height:360px;
+  overflow:auto;
+}
+
+thead,tbody tr{
+  display:table;
+  width:100%;
+  table-layout:fixed;
 }
 
 td{
@@ -75,16 +112,7 @@ td{
   border-bottom:1px solid #eee;
 }
 
-/* DASHBOARD */
-.dashboard{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-  margin-top:16px;
-}
-@media(max-width:900px){
-  .dashboard{grid-template-columns:1fr}
-}
+td:nth-child(1){width:40px;text-align:center}
 </style>
 </head>
 
@@ -92,113 +120,170 @@ td{
 
 <div class="card">
 
-  <h2>📊 Dashboard Laporan Driver</h2>
+  <div class="header">
+    <div>
+      <strong>📊 Laporan Driver</strong><br>
+      <small>Rekap aktivitas driver</small>
+    </div>
+  </div>
 
   <!-- FILTER -->
-  <div class="filters">
-    <select id="filterDriver">
+  <div class="filter-bar">
+    <select id="fDriver">
       <option value="">Semua Driver</option>
-      <option>Ahmad Yani</option>
-      <option>Sandi Suhendra</option>
     </select>
 
-    <input type="month" id="filterBulan">
+    <select id="fMonth">
+      <option value="">Semua Bulan</option>
+      <option value="01">Januari</option>
+      <option value="02">Februari</option>
+      <option value="03">Maret</option>
+      <option value="04">April</option>
+      <option value="05">Mei</option>
+      <option value="06">Juni</option>
+      <option value="07">Juli</option>
+      <option value="08">Agustus</option>
+      <option value="09">September</option>
+      <option value="10">Oktober</option>
+      <option value="11">November</option>
+      <option value="12">Desember</option>
+    </select>
 
-    <button onclick="loadData()">Terapkan Filter</button>
+    <input type="date" id="fFrom">
+    <input type="date" id="fTo">
+
+    <button onclick="applyFilter()">Terapkan</button>
   </div>
 
   <!-- DASHBOARD -->
   <div class="dashboard">
-    <canvas id="chartKategori"></canvas>
-    <canvas id="chartStatus"></canvas>
-  </div>
 
-  <!-- TABLE -->
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Tanggal</th>
-          <th>Driver</th>
-          <th>Kategori</th>
-          <th>Detail</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-  </div>
+    <!-- PIE -->
+    <div>
+      <canvas id="chartStatus"></canvas>
+    </div>
 
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <table id="tbl">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Tanggal</th>
+            <th>Driver</th>
+            <th>Kategori</th>
+            <th>Detail</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+  </div>
 </div>
 
 <script>
-const SCRIPT_URL = 'PASTE_URL_WEBAPP_KAMU';
+/* =========================
+   CONFIG
+========================= */
+const SCRIPT_URL = 'PASTE_LINK_WEB_APP_KAMU_DI_SINI';
 
-let chartKategori, chartStatus;
+/* =========================
+   GLOBAL
+========================= */
+let RAW_DATA = [];
+let pieChart = null;
 
+/* =========================
+   LOAD DATA
+========================= */
 async function loadData(){
-  const driver = document.getElementById('filterDriver').value;
-  const bulan  = document.getElementById('filterBulan').value;
-
-  const url = `${SCRIPT_URL}?action=report&driver=${driver}&bulan=${bulan}`;
-  const res = await fetch(url).then(r=>r.json());
-  const data = res.data || [];
-
-  renderTable(data);
-  renderChart(data);
+  const res = await fetch(SCRIPT_URL);
+  RAW_DATA = await res.json();
+  renderDriverOption(RAW_DATA);
+  applyFilter();
 }
 
-function renderTable(data){
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML='';
+function renderDriverOption(data){
+  const sel = document.getElementById('fDriver');
+  const set = new Set(data.map(d=>d.Driver));
+  set.forEach(n=>{
+    const o=document.createElement('option');
+    o.value=o.textContent=n;
+    sel.appendChild(o);
+  });
+}
 
-  data.slice(0,10).forEach(d=>{
+/* =========================
+   FILTER
+========================= */
+function applyFilter(){
+  const fDriver=document.getElementById('fDriver').value;
+  const fMonth=document.getElementById('fMonth').value;
+  const fFrom=document.getElementById('fFrom').value;
+  const fTo=document.getElementById('fTo').value;
+
+  let data=[...RAW_DATA];
+
+  if(fDriver){
+    data=data.filter(d=>d.Driver===fDriver);
+  }
+
+  if(fFrom && fTo){
+    data=data.filter(d=>d.Tanggal>=fFrom && d.Tanggal<=fTo);
+  }else if(fMonth){
+    data=data.filter(d=>d.Tanggal.substring(5,7)===fMonth);
+  }
+
+  renderTable(data.slice(0,10));
+  renderPie(data);
+}
+
+/* =========================
+   TABLE
+========================= */
+function renderTable(data){
+  const tbody=document.querySelector('#tbl tbody');
+  tbody.innerHTML='';
+  data.forEach((d,i)=>{
     tbody.innerHTML+=`
       <tr>
-        <td>${d.tanggal}</td>
-        <td>${d.driver}</td>
-        <td>${d.kategori}</td>
-        <td>${d.detail}</td>
-        <td>${d.status}</td>
-      </tr>`;
+        <td>${i+1}</td>
+        <td>${d.Tanggal}</td>
+        <td>${d.Driver}</td>
+        <td>${d.Kategori}</td>
+        <td>${d.Detail}</td>
+        <td>${d.Status}</td>
+      </tr>
+    `;
   });
 }
 
-function renderChart(data){
-  const byKategori = {};
-  const byStatus = {};
+/* =========================
+   PIE CHART
+========================= */
+function renderPie(data){
+  const ok=data.filter(d=>d.Status==='OK').length;
+  const no=data.filter(d=>d.Status!=='OK').length;
 
-  data.forEach(d=>{
-    byKategori[d.kategori]=(byKategori[d.kategori]||0)+1;
-    byStatus[d.status]=(byStatus[d.status]||0)+1;
+  if(pieChart) pieChart.destroy();
+
+  pieChart=new Chart(document.getElementById('chartStatus'),{
+    type:'pie',
+    data:{
+      labels:['OK','Tidak'],
+      datasets:[{
+        data:[ok,no],
+        backgroundColor:['#4CAF50','#f44336']
+      }]
+    }
   });
-
-  if(chartKategori) chartKategori.destroy();
-  if(chartStatus) chartStatus.destroy();
-
-  chartKategori = new Chart(
-    document.getElementById('chartKategori'),
-    {
-      type:'pie',
-      data:{
-        labels:Object.keys(byKategori),
-        datasets:[{data:Object.values(byKategori)}]
-      }
-    }
-  );
-
-  chartStatus = new Chart(
-    document.getElementById('chartStatus'),
-    {
-      type:'pie',
-      data:{
-        labels:Object.keys(byStatus),
-        datasets:[{data:Object.values(byStatus)}]
-      }
-    }
-  );
 }
 
+/* =========================
+   INIT
+========================= */
 loadData();
 </script>
 
