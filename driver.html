@@ -150,6 +150,17 @@ const tripList  = document.getElementById('tripList');
 const noteKend  = document.getElementById('noteKendaraan');
 const noteTugas = document.getElementById('noteTugas');
 
+async function cekDuplikat(){
+  if(!elDriver.value || !elTanggal.value) return false;
+
+  const url = `${SCRIPT_URL}?driver=${encodeURIComponent(elDriver.value)}&tanggal=${elTanggal.value}`;
+  const res = await fetch(url);
+  const json = await res.json();
+
+  return json.exists === true;
+}
+
+
 /* === SESSION DRIVER FIX === */
 const savedDriver = localStorage.getItem('driver_name');
 if(savedDriver){
@@ -184,14 +195,27 @@ function addTrip(){
 }
 
 /* SIMPAN */
-function simpan(){
+async function simpan(){
   if(!elDriver.value){
     alert('Pilih driver dulu');
     return;
   }
 
+  if(!elTanggal.value){
+    alert('Tanggal wajib diisi');
+    return;
+  }
+
+  // === CEK DUPLIKAT ===
+  const sudahAda = await cekDuplikat();
+  if(sudahAda){
+    alert('❌ Data driver & tanggal ini sudah pernah diisi');
+    return;
+  }
+
   const payload=[];
 
+  // PERJALANAN
   document.querySelectorAll('#tripList .trip').forEach(r=>{
     if(r.children[0].value){
       payload.push({
@@ -205,17 +229,19 @@ function simpan(){
     }
   });
 
+  // KENDARAAN
   document.querySelectorAll('[data-kendaraan]').forEach(c=>{
     payload.push({
       driver:elDriver.value,
       tanggal:elTanggal.value,
       kategori:'KENDARAAN',
       detail:c.dataset.kendaraan,
-      status:c.checked?'OK':'TIDAK',
+      status:c.checked ? 'OK' : 'TIDAK',
       catatan:noteKend.value
     });
   });
 
+  // TUGAS LAIN
   document.querySelectorAll('[data-tugas]').forEach(c=>{
     if(c.checked){
       payload.push({
@@ -229,6 +255,12 @@ function simpan(){
     }
   });
 
+  if(payload.length === 0){
+    alert('Tidak ada data untuk disimpan');
+    return;
+  }
+
+  // === SUBMIT ===
   fetch(SCRIPT_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -236,15 +268,18 @@ function simpan(){
   })
   .then(r=>r.json())
   .then(res=>{
-    if(res.status==='DUPLICATE'){
-      alert('❌ Data tanggal ini sudah diisi');
-    }else{
-      alert('✅ Data berhasil disimpan');
+    if(res.status === 'SUCCESS'){
+      alert('✅ Data berhasil disimpan ke GSheet');
       location.reload();
+    }else if(res.status === 'DUPLICATE'){
+      alert('❌ Data sudah ada');
+    }else{
+      alert('⚠️ Gagal menyimpan data');
     }
   })
   .catch(err=>alert(err.message));
 }
+
 
 function logout(){
   localStorage.removeItem('driver_name');
