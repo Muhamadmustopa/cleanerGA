@@ -105,17 +105,7 @@ body::before{
 }
 
 .app{
-  width:100%;
-  max-width:420px;
-  margin:16px;
-  background:rgba(255,255,255,.94);
-  border-radius:28px;
-  box-shadow:var(--shadow);
-  padding:24px 20px 28px;
-  opacity:0;
-  transform:translateY(20px);
-  animation:showApp .8s ease forwards;
-  animation-delay:2.1s;
+  display:none;
 }
 
 @keyframes showApp{
@@ -195,6 +185,14 @@ body::before{
 @media(max-width:360px){
   .menu{grid-template-columns:1fr}
 }
+
+<script>
+setTimeout(()=>{
+  document.getElementById('splash').style.display='none';
+  document.querySelector('.app').style.display='block';
+},2000);
+</script>
+
 </style>
 </head>
 
