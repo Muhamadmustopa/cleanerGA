@@ -13,14 +13,9 @@ body{
   margin:0;
   padding:16px;
   font-family:Segoe UI, Arial;
-  background:linear-gradient(180deg,
-    #e3f2fd 0%,
-    #f1f8ff 40%,
-    #f4f6f8 100%
-  );
+  background:linear-gradient(180deg,#e3f2fd 0%,#f1f8ff 40%,#f4f6f8 100%);
   min-height:100vh;
 }
-
 
 /* BACK */
 .back-btn{
@@ -82,6 +77,13 @@ select,input{
 }
 
 /* TABLE */
+.table-wrap{
+  max-height:520px;   /* ± 13 baris */
+  overflow-y:auto;
+  border-radius:12px;
+  border:1px solid #eee;
+}
+
 table{
   width:100%;
   border-collapse:collapse;
@@ -94,7 +96,10 @@ th,td{
 }
 th{
   background:#f1f3f4;
-  font-weight:600
+  font-weight:600;
+  position:sticky;
+  top:0;
+  z-index:2
 }
 tr:hover{background:#fafafa}
 
@@ -111,7 +116,7 @@ tr:hover{background:#fafafa}
 
 /* MOBILE */
 @media(max-width:720px){
-  table,thead{display:none}
+  .table-wrap,table,thead{display:none}
   .row{
     background:#fff;
     border:1px solid #eee;
@@ -149,18 +154,20 @@ tr:hover{background:#fafafa}
   </div>
 
   <!-- TABLE -->
-  <table>
-    <thead>
-      <tr>
-        <th>Tanggal</th>
-        <th>Lokasi</th>
-        <th>Task</th>
-        <th>Status</th>
-        <th>Catatan</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Lokasi</th>
+          <th>Task</th>
+          <th>Status</th>
+          <th>Catatan</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
 
   <!-- MOBILE -->
   <div id="mobile"></div>
@@ -185,14 +192,25 @@ function normDate(d){
   return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
 }
 
+/* DEDUPLICATE DATA */
+function dedupe(data){
+  const map=new Map();
+  data.forEach(d=>{
+    const key=`${d.Tanggal}|${d.Lokasi}|${d.Task}`;
+    if(!map.has(key)) map.set(key,d);
+  });
+  return [...map.values()];
+}
+
 /* LOAD DATA */
 fetch(SCRIPT_URL)
 .then(r=>r.json())
 .then(data=>{
-  rawData=data.map(d=>({
+  const clean=dedupe(data);
+  rawData=clean.map(d=>({
     ...d,
     DateFix:normDate(d.Tanggal),
-    Month:d.Tanggal.slice(0,7)
+    Month:normDate(d.Tanggal).slice(0,7)
   }));
   initFilter();
   render();
@@ -200,8 +218,7 @@ fetch(SCRIPT_URL)
 
 /* FILTER LOKASI */
 function initFilter(){
-  [...new Set(rawData.map(d=>d.Lokasi))]
-  .forEach(l=>{
+  [...new Set(rawData.map(d=>d.Lokasi))].forEach(l=>{
     const o=document.createElement('option');
     o.value=l;o.textContent=l;
     fLokasi.appendChild(o);
@@ -248,34 +265,31 @@ function render(){
   updateCharts(data);
 }
 
-/* CHARTS */
+/* CHART */
 function updateCharts(data){
-  /* TREND */
   const m={};
-  data.forEach(d=>{m[d.Month]=(m[d.Month]||0)+1});
+  data.forEach(d=>m[d.Month]=(m[d.Month]||0)+1);
   trendChart?.destroy();
-  trendChart=new Chart(trendChart?.canvas||document.getElementById('trendChart'),{
+  trendChart=new Chart(document.getElementById('trendChart'),{
     type:'line',
     data:{labels:Object.keys(m),datasets:[{label:'Checklist',data:Object.values(m),borderColor:'#1976D2'}]}
   });
 
-  /* STATUS */
   const a=data.filter(d=>d.Status==='AMAN').length;
   const t=data.length-a;
   statusChart?.destroy();
-  statusChart=new Chart(statusChart?.canvas||document.getElementById('statusChart'),{
+  statusChart=new Chart(document.getElementById('statusChart'),{
     type:'doughnut',
     data:{labels:['AMAN','TIDAK'],datasets:[{data:[a,t],backgroundColor:['#2e7d32','#c62828']}]}
   });
 
-  /* PER LOKASI */
   const loc={};
   data.forEach(d=>{
     if(!loc[d.Lokasi]) loc[d.Lokasi]={a:0,t:0};
     d.Status==='AMAN'?loc[d.Lokasi].a++:loc[d.Lokasi].t++;
   });
   lokasiChart?.destroy();
-  lokasiChart=new Chart(lokasiChart?.canvas||document.getElementById('lokasiChart'),{
+  lokasiChart=new Chart(document.getElementById('lokasiChart'),{
     type:'bar',
     data:{
       labels:Object.keys(loc),
