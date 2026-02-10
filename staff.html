@@ -64,15 +64,15 @@ select,input{
   border:1px solid #e0e0e0;
   background:#fafafa;
 }
-.section h3{
-  margin:0 0 10px;
-  font-size:15px;
-  color:#1976d2;
-}
 
 /* TASK INPUT */
 .task-input{
   margin-bottom:8px;
+}
+
+/* HIDDEN */
+.hidden{
+  display:none;
 }
 
 /* BUTTON */
@@ -104,7 +104,7 @@ button.save{
   <div class="header">
     <div>
       <strong>Laporan Staff Harian</strong><br>
-      <small>Isi laporan pekerjaan harian</small>
+      <small>Silakan pilih nama staff terlebih dahulu</small>
     </div>
     <button class="logout" onclick="logout()">Keluar</button>
   </div>
@@ -123,25 +123,34 @@ button.save{
   <label>Tanggal</label>
   <input type="date" id="tanggal">
 
-  <!-- TASK CLEAR -->
-  <div class="section">
-    <h3>Task Clear (Selesai Hari Ini)</h3>
-    <div id="taskClear"></div>
+  <!-- TASK WRAPPER -->
+  <div id="taskWrapper" class="hidden">
+
+    <!-- TASK CLEAR -->
+    <div class="section">
+      <h3>Task Clear (Selesai Hari Ini)</h3>
+      <div id="taskClear"></div>
+    </div>
+
+    <!-- TASK PENDING -->
+    <div class="section">
+      <h3>Task Pending / Plan Tomorrow</h3>
+      <div id="taskPending"></div>
+    </div>
+
+    <button class="save" onclick="simpan()">Simpan Laporan</button>
   </div>
 
-  <!-- TASK PENDING -->
-  <div class="section">
-    <h3>Task Pending / Plan Tomorrow</h3>
-    <div id="taskPending"></div>
-  </div>
-
-  <button class="save" onclick="simpan()">Simpan</button>
 </div>
 
 <script>
+/* ================== WEB APP URL ================== */
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV2v2oB-7b26pOgzbrlX9dqkYEtzZbWUxghJ4Tyc13wIphCVVnz-nAxMjA-kwtN3MGNg/exec';
+
 /* ================== ELEMENT ================== */
 const staffSelect   = document.getElementById('staff');
 const tanggalInput  = document.getElementById('tanggal');
+const taskWrapper   = document.getElementById('taskWrapper');
 const taskClearDiv  = document.getElementById('taskClear');
 const taskPendDiv   = document.getElementById('taskPending');
 
@@ -150,6 +159,7 @@ tanggalInput.valueAsDate = new Date();
 
 /* ================== GENERATE INPUT ================== */
 function generateInputs(container, prefix){
+  container.innerHTML = '';
   for(let i=1;i<=8;i++){
     container.innerHTML += `
       <input type="text" class="task-input" id="${prefix}${i}" placeholder="Task ${i}">
@@ -159,7 +169,16 @@ function generateInputs(container, prefix){
 generateInputs(taskClearDiv,'clear');
 generateInputs(taskPendDiv,'pending');
 
-/* ================== SIMPAN (FRONTEND ONLY) ================== */
+/* ================== SHOW / HIDE TASK ================== */
+staffSelect.addEventListener('change',()=>{
+  if(staffSelect.value){
+    taskWrapper.classList.remove('hidden');
+  }else{
+    taskWrapper.classList.add('hidden');
+  }
+});
+
+/* ================== SIMPAN ================== */
 function simpan(){
   const staff   = staffSelect.value;
   const tanggal = tanggalInput.value;
@@ -179,15 +198,35 @@ function simpan(){
     if(p) pendingTask.push(p);
   }
 
-  console.log({
+  if(clearTask.length === 0 && pendingTask.length === 0){
+    alert('Minimal isi 1 task');
+    return;
+  }
+
+  const payload = {
     staff,
     tanggal,
     task_clear: clearTask,
     task_pending: pendingTask
-  });
+  };
 
-  alert('Laporan tersimpan (sementara di browser)');
-  location.reload();
+  fetch(SCRIPT_URL,{
+    method:'POST',
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(res => {
+    if(res.status === 'success'){
+      alert('Laporan berhasil disimpan ke Google Sheet');
+      location.reload();
+    }else{
+      alert('Gagal menyimpan data: ' + res.message);
+    }
+  })
+  .catch(err => {
+    alert('Koneksi ke server gagal');
+    console.error(err);
+  });
 }
 
 /* ================== LOGOUT ================== */
