@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan Staff Harian</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  padding:16px;
+  font-family:Segoe UI,Arial;
+  background:linear-gradient(180deg,#e3f2fd,#f4f6f8);
+}
+
+/* CARD */
+.card{
+  max-width:900px;
+  margin:auto;
+  background:#fff;
+  border-radius:18px;
+  padding:18px;
+  box-shadow:0 8px 20px rgba(0,0,0,.12);
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+}
+.header strong{font-size:16px}
+.logout{
+  background:#f44336;
+  color:#fff;
+  border:none;
+  padding:10px 14px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+/* FORM */
+label{
+  font-size:14px;
+  font-weight:600;
+}
+select,input{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #ccc;
+  margin-top:6px;
+  font-size:14px;
+}
+
+/* SECTION */
+.section{
+  margin-top:18px;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid #e0e0e0;
+  background:#fafafa;
+}
+.section h3{
+  margin:0 0 10px;
+  font-size:15px;
+  color:#1976d2;
+}
+
+/* TASK INPUT */
+.task-input{
+  margin-bottom:8px;
+}
+
+/* BUTTON */
+button.save{
+  width:100%;
+  margin-top:20px;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  background:#4CAF50;
+  color:#fff;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+/* MOBILE */
+@media(max-width:600px){
+  body{padding:10px}
+  .card{padding:14px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="header">
+    <div>
+      <strong>Laporan Staff Harian</strong><br>
+      <small>Isi laporan pekerjaan harian</small>
+    </div>
+    <button class="logout" onclick="logout()">Keluar</button>
+  </div>
+
+  <!-- STAFF -->
+  <label>Nama Staff</label>
+  <select id="staff">
+    <option value="">-- Pilih Staff --</option>
+    <option value="Muhamad Mustopa - Staff GA">Muhamad Mustopa - Staff GA</option>
+    <option value="Abdul Apso - Staff Services">Abdul Apso - Staff Services</option>
+  </select>
+
+  <br><br>
+
+  <!-- TANGGAL -->
+  <label>Tanggal</label>
+  <input type="date" id="tanggal">
+
+  <!-- TASK CLEAR -->
+  <div class="section">
+    <h3>Task Clear (Selesai Hari Ini)</h3>
+    <div id="taskClear"></div>
+  </div>
+
+  <!-- TASK PENDING -->
+  <div class="section">
+    <h3>Task Pending / Plan Tomorrow</h3>
+    <div id="taskPending"></div>
+  </div>
+
+  <button class="save" onclick="simpan()">Simpan</button>
+</div>
+
+<script>
+/* ================== ELEMENT ================== */
+const staffSelect   = document.getElementById('staff');
+const tanggalInput  = document.getElementById('tanggal');
+const taskClearDiv  = document.getElementById('taskClear');
+const taskPendDiv   = document.getElementById('taskPending');
+
+/* ================== DEFAULT TANGGAL ================== */
+tanggalInput.valueAsDate = new Date();
+
+/* ================== GENERATE INPUT ================== */
+function generateInputs(container, prefix){
+  for(let i=1;i<=8;i++){
+    container.innerHTML += `
+      <input type="text" class="task-input" id="${prefix}${i}" placeholder="Task ${i}">
+    `;
+  }
+}
+generateInputs(taskClearDiv,'clear');
+generateInputs(taskPendDiv,'pending');
+
+/* ================== SIMPAN (FRONTEND ONLY) ================== */
+function simpan(){
+  const staff   = staffSelect.value;
+  const tanggal = tanggalInput.value;
+
+  if(!staff || !tanggal){
+    alert('Nama staff dan tanggal wajib diisi');
+    return;
+  }
+
+  const clearTask = [];
+  const pendingTask = [];
+
+  for(let i=1;i<=8;i++){
+    const c = document.getElementById('clear'+i).value;
+    const p = document.getElementById('pending'+i).value;
+    if(c) clearTask.push(c);
+    if(p) pendingTask.push(p);
+  }
+
+  console.log({
+    staff,
+    tanggal,
+    task_clear: clearTask,
+    task_pending: pendingTask
+  });
+
+  alert('Laporan tersimpan (sementara di browser)');
+  location.reload();
+}
+
+/* ================== LOGOUT ================== */
+function logout(){
+  localStorage.clear();
+  location.href='login.html';
+}
+</script>
+
+</body>
+</html>
