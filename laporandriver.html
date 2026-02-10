@@ -8,247 +8,202 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-:root{
-  --primary:#1976d2;
-  --bg:#f4f6f8;
-}
 *{box-sizing:border-box}
-
 body{
   margin:0;
   padding:16px;
-  font-family:Segoe UI,Arial;
-  background:var(--bg);
+  font-family:Segoe UI, Arial;
+  background:linear-gradient(180deg,#e3f2fd 0%,#f1f8ff 40%,#f4f6f8 100%);
+  min-height:100vh;
+}
+
+.back-btn{
+  position:fixed;
+  top:14px;
+  left:14px;
+  background:#1976D2;
+  color:#fff;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  font-size:20px;
+  box-shadow:0 4px 10px rgba(0,0,0,.25);
+  z-index:999
 }
 
 .card{
-  max-width:1100px;
-  margin:auto;
+  max-width:1200px;
+  margin:60px auto 0;
   background:#fff;
-  border-radius:18px;
+  border-radius:16px;
   padding:18px;
-  box-shadow:0 8px 20px rgba(0,0,0,.12);
+  box-shadow:0 6px 14px rgba(0,0,0,.12)
 }
 
-/* HEADER */
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  margin-bottom:16px;
-}
-
-/* FILTER */
-.filter-bar{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:10px;
-  margin-bottom:16px;
-}
-
-select,input,button{
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-}
-
-button{
-  background:var(--primary);
-  color:white;
-  border:none;
-  cursor:pointer;
-}
+h2{text-align:center;margin-bottom:16px}
 
 /* DASHBOARD */
 .dashboard{
   display:grid;
-  grid-template-columns:300px 1fr;
-  gap:16px;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:14px;
+  margin-bottom:18px
+}
+.dash-box{
+  background:#fafafa;
+  border-radius:12px;
+  padding:12px;
+  border:1px solid #eee
 }
 
-@media(max-width:768px){
-  .dashboard{
-    grid-template-columns:1fr;
-  }
+/* FILTER */
+.filter{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr 1fr;
+  gap:10px;
+  margin-bottom:14px
+}
+select,input{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:14px
 }
 
 /* TABLE */
 .table-wrap{
-  border:1px solid #ddd;
+  max-height:520px;
+  overflow-y:auto;
   border-radius:12px;
-  overflow:hidden;
+  border:1px solid #eee;
 }
-
 table{
   width:100%;
   border-collapse:collapse;
-  font-size:14px;
+  font-size:14px
 }
-
-thead th{
-  background:var(--primary);
-  color:#fff;
+th,td{
   padding:10px;
-  position:sticky;
-  top:0;
-  z-index:1;
-}
-
-tbody{
-  display:block;
-  max-height:360px;
-  overflow:auto;
-}
-
-thead,tbody tr{
-  display:table;
-  width:100%;
-  table-layout:fixed;
-}
-
-td{
-  padding:8px;
   border-bottom:1px solid #eee;
 }
+th{
+  background:#f1f3f4;
+  position:sticky;
+  top:0;
+  z-index:2
+}
 
-td:nth-child(1){width:40px;text-align:center}
+/* STATUS */
+.badge{
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600
+}
+.ok{background:#e8f5e9;color:#2e7d32}
+.no{background:#fdecea;color:#c62828}
+
+@media(max-width:720px){
+  .dashboard,.table-wrap,table,thead{display:none}
+}
 </style>
 </head>
 
 <body>
 
+<a href="login.html" class="back-btn">⬅</a>
+
 <div class="card">
+<h2>🚚 Dashboard & Laporan Driver</h2>
 
-  <div class="header">
-    <div>
-      <strong>📊 Laporan Driver</strong><br>
-      <small>Rekap aktivitas driver</small>
-    </div>
-  </div>
-
-  <!-- FILTER -->
-     <div class="filters">
-    <select id="fDriver">
-      <option value="">Semua Driver</option>
-      <option>Ahmad Yani</option>
-      <option>Sandi Suhendra</option>
-    </select>
-
-    <select id="fMonth">
-      <option value="">Semua Bulan</option>
-      <option value="01">Januari</option>
-      <option value="02">Februari</option>
-      <option value="03">Maret</option>
-      <option value="04">April</option>
-      <option value="05">Mei</option>
-      <option value="06">Juni</option>
-      <option value="07">Juli</option>
-      <option value="08">Agustus</option>
-      <option value="09">September</option>
-      <option value="10">Oktober</option>
-      <option value="11">November</option>
-      <option value="12">Desember</option>
-    </select>
-
-    <input type="date" id="fFrom">
-    <input type="date" id="fTo">
-
-    <button onclick="applyFilter()">Terapkan</button>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div class="dashboard">
-
-    <!-- PIE -->
-    <div>
-      <canvas id="chartStatus"></canvas>
-    </div>
-
-    <!-- TABLE -->
-    <div class="table-wrap">
-      <table id="tbl">
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Tanggal</th>
-            <th>Driver</th>
-            <th>Kategori</th>
-            <th>Detail</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
+<!-- DASHBOARD -->
+<div class="dashboard">
+  <div class="dash-box">
+    <canvas id="statusChart"></canvas>
   </div>
 </div>
 
+<!-- FILTER -->
+<div class="filter">
+  <select id="fDriver">
+    <option value="">Semua Driver</option>
+  </select>
+  <input type="date" id="fromDate">
+  <input type="date" id="toDate">
+  <input type="text" id="search" placeholder="Cari kategori / detail">
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+  <th>No</th>
+  <th>Tanggal</th>
+  <th>Driver</th>
+  <th>Kategori</th>
+  <th>Detail</th>
+  <th>Status</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+
+</div>
+
 <script>
-/* =========================
-   CONFIG
-========================= */
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx52fcscRuhoGmsH1L5pVlVJs47d8Ggie1DEnDl3M7812XM0gHn3yAjcgM9eeVuuyfS/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbx52fcscRuhoGmsH1L5pVlVJs47d8Ggie1DEnDl3M7812XM0gHn3yAjcgM9eeVuuyfS/exec';
 
-/* =========================
-   GLOBAL
-========================= */
-let RAW_DATA = [];
-let pieChart = null;
+let rawData=[];
+let statusChart;
 
-/* =========================
-   LOAD DATA
-========================= */
-async function loadData(){
-  const res = await fetch(SCRIPT_URL);
-  RAW_DATA = await res.json();
-  renderDriverOption(RAW_DATA);
-  applyFilter();
-}
+const tbody=document.getElementById('tbody');
+const fDriver=document.getElementById('fDriver');
+const fromDate=document.getElementById('fromDate');
+const toDate=document.getElementById('toDate');
+const search=document.getElementById('search');
 
-function renderDriverOption(data){
-  const sel = document.getElementById('fDriver');
-  const set = new Set(data.map(d=>d.Driver));
-  set.forEach(n=>{
+/* LOAD DATA */
+fetch(SCRIPT_URL)
+.then(r=>r.json())
+.then(data=>{
+  rawData=data;
+  initDriver();
+  render();
+});
+
+/* INIT DRIVER */
+function initDriver(){
+  [...new Set(rawData.map(d=>d.Driver))].forEach(n=>{
     const o=document.createElement('option');
     o.value=o.textContent=n;
-    sel.appendChild(o);
+    fDriver.appendChild(o);
   });
 }
 
-/* =========================
-   FILTER
-========================= */
-function applyFilter(){
-  const fDriver=document.getElementById('fDriver').value;
-  const fMonth=document.getElementById('fMonth').value;
-  const fFrom=document.getElementById('fFrom').value;
-  const fTo=document.getElementById('fTo').value;
-
-  let data=[...RAW_DATA];
-
-  if(fDriver){
-    data=data.filter(d=>d.Driver===fDriver);
-  }
-
-  if(fFrom && fTo){
-    data=data.filter(d=>d.Tanggal>=fFrom && d.Tanggal<=fTo);
-  }else if(fMonth){
-    data=data.filter(d=>d.Tanggal.substring(5,7)===fMonth);
-  }
-
-  renderTable(data.slice(0,10));
-  renderPie(data);
-}
-
-/* =========================
-   TABLE
-========================= */
-function renderTable(data){
-  const tbody=document.querySelector('#tbl tbody');
+/* RENDER */
+function render(){
   tbody.innerHTML='';
-  data.forEach((d,i)=>{
+
+  const fd=fromDate.value;
+  const td=toDate.value;
+  const drv=fDriver.value;
+  const s=search.value.toLowerCase();
+
+  let data=rawData.filter(d=>{
+    if(drv && d.Driver!==drv) return false;
+    if(fd && d.Tanggal<fd) return false;
+    if(td && d.Tanggal>td) return false;
+    if(s && !(d.Kategori+d.Detail).toLowerCase().includes(s)) return false;
+    return true;
+  });
+
+  data.slice(0,10).forEach((d,i)=>{
     tbody.innerHTML+=`
       <tr>
         <td>${i+1}</td>
@@ -256,37 +211,38 @@ function renderTable(data){
         <td>${d.Driver}</td>
         <td>${d.Kategori}</td>
         <td>${d.Detail}</td>
-        <td>${d.Status}</td>
+        <td>
+          <span class="badge ${d.Status==='OK'?'ok':'no'}">
+            ${d.Status}
+          </span>
+        </td>
       </tr>
     `;
   });
+
+  updateChart(data);
 }
 
-/* =========================
-   PIE CHART
-========================= */
-function renderPie(data){
+/* CHART */
+function updateChart(data){
   const ok=data.filter(d=>d.Status==='OK').length;
-  const no=data.filter(d=>d.Status!=='OK').length;
+  const no=data.length-ok;
 
-  if(pieChart) pieChart.destroy();
-
-  pieChart=new Chart(document.getElementById('chartStatus'),{
-    type:'pie',
+  statusChart?.destroy();
+  statusChart=new Chart(document.getElementById('statusChart'),{
+    type:'doughnut',
     data:{
       labels:['OK','Tidak'],
       datasets:[{
         data:[ok,no],
-        backgroundColor:['#4CAF50','#f44336']
+        backgroundColor:['#2e7d32','#c62828']
       }]
     }
   });
 }
 
-/* =========================
-   INIT
-========================= */
-loadData();
+/* EVENT */
+[fDriver,fromDate,toDate,search].forEach(e=>e.addEventListener('input',render));
 </script>
 
 </body>
