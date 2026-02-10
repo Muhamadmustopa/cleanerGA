@@ -17,7 +17,6 @@ body{
   min-height:100vh;
 }
 
-/* BACK */
 .back-btn{
   position:fixed;
   top:14px;
@@ -36,7 +35,6 @@ body{
   z-index:999
 }
 
-/* CARD */
 .card{
   max-width:1200px;
   margin:60px auto 0;
@@ -46,7 +44,7 @@ body{
   box-shadow:0 6px 14px rgba(0,0,0,.12)
 }
 
-h2{text-align:center;margin:0 0 16px}
+h2{text-align:center;margin-bottom:16px}
 
 /* DASHBOARD */
 .dashboard{
@@ -65,7 +63,7 @@ h2{text-align:center;margin:0 0 16px}
 /* FILTER */
 .filter{
   display:grid;
-  grid-template-columns:1fr 1fr 2fr;
+  grid-template-columns:1fr 1fr 1fr 2fr;
   gap:10px;
   margin-bottom:14px
 }
@@ -78,12 +76,11 @@ select,input{
 
 /* TABLE */
 .table-wrap{
-  max-height:520px;   /* ± 13 baris */
+  max-height:520px;
   overflow-y:auto;
   border-radius:12px;
   border:1px solid #eee;
 }
-
 table{
   width:100%;
   border-collapse:collapse;
@@ -92,40 +89,26 @@ table{
 th,td{
   padding:10px;
   border-bottom:1px solid #eee;
-  vertical-align:top
 }
 th{
   background:#f1f3f4;
-  font-weight:600;
   position:sticky;
   top:0;
   z-index:2
 }
-tr:hover{background:#fafafa}
 
 /* STATUS */
 .badge{
   padding:4px 10px;
   border-radius:999px;
   font-size:12px;
-  font-weight:600;
-  display:inline-block
+  font-weight:600
 }
 .aman{background:#e8f5e9;color:#2e7d32}
 .tidak{background:#fdecea;color:#c62828}
 
-/* MOBILE */
 @media(max-width:720px){
-  .table-wrap,table,thead{display:none}
-  .row{
-    background:#fff;
-    border:1px solid #eee;
-    border-radius:12px;
-    padding:12px;
-    margin-bottom:10px
-  }
-  .row div{margin-bottom:6px;font-size:13px}
-  .label{font-weight:600;color:#555}
+  .dashboard,.table-wrap,table,thead{display:none}
 }
 </style>
 </head>
@@ -135,54 +118,53 @@ tr:hover{background:#fafafa}
 <a href="login.html" class="back-btn">⬅</a>
 
 <div class="card">
-  <h2>📊 Dashboard & Laporan K3</h2>
+<h2>📊 Dashboard & Laporan K3</h2>
 
-  <!-- DASHBOARD -->
-  <div class="dashboard">
-    <div class="dash-box"><canvas id="trendChart"></canvas></div>
-    <div class="dash-box"><canvas id="statusChart"></canvas></div>
-    <div class="dash-box"><canvas id="lokasiChart"></canvas></div>
-  </div>
+<!-- DASHBOARD -->
+<div class="dashboard">
+  <div class="dash-box"><canvas id="trendChart"></canvas></div>
+  <div class="dash-box"><canvas id="statusChart"></canvas></div>
+  <div class="dash-box"><canvas id="lokasiChart"></canvas></div>
+</div>
 
-  <!-- FILTER -->
-  <div class="filter">
-    <select id="filterLokasi">
-      <option value="">Semua Lokasi</option>
-    </select>
-    <input type="date" id="filterTanggal">
-    <input type="text" id="search" placeholder="Cari task / catatan">
-  </div>
+<!-- FILTER -->
+<div class="filter">
+  <select id="filterLokasi">
+    <option value="">Semua Lokasi</option>
+  </select>
+  <input type="date" id="fromDate">
+  <input type="date" id="toDate">
+  <input type="text" id="search" placeholder="Cari task / catatan">
+</div>
 
-  <!-- TABLE -->
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Tanggal</th>
-          <th>Lokasi</th>
-          <th>Task</th>
-          <th>Status</th>
-          <th>Catatan</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
+<!-- TABLE -->
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+  <th>Tanggal</th>
+  <th>Lokasi</th>
+  <th>Task</th>
+  <th>Status</th>
+  <th>Catatan</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
 
-  <!-- MOBILE -->
-  <div id="mobile"></div>
 </div>
 
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyknd3VCdFnL_Ut9YAKE1giBptIV_KUbt9FcQ71i7vic5UzK4tAxffF8e4A3_lWhnygfw/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbyknd3VCdFnL_Ut9YAKE1giBptIV_KUbt9FcQ71i7vic5UzK4tAxffF8e4A3_lWhnygfw/exec';
 
 let rawData=[];
 let trendChart,statusChart,lokasiChart;
 
 const tbody=document.getElementById('tbody');
-const mobile=document.getElementById('mobile');
 const fLokasi=document.getElementById('filterLokasi');
-const fTanggal=document.getElementById('filterTanggal');
+const fromDate=document.getElementById('fromDate');
+const toDate=document.getElementById('toDate');
 const search=document.getElementById('search');
 
 /* NORMALIZE DATE */
@@ -192,7 +174,7 @@ function normDate(d){
   return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
 }
 
-/* DEDUPLICATE DATA */
+/* DEDUPE */
 function dedupe(data){
   const map=new Map();
   data.forEach(d=>{
@@ -202,12 +184,11 @@ function dedupe(data){
   return [...map.values()];
 }
 
-/* LOAD DATA */
+/* LOAD */
 fetch(SCRIPT_URL)
 .then(r=>r.json())
 .then(data=>{
-  const clean=dedupe(data);
-  rawData=clean.map(d=>({
+  rawData=dedupe(data).map(d=>({
     ...d,
     DateFix:normDate(d.Tanggal),
     Month:normDate(d.Tanggal).slice(0,7)
@@ -228,57 +209,51 @@ function initFilter(){
 /* RENDER */
 function render(){
   tbody.innerHTML='';
-  mobile.innerHTML='';
 
   const fl=fLokasi.value;
-  const ft=fTanggal.value;
+  const fd=fromDate.value;
+  const td=toDate.value;
   const s=search.value.toLowerCase();
 
   const data=rawData.filter(d=>{
     if(fl && d.Lokasi!==fl) return false;
-    if(ft && d.DateFix!==ft) return false;
+    if(fd && d.DateFix < fd) return false;
+    if(td && d.DateFix > td) return false;
     if(s && !(d.Task+d.Catatan).toLowerCase().includes(s)) return false;
     return true;
   });
 
   data.forEach(d=>{
     tbody.innerHTML+=`
-      <tr>
-        <td>${d.Tanggal}</td>
-        <td>${d.Lokasi}</td>
-        <td>${d.Task}</td>
-        <td><span class="badge ${d.Status==='AMAN'?'aman':'tidak'}">${d.Status}</span></td>
-        <td>${d.Catatan||'-'}</td>
-      </tr>`;
-    mobile.innerHTML+=`
-      <div class="row">
-        <div><span class="label">Tanggal:</span> ${d.Tanggal}</div>
-        <div><span class="label">Lokasi:</span> ${d.Lokasi}</div>
-        <div><span class="label">Task:</span> ${d.Task}</div>
-        <div><span class="label">Status:</span>
-          <span class="badge ${d.Status==='AMAN'?'aman':'tidak'}">${d.Status}</span>
-        </div>
-        <div><span class="label">Catatan:</span> ${d.Catatan||'-'}</div>
-      </div>`;
+    <tr>
+      <td>${d.Tanggal}</td>
+      <td>${d.Lokasi}</td>
+      <td>${d.Task}</td>
+      <td><span class="badge ${d.Status==='AMAN'?'aman':'tidak'}">${d.Status}</span></td>
+      <td>${d.Catatan||'-'}</td>
+    </tr>`;
   });
 
-  updateCharts(data);
+  updateCharts(data); // ⬅️ CHART HANYA DARI DATA TABEL
 }
 
 /* CHART */
 function updateCharts(data){
+  trendChart?.destroy();
+  statusChart?.destroy();
+  lokasiChart?.destroy();
+
   const m={};
   data.forEach(d=>m[d.Month]=(m[d.Month]||0)+1);
-  trendChart?.destroy();
-  trendChart=new Chart(document.getElementById('trendChart'),{
+
+  trendChart=new Chart(trendChart?.canvas||document.getElementById('trendChart'),{
     type:'line',
     data:{labels:Object.keys(m),datasets:[{label:'Checklist',data:Object.values(m),borderColor:'#1976D2'}]}
   });
 
   const a=data.filter(d=>d.Status==='AMAN').length;
   const t=data.length-a;
-  statusChart?.destroy();
-  statusChart=new Chart(document.getElementById('statusChart'),{
+  statusChart=new Chart(statusChart?.canvas||document.getElementById('statusChart'),{
     type:'doughnut',
     data:{labels:['AMAN','TIDAK'],datasets:[{data:[a,t],backgroundColor:['#2e7d32','#c62828']}]}
   });
@@ -288,8 +263,7 @@ function updateCharts(data){
     if(!loc[d.Lokasi]) loc[d.Lokasi]={a:0,t:0};
     d.Status==='AMAN'?loc[d.Lokasi].a++:loc[d.Lokasi].t++;
   });
-  lokasiChart?.destroy();
-  lokasiChart=new Chart(document.getElementById('lokasiChart'),{
+  lokasiChart=new Chart(lokasiChart?.canvas||document.getElementById('lokasiChart'),{
     type:'bar',
     data:{
       labels:Object.keys(loc),
@@ -302,7 +276,7 @@ function updateCharts(data){
 }
 
 /* EVENT */
-[fLokasi,fTanggal,search].forEach(e=>e.addEventListener('input',render));
+[fLokasi,fromDate,toDate,search].forEach(e=>e.addEventListener('input',render));
 </script>
 
 </body>
