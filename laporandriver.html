@@ -11,59 +11,26 @@
 *{box-sizing:border-box}
 body{
   margin:0;
-  padding:16px;
-  font-family:Segoe UI, Arial;
-  background:linear-gradient(180deg,#e3f2fd 0%,#f1f8ff 40%,#f4f6f8 100%);
-  min-height:100vh;
+  padding:20px;
+  font-family:Segoe UI,Arial;
+  background:#f4f6f8;
 }
 
-.back-btn{
-  position:fixed;
-  top:14px;
-  left:14px;
-  background:#1976D2;
-  color:#fff;
-  width:44px;
-  height:44px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-decoration:none;
-  font-size:20px;
-  box-shadow:0 4px 10px rgba(0,0,0,.25);
-  z-index:999
-}
-
+/* CARD */
 .card{
   max-width:1200px;
-  margin:60px auto 0;
+  margin:auto;
   background:#fff;
-  border-radius:16px;
-  padding:18px;
+  border-radius:14px;
+  padding:16px;
   box-shadow:0 6px 14px rgba(0,0,0,.12)
 }
-
 h2{text-align:center;margin-bottom:16px}
-
-/* DASHBOARD */
-.dashboard{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:14px;
-  margin-bottom:18px
-}
-.dash-box{
-  background:#fafafa;
-  border-radius:12px;
-  padding:12px;
-  border:1px solid #eee
-}
 
 /* FILTER */
 .filter{
   display:grid;
-  grid-template-columns:1fr 1fr 1fr 1fr;
+  grid-template-columns:1.5fr 1fr 1fr;
   gap:10px;
   margin-bottom:14px
 }
@@ -74,175 +41,179 @@ select,input{
   font-size:14px
 }
 
-/* TABLE */
+/* TABLE WRAPPER (FREEZE 13 ROWS) */
 .table-wrap{
-  max-height:520px;
+  max-height:520px; /* ± 13 baris */
   overflow-y:auto;
-  border-radius:12px;
-  border:1px solid #eee;
+  border:1px solid #ddd;
+  border-radius:10px
 }
+
+/* TABLE */
 table{
   width:100%;
   border-collapse:collapse;
   font-size:14px
 }
+thead th{
+  position:sticky;
+  top:0;
+  background:#f1f3f4;
+  z-index:2;
+  border-bottom:1px solid #ccc
+}
 th,td{
   padding:10px;
   border-bottom:1px solid #eee;
+  text-align:left;
+  vertical-align:top
 }
-th{
-  background:#f1f3f4;
-  position:sticky;
-  top:0;
-  z-index:2
-}
+tr:hover{background:#fafafa}
 
 /* STATUS */
 .badge{
   padding:4px 10px;
   border-radius:999px;
   font-size:12px;
-  font-weight:600
+  font-weight:600;
+  display:inline-block
 }
 .ok{background:#e8f5e9;color:#2e7d32}
-.no{background:#fdecea;color:#c62828}
-
-@media(max-width:720px){
-  .dashboard,.table-wrap,table,thead{display:none}
-}
+.selesai{background:#e3f2fd;color:#1565c0}
 </style>
 </head>
 
 <body>
 
-<a href="login.html" class="back-btn">⬅</a>
-
 <div class="card">
-<h2>🚚 Dashboard & Laporan Driver</h2>
+  <h2>📋 Laporan Aktivitas Driver</h2>
 
-<!-- DASHBOARD -->
-<div class="dashboard">
-  <div class="dash-box">
-    <canvas id="statusChart"></canvas>
+  <!-- FILTER -->
+  <div class="filter">
+    <select id="filterDriver">
+      <option value="">Semua Driver</option>
+    </select>
+    <input type="date" id="dateFrom">
+    <input type="date" id="dateTo">
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Driver</th>
+          <th>Kategori</th>
+          <th>Detail</th>
+          <th>Status</th>
+          <th>Catatan</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
   </div>
 </div>
 
-<!-- FILTER -->
-<div class="filter">
-  <select id="fDriver">
-    <option value="">Semua Driver</option>
-  </select>
-  <input type="date" id="fromDate">
-  <input type="date" id="toDate">
-  <input type="text" id="search" placeholder="Cari kategori / detail">
-</div>
-
-<!-- TABLE -->
-<div class="table-wrap">
-<table>
-<thead>
-<tr>
-  <th>No</th>
-  <th>Tanggal</th>
-  <th>Driver</th>
-  <th>Kategori</th>
-  <th>Detail</th>
-  <th>Status</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-</div>
-
-</div>
-
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbx52fcscRuhoGmsH1L5pVlVJs47d8Ggie1DEnDl3M7812XM0gHn3yAjcgM9eeVuuyfS/exec';
+/* ===============================
+   KONFIG
+================================ */
+const SCRIPT_URL =
+'https://script.google.com/macros/s/AKfycbyHoHjM4f8fsKJ1_DGBKxVvg_ay6tlBamc8ayqDgY8wU_EQqPwOEhiyu8H8-pINQj7n/exec?action=report';
 
 let rawData=[];
-let statusChart;
 
 const tbody=document.getElementById('tbody');
-const fDriver=document.getElementById('fDriver');
-const fromDate=document.getElementById('fromDate');
-const toDate=document.getElementById('toDate');
-const search=document.getElementById('search');
+const fDriver=document.getElementById('filterDriver');
+const dFrom=document.getElementById('dateFrom');
+const dTo=document.getElementById('dateTo');
 
-/* LOAD DATA */
+/* ===============================
+   LOAD DATA
+================================ */
 fetch(SCRIPT_URL)
-.then(r=>r.json())
-.then(data=>{
-  rawData=data;
-  initDriver();
-  render();
-});
-
-/* INIT DRIVER */
-function initDriver(){
-  [...new Set(rawData.map(d=>d.Driver))].forEach(n=>{
-    const o=document.createElement('option');
-    o.value=o.textContent=n;
-    fDriver.appendChild(o);
+  .then(r=>r.json())
+  .then(res=>{
+    rawData = dedupe(res.data || []);
+    initDriver();
+    render();
+  })
+  .catch(err=>{
+    console.error(err);
+    tbody.innerHTML='<tr><td colspan="6">Gagal load data</td></tr>';
   });
+
+/* ===============================
+   HILANGKAN DUPLIKAT
+================================ */
+function dedupe(data){
+  const map=new Map();
+  data.forEach(d=>{
+    const key = d.tanggal+'|'+d.driver+'|'+d.detail;
+    if(!map.has(key)) map.set(key,d);
+  });
+  return [...map.values()];
 }
 
-/* RENDER */
+/* ===============================
+   DRIVER FILTER
+================================ */
+function initDriver(){
+  [...new Set(rawData.map(d=>d.driver))]
+    .sort()
+    .forEach(n=>{
+      const o=document.createElement('option');
+      o.value=n;
+      o.textContent=n;
+      fDriver.appendChild(o);
+    });
+}
+
+/* ===============================
+   RENDER TABLE
+================================ */
 function render(){
   tbody.innerHTML='';
 
-  const fd=fromDate.value;
-  const td=toDate.value;
-  const drv=fDriver.value;
-  const s=search.value.toLowerCase();
+  const driver=fDriver.value;
+  const from=dFrom.value;
+  const to=dTo.value;
 
-  let data=rawData.filter(d=>{
-    if(drv && d.Driver!==drv) return false;
-    if(fd && d.Tanggal<fd) return false;
-    if(td && d.Tanggal>td) return false;
-    if(s && !(d.Kategori+d.Detail).toLowerCase().includes(s)) return false;
+  const data=rawData.filter(d=>{
+    if(driver && d.driver!==driver) return false;
+    if(from && d.tanggal < from) return false;
+    if(to && d.tanggal > to) return false;
     return true;
   });
 
-  data.slice(0,10).forEach((d,i)=>{
+  if(data.length===0){
+    tbody.innerHTML='<tr><td colspan="6">Data tidak ditemukan</td></tr>';
+    return;
+  }
+
+  data.forEach(d=>{
     tbody.innerHTML+=`
       <tr>
-        <td>${i+1}</td>
-        <td>${d.Tanggal}</td>
-        <td>${d.Driver}</td>
-        <td>${d.Kategori}</td>
-        <td>${d.Detail}</td>
+        <td>${d.tanggal}</td>
+        <td>${d.driver}</td>
+        <td>${d.kategori}</td>
+        <td>${d.detail}</td>
         <td>
-          <span class="badge ${d.Status==='OK'?'ok':'no'}">
-            ${d.Status}
+          <span class="badge ${d.status==='OK'?'ok':'selesai'}">
+            ${d.status}
           </span>
         </td>
+        <td>${d.catatan||'-'}</td>
       </tr>
     `;
   });
-
-  updateChart(data);
 }
 
-/* CHART */
-function updateChart(data){
-  const ok=data.filter(d=>d.Status==='OK').length;
-  const no=data.length-ok;
-
-  statusChart?.destroy();
-  statusChart=new Chart(document.getElementById('statusChart'),{
-    type:'doughnut',
-    data:{
-      labels:['OK','Tidak'],
-      datasets:[{
-        data:[ok,no],
-        backgroundColor:['#2e7d32','#c62828']
-      }]
-    }
-  });
-}
-
-/* EVENT */
-[fDriver,fromDate,toDate,search].forEach(e=>e.addEventListener('input',render));
+/* ===============================
+   EVENT
+================================ */
+[fDriver,dFrom,dTo].forEach(e=>e.addEventListener('input',render));
 </script>
 
 </body>
