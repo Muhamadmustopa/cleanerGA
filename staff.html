@@ -35,10 +35,7 @@ body{
   border-radius:12px;
   cursor:pointer;
 }
-label{
-  font-size:14px;
-  font-weight:600;
-}
+label{font-size:14px;font-weight:600}
 select,input{
   width:100%;
   padding:12px;
@@ -99,21 +96,21 @@ button.save{
 
   <div id="taskWrapper" class="hidden">
 
-    <!-- CHECKLIST PENDING -->
+    <!-- ✅ CHECKLIST PENDING -->
     <div class="section">
       <h3>Pending Sebelumnya (Centang = Clear)</h3>
-      <div id="pendingChecklist"></div>
+      <div id="pendingChecklist"><i>Loading...</i></div>
     </div>
 
-    <!-- CLEAR -->
+    <!-- TASK CLEAR -->
     <div class="section">
-      <h3>Task Clear Hari Ini</h3>
+      <h3>Task Clear (Selesai Hari Ini)</h3>
       <div id="taskClear"></div>
     </div>
 
-    <!-- PENDING -->
+    <!-- TASK PENDING -->
     <div class="section">
-      <h3>Task Pending Baru</h3>
+      <h3>Task Pending / Plan Tomorrow</h3>
       <div id="taskPending"></div>
     </div>
 
@@ -123,80 +120,95 @@ button.save{
 </div>
 
 <script>
-const WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzRKeWTmZ_wk5DJYDfNWJtKkwypLJdfrgrSnQKgOIaN5nW4rPvdtOYYvAMKOxeTKkmpwg/exec';
+/* ================== WEB APP URL ================== */
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRKeWTmZ_wk5DJYDfNWJtKkwypLJdfrgrSnQKgOIaN5nW4rPvdtOYYvAMKOxeTKkmpwg/exec';
 
-const staffSelect = document.getElementById('staff');
+/* ================== ELEMENT ================== */
+const staffSelect  = document.getElementById('staff');
 const tanggalInput = document.getElementById('tanggal');
-const taskWrapper = document.getElementById('taskWrapper');
+const taskWrapper  = document.getElementById('taskWrapper');
 const taskClearDiv = document.getElementById('taskClear');
-const taskPendDiv = document.getElementById('taskPending');
-const checklistDiv = document.getElementById('pendingChecklist');
+const taskPendDiv  = document.getElementById('taskPending');
+const pendingDiv   = document.getElementById('pendingChecklist');
 
+/* ================== DEFAULT TANGGAL ================== */
 tanggalInput.valueAsDate = new Date();
 
-/* GENERATE INPUT */
+/* ================== GENERATE INPUT ================== */
 function generateInputs(container,prefix){
   container.innerHTML='';
-  for(let i=1;i<=5;i++){
+  for(let i=1;i<=8;i++){
     container.innerHTML+=`
-      <input type="text" id="${prefix}${i}" class="task-input" placeholder="Task ${i}">
+      <input type="text" class="task-input" id="${prefix}${i}" placeholder="Task ${i}">
     `;
   }
 }
 generateInputs(taskClearDiv,'clear');
 generateInputs(taskPendDiv,'pending');
 
-/* LOAD PENDING */
+/* ================== LOAD PENDING ================== */
 staffSelect.addEventListener('change',()=>{
   if(!staffSelect.value){
     taskWrapper.classList.add('hidden');
     return;
   }
   taskWrapper.classList.remove('hidden');
+  pendingDiv.innerHTML='<i>Loading...</i>';
 
-  fetch(`${WEBAPP_URL}?staff=${encodeURIComponent(staffSelect.value)}`)
-  .then(res=>res.json())
-  .then(data=>{
-    checklistDiv.innerHTML='';
-    if(data.pending.length===0){
-      checklistDiv.innerHTML='<i>Tidak ada pending</i>';
-      return;
-    }
-    data.pending.forEach(t=>{
-      checklistDiv.innerHTML+=`
-        <label>
-          <input type="checkbox" value="${t}"> ${t}
-        </label><br>
-      `;
+  fetch(`${SCRIPT_URL}?staff=${encodeURIComponent(staffSelect.value)}`)
+    .then(r=>r.json())
+    .then(res=>{
+      pendingDiv.innerHTML='';
+      if(res.pending.length===0){
+        pendingDiv.innerHTML='<i>Tidak ada pending</i>';
+        return;
+      }
+      res.pending.forEach(t=>{
+        pendingDiv.innerHTML+=`
+          <label>
+            <input type="checkbox" value="${t}"> ${t}
+          </label><br>
+        `;
+      });
     });
-  });
 });
 
-/* SIMPAN */
+/* ================== SIMPAN ================== */
 function simpan(){
-  const checkedPending=[];
+  const staff   = staffSelect.value;
+  const tanggal = tanggalInput.value;
+
+  if(!staff || !tanggal){
+    alert('Nama staff dan tanggal wajib diisi');
+    return;
+  }
+
+  const clearTask=[], pendingTask=[], checkedPending=[];
   document.querySelectorAll('#pendingChecklist input:checked')
     .forEach(cb=>checkedPending.push(cb.value));
 
-  const clear=[], pending=[];
-  for(let i=1;i<=5;i++){
-    if(clear${i}.value) clear.push(clear${i}.value);
-    if(pending${i}.value) pending.push(pending${i}.value);
+  for(let i=1;i<=8;i++){
+    if(clear'+i){
+      const c=document.getElementById('clear'+i).value;
+      const p=document.getElementById('pending'+i).value;
+      if(c) clearTask.push(c);
+      if(p) pendingTask.push(p);
+    }
   }
 
-  fetch(WEBAPP_URL,{
+  fetch(SCRIPT_URL,{
     method:'POST',
     body:JSON.stringify({
-      staff:staffSelect.value,
-      tanggal:tanggalInput.value,
+      staff,
+      tanggal,
       checkedPending,
-      clear,
-      pending
+      task_clear:clearTask,
+      task_pending:pendingTask
     })
   })
-  .then(res=>res.json())
+  .then(r=>r.json())
   .then(()=>{
-    alert('Laporan tersimpan');
+    alert('Laporan berhasil disimpan');
     location.reload();
   });
 }
