@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daily Task GA</title>
 
-<!-- FONT KEREN -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 
 <style>
@@ -15,10 +14,9 @@
   --shadow-hover:0 20px 45px rgba(0,0,0,.35);
 }
 
-/* RESET */
 *{box-sizing:border-box;margin:0;padding:0}
 
-/* ===== SPLASH SCREEN ===== */
+/* ===== SPLASH ===== */
 #splash{
   position:fixed;
   inset:0;
@@ -27,8 +25,6 @@
   align-items:center;
   justify-content:center;
   z-index:9999;
-  animation:fadeOut .8s ease forwards;
-  animation-delay:2s;
 }
 
 .splash-content{
@@ -46,20 +42,11 @@
   overflow:hidden;
 }
 
-/* SHIMMER EFFECT */
 .splash-content h1::after{
   content:"";
   position:absolute;
-  top:0;
-  left:-100%;
-  width:100%;
-  height:100%;
-  background:linear-gradient(
-    120deg,
-    transparent,
-    rgba(255,255,255,.6),
-    transparent
-  );
+  inset:0;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.6),transparent);
   animation:shimmer 2s infinite;
 }
 
@@ -67,24 +54,20 @@
   margin-top:10px;
   font-size:14px;
   opacity:.85;
-  letter-spacing:1px;
 }
 
-/* SPLASH ANIMATION */
+/* ===== ANIMATION ===== */
 @keyframes zoomIn{
   from{transform:scale(.7);opacity:0}
   to{transform:scale(1);opacity:1}
 }
-
-@keyframes shimmer{
-  100%{left:100%}
+@keyframes shimmer{100%{transform:translateX(100%)}}
+@keyframes showApp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
-@keyframes fadeOut{
-  to{opacity:0;visibility:hidden}
-}
-
-/* ===== MAIN APP ===== */
+/* ===== BODY ===== */
 body{
   min-height:100vh;
   background:url("list.png") center/cover no-repeat;
@@ -94,7 +77,6 @@ body{
   font-family:Segoe UI, Arial, sans-serif;
 }
 
-/* BLUR BACKGROUND */
 body::before{
   content:"";
   position:fixed;
@@ -104,29 +86,31 @@ body::before{
   z-index:-1;
 }
 
+/* ===== APP ===== */
 .app{
+  width:100%;
+  max-width:420px;
+  margin:16px;
+  background:rgba(255,255,255,.94);
+  border-radius:28px;
+  box-shadow:var(--shadow);
+  padding:24px 20px 28px;
+  opacity:0;
   display:none;
 }
 
-@keyframes showApp{
-  to{opacity:1;transform:translateY(0)}
-}
-
-.header{
-  text-align:center;
-  margin-bottom:24px;
-}
+/* ===== HEADER ===== */
+.header{text-align:center;margin-bottom:24px}
 .header h2{font-size:22px}
 .header p{margin-top:6px;font-size:14px;color:#555}
 
-/* GRID */
+/* ===== MENU ===== */
 .menu{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:16px;
 }
 
-/* BUTTON */
 .menu button{
   border:none;
   border-radius:22px;
@@ -137,68 +121,40 @@ body::before{
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
   gap:10px;
-  font-size:15px;
   font-weight:600;
-  transition:.25s ease;
+  transition:.25s;
 }
 
-@media(hover:hover){
-  .menu button:hover{
-    transform:translateY(-6px);
-    box-shadow:var(--shadow-hover);
-  }
-}
-
-.menu button:active{
-  transform:scale(.96);
+.menu button:hover{
+  transform:translateY(-5px);
+  box-shadow:var(--shadow-hover);
 }
 
 /* ICON */
 .icon{
-  width:56px;
-  height:56px;
+  width:56px;height:56px;
   border-radius:50%;
   display:flex;
   align-items:center;
   justify-content:center;
   font-size:26px;
   color:#fff;
-  animation:float 3s ease-in-out infinite;
-}
-
-@keyframes float{
-  0%,100%{transform:translateY(0)}
-  50%{transform:translateY(-5px)}
 }
 
 /* WARNA */
 .cleaner .icon{background:#1976d2}
 .k3 .icon{background:#ef6c00}
 .ob .icon{background:#2e7d32}
-.st .icon{background:#5F9EA0}
-.spv .icon{background:#E9967A}
+.st .icon{background:#5f9ea0}
+.spv .icon{background:#e9967a}
 .report .icon{background:#6a1b9a}
-
-/* MOBILE */
-@media(max-width:360px){
-  .menu{grid-template-columns:1fr}
-}
-
-<script>
-setTimeout(()=>{
-  document.getElementById('splash').style.display='none';
-  document.querySelector('.app').style.display='block';
-},2000);
-</script>
-
 </style>
 </head>
 
 <body>
 
-<!-- SPLASH SCREEN -->
+<!-- SPLASH -->
 <div id="splash">
   <div class="splash-content">
     <h1>TASKS<br>GENERAL AFFAIRS</h1>
@@ -206,45 +162,44 @@ setTimeout(()=>{
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- APP -->
 <div class="app">
   <div class="header">
-    <h2>Daily Task Team General Affair</h2>
+    <h2>Daily Task Team GA</h2>
     <p>ayo.. laporkan tugas hari ini</p>
   </div>
 
   <div class="menu">
     <button class="cleaner" onclick="location.href='general.html'">
-      <div class="icon">🧹</div>
-      <span>Cleaner</span>
+      <div class="icon">🧹</div>Cleaner
     </button>
-
     <button class="k3" onclick="location.href='k3.html'">
-      <div class="icon">🦺</div>
-      <span>Inspeksi K3</span>
+      <div class="icon">🦺</div>Inspeksi K3
     </button>
-
     <button class="ob" onclick="location.href='driver.html'">
-      <div class="icon">🚗</div>
-      <span>Driver</span>
+      <div class="icon">🚗</div>Driver
     </button>
-
-   <button class="st" onclick="location.href='staff.html'">
-      <div class="icon">🙍‍♂️</div>
-      <span>Staff Service| Staff GA</span>
+    <button class="st" onclick="location.href='staff.html'">
+      <div class="icon">🙍‍♂️</div>Staff Services & GA
     </button>
-
-     <button class="spv" onclick="location.href='spv.html'">
-      <div class="icon">🙍‍♀️</div>
-      <span>Supervisor GA</span>
+    <button class="spv" onclick="location.href='spv.html'">
+      <div class="icon">🙍‍♀️</div>Supervisor
     </button>
-
     <button class="report" onclick="location.href='report.html'">
-      <div class="icon">📊</div>
-      <span>Dashboard Laporan</span>
+      <div class="icon">📊</div>Dashboard
     </button>
   </div>
 </div>
+
+<!-- JS HARUS DI LUAR STYLE -->
+<script>
+setTimeout(()=>{
+  document.getElementById('splash').style.display='none';
+  const app = document.querySelector('.app');
+  app.style.display='block';
+  app.style.animation='showApp .8s ease forwards';
+},2000);
+</script>
 
 </body>
 </html>
