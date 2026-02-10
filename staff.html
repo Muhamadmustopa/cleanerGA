@@ -75,7 +75,7 @@ button.save{
   <div class="header">
     <div>
       <strong>Laporan Staff Harian</strong><br>
-      <small>Pilih staff → checklist pending → simpan</small>
+      <small>1 staff hanya boleh submit 1x per tanggal</small>
     </div>
     <button class="logout" onclick="logout()">Keluar</button>
   </div>
@@ -96,19 +96,19 @@ button.save{
 
   <div id="taskWrapper" class="hidden">
 
-    <!-- ✅ CHECKLIST PENDING -->
+    <!-- CHECKLIST PENDING -->
     <div class="section">
       <h3>Pending Sebelumnya (Centang = Clear)</h3>
       <div id="pendingChecklist"><i>Loading...</i></div>
     </div>
 
-    <!-- TASK CLEAR -->
+    <!-- CLEAR -->
     <div class="section">
-      <h3>Task Clear (Selesai Hari Ini)</h3>
+      <h3>Task Clear Hari Ini</h3>
       <div id="taskClear"></div>
     </div>
 
-    <!-- TASK PENDING -->
+    <!-- PENDING -->
     <div class="section">
       <h3>Task Pending / Plan Tomorrow</h3>
       <div id="taskPending"></div>
@@ -120,10 +120,8 @@ button.save{
 </div>
 
 <script>
-/* ================== WEB APP URL ================== */
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzRKeWTmZ_wk5DJYDfNWJtKkwypLJdfrgrSnQKgOIaN5nW4rPvdtOYYvAMKOxeTKkmpwg/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV2v2oB-7b26pOgzbrlX9dqkYEtzZbWUxghJ4Tyc13wIphCVVnz-nAxMjA-kwtN3MGNg/exec';
 
-/* ================== ELEMENT ================== */
 const staffSelect  = document.getElementById('staff');
 const tanggalInput = document.getElementById('tanggal');
 const taskWrapper  = document.getElementById('taskWrapper');
@@ -131,22 +129,21 @@ const taskClearDiv = document.getElementById('taskClear');
 const taskPendDiv  = document.getElementById('taskPending');
 const pendingDiv   = document.getElementById('pendingChecklist');
 
-/* ================== DEFAULT TANGGAL ================== */
 tanggalInput.valueAsDate = new Date();
 
-/* ================== GENERATE INPUT ================== */
+/* generate input */
 function generateInputs(container,prefix){
   container.innerHTML='';
   for(let i=1;i<=8;i++){
     container.innerHTML+=`
-      <input type="text" class="task-input" id="${prefix}${i}" placeholder="Task ${i}">
+      <input type="text" id="${prefix}${i}" class="task-input" placeholder="Task ${i}">
     `;
   }
 }
 generateInputs(taskClearDiv,'clear');
 generateInputs(taskPendDiv,'pending');
 
-/* ================== LOAD PENDING ================== */
+/* pilih staff → load pending */
 staffSelect.addEventListener('change',()=>{
   if(!staffSelect.value){
     taskWrapper.classList.add('hidden');
@@ -173,7 +170,7 @@ staffSelect.addEventListener('change',()=>{
     });
 });
 
-/* ================== SIMPAN ================== */
+/* SIMPAN */
 function simpan(){
   const staff   = staffSelect.value;
   const tanggal = tanggalInput.value;
@@ -183,17 +180,21 @@ function simpan(){
     return;
   }
 
-  const clearTask=[], pendingTask=[], checkedPending=[];
+  const checkedPending=[];
   document.querySelectorAll('#pendingChecklist input:checked')
     .forEach(cb=>checkedPending.push(cb.value));
 
+  const clearTask=[], pendingTask=[];
   for(let i=1;i<=8;i++){
-    if(clear'+i){
-      const c=document.getElementById('clear'+i).value;
-      const p=document.getElementById('pending'+i).value;
-      if(c) clearTask.push(c);
-      if(p) pendingTask.push(p);
-    }
+    const c=document.getElementById('clear'+i);
+    const p=document.getElementById('pending'+i);
+    if(c && c.value.trim()) clearTask.push(c.value.trim());
+    if(p && p.value.trim()) pendingTask.push(p.value.trim());
+  }
+
+  if(checkedPending.length===0 && clearTask.length===0 && pendingTask.length===0){
+    alert('Minimal isi atau centang 1 task');
+    return;
   }
 
   fetch(SCRIPT_URL,{
@@ -207,9 +208,15 @@ function simpan(){
     })
   })
   .then(r=>r.json())
-  .then(()=>{
-    alert('Laporan berhasil disimpan');
-    location.reload();
+  .then(res=>{
+    if(res.status==='duplicate'){
+      alert('❌ Laporan untuk tanggal ini sudah pernah disubmit');
+      return;
+    }
+    if(res.status==='success'){
+      alert('✅ Laporan berhasil disimpan');
+      location.reload();
+    }
   });
 }
 
