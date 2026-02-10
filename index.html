@@ -3,101 +3,203 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard - Daily Task</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Task GA</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+
 <style>
-body{font-family:Arial;background:#f4f6f8;padding:20px}
-.card{background:#fff;padding:20px;max-width:900px;margin:auto;border-radius:8px}
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #ccc;padding:8px}
-th{background:#eee}
-.warn{color:red;font-weight:bold}
-.date-warn{border:2px solid red}
+:root{
+  --radius:22px;
+  --shadow:0 15px 40px rgba(0,0,0,.25);
+  --shadow-hover:0 20px 45px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+/* ===== SPLASH ===== */
+#splash{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(135deg,#1565c0,#1e88e5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.splash-content{
+  text-align:center;
+  color:#fff;
+  font-family:'Poppins',sans-serif;
+  animation:zoomIn 1.2s ease;
+}
+
+.splash-content h1{
+  font-size:28px;
+  font-weight:800;
+  letter-spacing:2px;
+  position:relative;
+  overflow:hidden;
+}
+
+.splash-content h1::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg,transparent,rgba(255,255,255,.6),transparent);
+  animation:shimmer 2s infinite;
+}
+
+.splash-content p{
+  margin-top:10px;
+  font-size:14px;
+  opacity:.85;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes zoomIn{
+  from{transform:scale(.7);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+@keyframes shimmer{100%{transform:translateX(100%)}}
+@keyframes showApp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ===== BODY ===== */
+body{
+  min-height:100vh;
+  background:url("list.png") center/cover no-repeat;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:Segoe UI, Arial, sans-serif;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(10px);
+  z-index:-1;
+}
+
+/* ===== APP ===== */
+.app{
+  width:100%;
+  max-width:420px;
+  margin:16px;
+  background:rgba(255,255,255,.94);
+  border-radius:28px;
+  box-shadow:var(--shadow);
+  padding:24px 20px 28px;
+  opacity:0;
+  display:none;
+}
+
+/* ===== HEADER ===== */
+.header{text-align:center;margin-bottom:24px}
+.header h2{font-size:22px}
+.header p{margin-top:6px;font-size:14px;color:#555}
+
+/* ===== MENU ===== */
+.menu{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.menu button{
+  border:none;
+  border-radius:22px;
+  padding:22px 14px;
+  background:#f4f6f8;
+  box-shadow:0 8px 18px rgba(0,0,0,.15);
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  font-weight:600;
+  transition:.25s;
+}
+
+.menu button:hover{
+  transform:translateY(-5px);
+  box-shadow:var(--shadow-hover);
+}
+
+/* ICON */
+.icon{
+  width:56px;height:56px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:26px;
+  color:#fff;
+}
+
+/* WARNA */
+.cleaner .icon{background:#1976d2}
+.k3 .icon{background:#ef6c00}
+.ob .icon{background:#2e7d32}
+.st .icon{background:#5f9ea0}
+.spv .icon{background:#e9967a}
+.report .icon{background:#6a1b9a}
 </style>
 </head>
+
 <body>
 
-<div class="card">
-  <button onclick="logout()">Keluar</button>
-  <h3 id="user"></h3>
-
-  Tanggal:
-  <input type="date" id="tanggal">
-  <span id="warning" class="warn">Wajib Diisi</span>
-
-  <table>
-    <thead>
-      <tr><th>Area</th><th>List Pekerjaan</th><th>Status Selesai</th><th>Keterangan</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>Semua Area</td><td>Sapu & Pel Lantai</td><td><input type="checkbox"></td><td><input></td></tr>
-      <tr><td>Ruang Kerja</td><td>Vacum Karpet Lantai</td><td><input type="checkbox"></td><td><input></td></tr>
-      <tr><td>Semua Area</td><td>Lap Pintu Kaca</td><td><input type="checkbox"></td><td><input></td></tr>
-      <tr><td>Ruang Kerja</td><td>Lap Meja Kerja</td><td><input type="checkbox"></td><td><input></td></tr>
-      <tr><td>Ruang Kerja</td><td>Lap Telephone</td><td><input type="checkbox"></td><td><input></td></tr>
-      <tr><td>Ruang Kerja</td><td>Menyalakan Lampu,AC,Blue Air</td><td><input type="checkbox"></td><td><input></td></tr>
-      <tr><td>Pantry</td><td>Cuci Alat Makan</td><td><input type="checkbox"></td><td><input></td></tr>
-      <tr><td>Pantry</td><td>Bersihkan Wastafel dan Cek Saluran</td><td><input type="checkbox"></td><td><input></td></tr>
-      <tr><td>Pantry</td><td>Refill Air Galon Pantry 106,107,108</td><td><input type="checkbox"></td><td><input></td></tr>
-      <tr><td>Pantry</td><td>Bersihkan Rak/Lemari alat makan</td><td><input type="checkbox"></td><td><input></td></tr>
-      <tr><td>Pantry</td><td>Cuci Alat Makan</td><td><input type="checkbox"></td><td><input></td></tr>
-      <tr><td>Pantry</td><td>Cuci Alat Makan</td><td><input type="checkbox"></td><td><input></td></tr>
-      <tr><td>Pantry</td><td>Cuci Alat Makan</td><td><input type="checkbox"></td><td><input></td></tr>
-    </tbody>
-  </table><br>
-
-  <button onclick="simpan()">Simpan</button>
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-content">
+    <h1>TASKS<br>GENERAL AFFAIRS</h1>
+    <p>Daily Operational System</p>
+  </div>
 </div>
 
+<!-- APP -->
+<div class="app">
+  <div class="header">
+    <h2>Daily Task Team GA</h2>
+    <p>ayo.. laporkan tugas hari ini</p>
+  </div>
+
+  <div class="menu">
+    <button class="cleaner" onclick="location.href='general.html'">
+      <div class="icon">🧹</div>Cleaner
+    </button>
+    <button class="k3" onclick="location.href='k3.html'">
+      <div class="icon">🦺</div>Inspeksi K3
+    </button>
+    <button class="ob" onclick="location.href='driver.html'">
+      <div class="icon">🚗</div>Driver
+    </button>
+    <button class="st" onclick="location.href='staff.html'">
+      <div class="icon">🙍‍♂️</div>Staff Services & GA
+    </button>
+    <button class="spv" onclick="location.href='spv.html'">
+      <div class="icon">🙍‍♀️</div>Supervisor
+    </button>
+    <button class="report" onclick="location.href='report.html'">
+      <div class="icon">📊</div>Dashboard
+    </button>
+  </div>
+</div>
+
+<!-- JS HARUS DI LUAR STYLE -->
 <script>
-const user = localStorage.getItem('user');
-if(!user) location.href='login.html';
-document.getElementById('user').innerText = 'User: ' + user;
-
-const inputTanggal = document.getElementById('tanggal');
-const warning = document.getElementById('warning');
-
-function setToday(){
-  let d = new Date();
-  while(d.getDay()==0 || d.getDay()==6){ d.setDate(d.getDate()+1); }
-  inputTanggal.valueAsDate = d;
-  cek();
-}
-
-function cek(){
-  const key = user+'_'+inputTanggal.value;
-  const data = JSON.parse(localStorage.getItem('filled')||'{}');
-  if(!data[key]){
-    warning.style.display='inline';
-    inputTanggal.classList.add('date-warn');
-  }else{
-    warning.style.display='none';
-    inputTanggal.classList.remove('date-warn');
-  }
-}
-
-function simpan(){
-  const data = JSON.parse(localStorage.getItem('filled')||'{}');
-  data[user+'_'+inputTanggal.value] = true;
-  localStorage.setItem('filled', JSON.stringify(data));
-  alert('Tersimpan');
-  cek();
-}
-
-inputTanggal.onchange = ()=>{
-  const d = new Date(inputTanggal.value);
-  if(d.getDay()==0 || d.getDay()==6){
-    alert('Sabtu & Minggu tidak termasuk');
-    setToday();
-  }
-  cek();
-};
-
-function logout(){
-  localStorage.removeItem('user');
-  location.href='login.html';
-}
-
-setToday();
+setTimeout(()=>{
+  document.getElementById('splash').style.display='none';
+  const app = document.querySelector('.app');
+  app.style.display='block';
+  app.style.animation='showApp .8s ease forwards';
+},2000);
 </script>
 
 </body>
