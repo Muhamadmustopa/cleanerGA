@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan Staff</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:20px;
+  font-family:Segoe UI,Arial;
+  background:#f4f6f8;
+}
+
+/* CARD */
+.card{
+  max-width:1200px;
+  margin:auto;
+  background:#fff;
+  border-radius:14px;
+  padding:16px;
+  box-shadow:0 6px 14px rgba(0,0,0,.12)
+}
+h2{text-align:center;margin-bottom:16px}
+
+/* FILTER */
+.filter{
+  display:grid;
+  grid-template-columns:1.5fr 1fr 1fr;
+  gap:10px;
+  margin-bottom:14px
+}
+select,input{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:14px
+}
+
+/* TABLE */
+.table-wrap{
+  max-height:520px;
+  overflow-y:auto;
+  border:1px solid #ddd;
+  border-radius:10px
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px
+}
+thead th{
+  position:sticky;
+  top:0;
+  background:#f1f3f4;
+  z-index:2;
+  border-bottom:1px solid #ccc
+}
+th,td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+  vertical-align:top
+}
+tr:hover{background:#fafafa}
+
+/* STATUS */
+.badge{
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+  display:inline-block
+}
+.ok{background:#e8f5e9;color:#2e7d32}
+.progress{background:#fff3e0;color:#ef6c00}
+
+/* BUTTON */
+.btn{
+  padding:6px 10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:12px
+}
+.edit{background:#2196f3;color:#fff}
+.delete{background:#f44336;color:#fff}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>📋 Laporan Aktivitas Staff</h2>
+
+  <!-- FILTER -->
+  <div class="filter">
+    <select id="filterStaff">
+      <option value="">Semua Staff</option>
+    </select>
+    <input type="date" id="dateFrom">
+    <input type="date" id="dateTo">
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Nama Staff</th>
+          <th>Kategori</th>
+          <th>Detail</th>
+          <th>Status</th>
+          <th>Catatan</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+
+/* ===============================
+   KONFIG
+================================ */
+const SCRIPT_URL =
+'https://https://script.google.com/macros/s/AKfycbx-7TMemLXso-Bvx3ReuU4ok3vID7lPFYePAFkXamj0IoiyvswIael0xgAMKPXgpzlK/exec';
+
+let rawData=[];
+
+const tbody=document.getElementById('tbody');
+const fStaff=document.getElementById('filterStaff');
+const dFrom=document.getElementById('dateFrom');
+const dTo=document.getElementById('dateTo');
+
+/* ===============================
+   LOAD DATA
+================================ */
+function loadData(){
+  fetch(SCRIPT_URL+'?action=reportStaff')
+    .then(r=>r.json())
+    .then(res=>{
+      rawData = res.data || [];
+      initStaff();
+      render();
+    })
+    .catch(()=>{
+      tbody.innerHTML='<tr><td colspan="7">Gagal load data</td></tr>';
+    });
+}
+loadData();
+
+/* ===============================
+   FILTER STAFF
+================================ */
+function initStaff(){
+  fStaff.innerHTML='<option value="">Semua Staff</option>';
+  [...new Set(rawData.map(d=>d.staff))]
+    .sort()
+    .forEach(n=>{
+      const o=document.createElement('option');
+      o.value=n;
+      o.textContent=n;
+      fStaff.appendChild(o);
+    });
+}
+
+/* ===============================
+   RENDER
+================================ */
+function render(){
+  tbody.innerHTML='';
+
+  const staff=fStaff.value;
+  const from=dFrom.value;
+  const to=dTo.value;
+
+  const data=rawData.filter(d=>{
+    if(staff && d.staff!==staff) return false;
+    if(from && d.tanggal < from) return false;
+    if(to && d.tanggal > to) return false;
+    return true;
+  });
+
+  if(data.length===0){
+    tbody.innerHTML='<tr><td colspan="7">Data tidak ditemukan</td></tr>';
+    return;
+  }
+
+  data.forEach((d,i)=>{
+    tbody.innerHTML+=`
+      <tr>
+        <td>${d.tanggal}</td>
+        <td>${d.staff}</td>
+        <td>${d.kategori}</td>
+        <td>${d.detail}</td>
+        <td>
+          <span class="badge ${d.status==='OK'?'ok':'progress'}">
+            ${d.status}
+          </span>
+        </td>
+        <td>${d.catatan||'-'}</td>
+        <td>
+          <button class="btn edit" onclick="editData(${i})">Edit</button>
+          <button class="btn delete" onclick="deleteData('${d.id}')">Hapus</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+/* ===============================
+   DELETE
+================================ */
+function deleteData(id){
+  if(!confirm('Yakin ingin hapus data ini?')) return;
+
+  fetch(SCRIPT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      action:'deleteStaff',
+      id:id
+    })
+  })
+  .then(r=>r.json())
+  .then(()=>{
+    loadData();
+  });
+}
+
+/* ===============================
+   EDIT
+================================ */
+function editData(index){
+  const d=rawData[index];
+
+  const detail=prompt('Edit Detail:',d.detail);
+  if(detail===null) return;
+
+  const status=prompt('Edit Status (OK / Progress):',d.status);
+  if(status===null) return;
+
+  const catatan=prompt('Edit Catatan:',d.catatan||'');
+
+  fetch(SCRIPT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      action:'updateStaff',
+      id:d.id,
+      detail:detail,
+      status:status,
+      catatan:catatan
+    })
+  })
+  .then(r=>r.json())
+  .then(()=>{
+    loadData();
+  });
+}
+
+/* ===============================
+   EVENT
+================================ */
+[fStaff,dFrom,dTo].forEach(e=>e.addEventListener('input',render));
+
+</script>
+</body>
+</html>
