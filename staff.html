@@ -2,127 +2,208 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checklist Pending</title>
 
 <style>
+*{box-sizing:border-box}
 body{
-  font-family:Segoe UI;
+  font-family:Segoe UI,Arial;
   background:#f4f6f8;
-  padding:20px;
+  margin:0;
+  padding:16px;
 }
-h2{margin-top:0}
-input, select, textarea, button{
-  padding:8px;
-  margin:6px 0;
-  width:100%;
-}
-.section{
+
+.card{
+  max-width:500px;
+  margin:auto;
   background:#fff;
-  padding:12px;
-  border-radius:6px;
-  margin-top:12px;
-  display:none;
+  padding:16px;
+  border-radius:14px;
+  box-shadow:0 6px 16px rgba(0,0,0,.12);
 }
-label{display:block;margin:4px 0}
+
+h2{text-align:center;margin-top:0}
+
+select,input,textarea,button{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
+
 button{
   background:#2563eb;
   color:#fff;
   border:none;
-  border-radius:4px;
+  font-weight:600;
   cursor:pointer;
 }
 button:hover{opacity:.9}
-</style>
 
+.section{display:none;margin-top:16px}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:10px;
+}
+
+.box{
+  background:#fafafa;
+  border-radius:10px;
+  padding:10px;
+  border:1px solid #eee;
+  max-height:300px;
+  overflow:auto;
+}
+
+.box h4{
+  margin:0 0 8px 0;
+  font-size:14px;
+}
+
+.task{
+  background:#fff;
+  padding:6px 8px;
+  border-radius:6px;
+  margin-bottom:6px;
+  font-size:13px;
+  border:1px solid #eee;
+}
+
+.pending{border-left:4px solid #f59e0b}
+.clear{border-left:4px solid #22c55e}
+
+@media(max-width:600px){
+  .grid{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
 
-<h2>Checklist Pending Harian</h2>
+<div class="card">
+<h2>📋 Checklist Harian</h2>
 
-<!-- ================= PILIH STAFF ================= -->
 <label>Nama Staff</label>
-<select id="staff" onchange="onStaffChange()">
+<select id="staff" onchange="initApp()">
   <option value="">-- Pilih Staff --</option>
   <option>Muhamad Mustopa - Staff GA</option>
   <option>Abdul Apso - Staff Services</option>
 </select>
 
-<!-- ================= FORM TASK ================= -->
-<div id="taskSection" class="section">
+<div id="mainSection" class="section">
 
-  <label>Tanggal</label>
-  <input type="date" id="tanggal">
+<label>Tanggal</label>
+<input type="date" id="tanggal">
 
-  <h3>✅ Pending Sebelumnya (Centang = Clear)</h3>
-  <div id="pendingList">Tidak ada pending</div>
+<div class="grid">
 
-  <h3>➕ Tambah Pending Baru</h3>
-  <textarea id="newPending" rows="4"
-    placeholder="Satu task per baris"></textarea>
+  <!-- TASK CLEAR -->
+  <div class="box">
+    <h4>✅ Task Clear (8)</h4>
+    <div id="clearList"></div>
+  </div>
 
-  <button onclick="submitData()">Submit Laporan</button>
+  <!-- TASK PENDING -->
+  <div class="box">
+    <h4>⏳ Task Pending (5)</h4>
+    <div id="pendingList"></div>
+  </div>
 
 </div>
 
-<script>
-const WEB_APP_URL = 'PASTE_URL_WEB_APP_KAMU';
+<h4 style="margin-top:14px">➕ Tambah Task Pending Baru</h4>
+<textarea id="newPending" rows="3"
+placeholder="Satu task per baris"></textarea>
 
+<button onclick="submitData()">Simpan</button>
+
+</div>
+</div>
+
+<script>
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwwWZxjV21Cd_3GGE7ODbopbCGriMhKH0FOdFdIwX737tDzxfATQMsIQwY-1-6FIIlqVA/exec';
+
+let clearTasks = [];
 let pendingTasks = [];
 
-/* =====================
-   STAFF DIPILIH
-   ===================== */
-function onStaffChange(){
+function initApp(){
   const staff = staffEl().value;
-  const section = document.getElementById('taskSection');
-
   if(!staff){
-    section.style.display = 'none';
+    mainEl().style.display='none';
     return;
   }
 
-  section.style.display = 'block';
-  loadPending();
+  mainEl().style.display='block';
+
+  if(!dateEl().value){
+    dateEl().value = new Date().toISOString().split('T')[0];
+  }
+
+  loadData();
 }
 
-/* =====================
-   LOAD PENDING
-   ===================== */
-function loadPending(){
+/* ================= LOAD ================= */
+function loadData(){
   const staff = staffEl().value;
-  document.getElementById('pendingList').innerHTML = 'Loading...';
 
   fetch(`${WEB_APP_URL}?staff=${encodeURIComponent(staff)}`)
-    .then(r=>r.json())
-    .then(d=>{
-      pendingTasks = d.pending || [];
-      renderPending();
-    });
-}
-
-/* =====================
-   RENDER PENDING
-   ===================== */
-function renderPending(){
-  const div = document.getElementById('pendingList');
-  div.innerHTML = '';
-
-  if(pendingTasks.length === 0){
-    div.innerHTML = '<i>Tidak ada pending</i>';
-    return;
-  }
-
-  pendingTasks.forEach(t=>{
-    const l = document.createElement('label');
-    l.innerHTML = `<input type="checkbox" value="${t}"> ${t}`;
-    div.appendChild(l);
+  .then(r=>r.json())
+  .then(d=>{
+    clearTasks = d.clear || [];
+    pendingTasks = d.pending || [];
+    render();
   });
 }
 
-/* =====================
-   SUBMIT
-   ===================== */
+/* ================= RENDER ================= */
+function render(){
+
+  const clearDiv = document.getElementById('clearList');
+  const pendingDiv = document.getElementById('pendingList');
+
+  clearDiv.innerHTML='';
+  pendingDiv.innerHTML='';
+
+  // tampil max 8 clear
+  clearTasks.slice(0,8).forEach(t=>{
+    clearDiv.innerHTML+=`
+      <div class="task clear">${t}</div>
+    `;
+  });
+
+  // tampil max 5 pending
+  pendingTasks.slice(0,5).forEach(t=>{
+    pendingDiv.innerHTML+=`
+      <div class="task pending">
+        <label>
+          <input type="checkbox"
+            onchange="moveToClear('${encodeURIComponent(t)}')">
+          ${t}
+        </label>
+      </div>
+    `;
+  });
+
+}
+
+/* ================= PINDAH PENDING → CLEAR ================= */
+function moveToClear(taskEncoded){
+  const task = decodeURIComponent(taskEncoded);
+
+  pendingTasks = pendingTasks.filter(t=>t!==task);
+  clearTasks.push(task);
+
+  render();
+}
+
+/* ================= SUBMIT ================= */
 function submitData(){
+
   const staff = staffEl().value;
   const tanggal = dateEl().value;
 
@@ -131,30 +212,35 @@ function submitData(){
     return;
   }
 
-  const clear = [...document.querySelectorAll('#pendingList input:checked')]
-    .map(c=>c.value);
+  const newPending = document.getElementById('newPending')
+    .value.split('\n')
+    .filter(Boolean);
 
-  const pending = document.getElementById('newPending')
-    .value.split('\n').filter(Boolean);
+  pendingTasks = [...pendingTasks, ...newPending];
 
   fetch(WEB_APP_URL,{
     method:'POST',
-    body:JSON.stringify({staff,tanggal,clear,pending})
+    body:JSON.stringify({
+      staff,
+      tanggal,
+      clear:clearTasks,
+      pending:pendingTasks
+    })
   })
   .then(r=>r.json())
   .then(res=>{
-    alert(res.message || 'Berhasil disimpan');
-    document.getElementById('newPending').value = '';
-    loadPending();
+    alert(res.message || 'Data disimpan');
+    document.getElementById('newPending').value='';
+    loadData();
   });
+
 }
 
-/* =====================
-   HELPER
-   ===================== */
-const staffEl = ()=>document.getElementById('staff');
-const dateEl = ()=>document.getElementById('tanggal');
-</script>
+/* ================= HELPER ================= */
+const staffEl=()=>document.getElementById('staff');
+const dateEl=()=>document.getElementById('tanggal');
+const mainEl=()=>document.getElementById('mainSection');
 
+</script>
 </body>
 </html>
