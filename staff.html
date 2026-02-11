@@ -109,21 +109,20 @@ button:hover{opacity:.9}
 </div>
 
 <script>
-const WEB_APP_URL = "PASTE_URL_KAMU";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwwWZxjV21Cd_3GGE7ODbopbCGriMhKH0FOdFdIwX737tDzxfATQMsIQwY-1-6FIIlqVA/exec";
 
 let maxRow = 20;
 
 /* =============================
    BUAT ROW
 ============================= */
-function createRow(type,value="",checked=false){
+function createRow(type,value=""){
   const div=document.createElement("div");
   div.className="task-row";
 
   if(type==="pending"){
     const chk=document.createElement("input");
     chk.type="checkbox";
-    chk.checked=checked;
 
     chk.onchange=function(){
       if(chk.checked){
@@ -136,6 +135,7 @@ function createRow(type,value="",checked=false){
 
   const input=document.createElement("input");
   input.type="text";
+  input.placeholder="Tulis task...";
   input.value=value;
   div.appendChild(input);
 
@@ -143,64 +143,56 @@ function createRow(type,value="",checked=false){
 }
 
 /* =============================
-   INIT DEFAULT ROW (7 & 5)
+   INIT DEFAULT 8 & 5
 ============================= */
 function initDefaultRows(){
-  document.getElementById("clearContainer").innerHTML="";
-  document.getElementById("pendingContainer").innerHTML="";
 
-  for(let i=0;i<7;i++) addClear();
-  for(let i=0;i<5;i++) addPending();
+  const clearBox=document.getElementById("clearContainer");
+  const pendingBox=document.getElementById("pendingContainer");
+
+  clearBox.innerHTML="";
+  pendingBox.innerHTML="";
+
+  // 8 Clear kosong
+  for(let i=0;i<8;i++){
+    clearBox.appendChild(createRow("clear"));
+  }
+
+  // 5 Pending kosong
+  for(let i=0;i<5;i++){
+    pendingBox.appendChild(createRow("pending"));
+  }
 }
 
 /* =============================
    ADD CLEAR
 ============================= */
 function addClear(value=""){
-  const c=document.getElementById("clearContainer");
-  if(c.children.length>=maxRow){
+  const box=document.getElementById("clearContainer");
+  if(box.children.length>=maxRow){
     alert("Max 20 baris");
     return;
   }
-  c.appendChild(createRow("clear",value));
+  box.appendChild(createRow("clear",value));
 }
 
 /* =============================
    ADD PENDING
 ============================= */
 function addPending(value=""){
-  const c=document.getElementById("pendingContainer");
-  if(c.children.length>=maxRow){
+  const box=document.getElementById("pendingContainer");
+  if(box.children.length>=maxRow){
     alert("Max 20 baris");
     return;
   }
-  c.appendChild(createRow("pending",value));
+  box.appendChild(createRow("pending",value));
 }
 
 /* =============================
-   LOAD PENDING DARI SERVER
-============================= */
-function loadPending(){
-  const staff=document.getElementById("staff").value;
-  if(!staff) return;
-
-  fetch(`${WEB_APP_URL}?staff=${encodeURIComponent(staff)}`)
-  .then(r=>r.json())
-  .then(d=>{
-    initDefaultRows(); // reset default 7 & 5
-
-    // isi pending lama
-    document.getElementById("pendingContainer").innerHTML="";
-    d.pending.forEach(t=>{
-      addPending(t);
-    });
-  });
-}
-
-/* =============================
-   STAFF DIPILIH
+   LOAD DATA SAAT STAFF DIPILIH
 ============================= */
 document.getElementById("staff").addEventListener("change",function(){
+
   const staff=this.value;
 
   if(!staff){
@@ -209,7 +201,8 @@ document.getElementById("staff").addEventListener("change",function(){
   }
 
   document.getElementById("taskSection").style.display="block";
-  loadPending();
+  initDefaultRows();
+
 });
 
 /* =============================
@@ -225,22 +218,29 @@ function submitData(){
     return;
   }
 
-  const clear=[...document.querySelectorAll("#clearContainer input")]
-    .map(i=>i.value).filter(Boolean);
+  const clear=[...document.querySelectorAll("#clearContainer input[type=text]")]
+    .map(i=>i.value.trim())
+    .filter(Boolean);
 
   const pending=[...document.querySelectorAll("#pendingContainer input[type=text]")]
-    .map(i=>i.value).filter(Boolean);
+    .map(i=>i.value.trim())
+    .filter(Boolean);
 
   fetch(WEB_APP_URL,{
     method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
     body:JSON.stringify({staff,tanggal,clear,pending})
   })
   .then(r=>r.json())
   .then(res=>{
-    alert("Berhasil disimpan");
-    loadPending();
+    alert(res.message || "Berhasil disimpan");
+    initDefaultRows();
+  })
+  .catch(()=>{
+    alert("Gagal koneksi server");
   });
-
 }
 </script>
 
