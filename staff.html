@@ -113,9 +113,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx-7TMemLXso-Bvx3Re
 
 let maxRow = 20;
 
-/* =============================
-   BUAT ROW
-============================= */
+/* ============================= */
 function createRow(type,value=""){
   const div=document.createElement("div");
   div.className="task-row";
@@ -137,36 +135,29 @@ function createRow(type,value=""){
   input.type="text";
   input.placeholder="Tulis task...";
   input.value=value;
-  div.appendChild(input);
 
+  div.appendChild(input);
   return div;
 }
 
-/* =============================
-   INIT DEFAULT 8 & 5
-============================= */
+/* ============================= */
 function initDefaultRows(){
-
   const clearBox=document.getElementById("clearContainer");
   const pendingBox=document.getElementById("pendingContainer");
 
   clearBox.innerHTML="";
   pendingBox.innerHTML="";
 
-  // 8 Clear kosong
   for(let i=0;i<8;i++){
     clearBox.appendChild(createRow("clear"));
   }
 
-  // 5 Pending kosong
   for(let i=0;i<5;i++){
     pendingBox.appendChild(createRow("pending"));
   }
 }
 
-/* =============================
-   ADD CLEAR
-============================= */
+/* ============================= */
 function addClear(value=""){
   const box=document.getElementById("clearContainer");
   if(box.children.length>=maxRow){
@@ -176,9 +167,7 @@ function addClear(value=""){
   box.appendChild(createRow("clear",value));
 }
 
-/* =============================
-   ADD PENDING
-============================= */
+/* ============================= */
 function addPending(value=""){
   const box=document.getElementById("pendingContainer");
   if(box.children.length>=maxRow){
@@ -188,9 +177,7 @@ function addPending(value=""){
   box.appendChild(createRow("pending",value));
 }
 
-/* =============================
-   LOAD DATA SAAT STAFF DIPILIH
-============================= */
+/* ============================= */
 document.getElementById("staff").addEventListener("change",function(){
 
   const staff=this.value;
@@ -205,9 +192,7 @@ document.getElementById("staff").addEventListener("change",function(){
 
 });
 
-/* =============================
-   SUBMIT
-============================= */
+/* ============================= */
 function submitData(){
 
   const staff=document.getElementById("staff").value;
@@ -226,23 +211,28 @@ function submitData(){
     .map(i=>i.value.trim())
     .filter(Boolean);
 
+  const formData=new URLSearchParams();
+  formData.append("staff",staff);
+  formData.append("tanggal",tanggal);
+  formData.append("clear",JSON.stringify(clear));
+  formData.append("pending",JSON.stringify(pending));
+
   fetch(WEB_APP_URL,{
     method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({staff,tanggal,clear,pending})
+    body:formData
   })
-  .then(r=>r.json())
-  .then(res=>{
-    alert(res.message || "Berhasil disimpan");
+  .then(res=>res.text())
+  .then(()=>{
+    alert("Laporan berhasil disimpan");
     initDefaultRows();
   })
   .catch(()=>{
     alert("Gagal koneksi server");
   });
+
 }
 </script>
+
 
 </body>
 </html>
