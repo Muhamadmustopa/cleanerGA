@@ -3,244 +3,203 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checklist Pending</title>
+<title>Checklist Harian</title>
 
 <style>
-*{box-sizing:border-box}
 body{
-  font-family:Segoe UI,Arial;
+  font-family:Segoe UI;
   background:#f4f6f8;
-  margin:0;
-  padding:16px;
+  padding:15px;
 }
-
 .card{
+  background:#fff;
+  border-radius:12px;
+  padding:15px;
   max-width:500px;
   margin:auto;
-  background:#fff;
-  padding:16px;
-  border-radius:14px;
-  box-shadow:0 6px 16px rgba(0,0,0,.12);
+  box-shadow:0 6px 16px rgba(0,0,0,.1);
 }
-
 h2{text-align:center;margin-top:0}
 
-select,input,textarea,button{
+label{font-weight:600;margin-top:10px;display:block}
+input,select,textarea,button{
   width:100%;
-  padding:10px;
-  margin-top:8px;
-  border-radius:8px;
+  padding:8px;
+  margin-top:5px;
+  border-radius:6px;
   border:1px solid #ccc;
   font-size:14px;
 }
 
-button{
-  background:#2563eb;
-  color:#fff;
+.section{
+  background:#f9fafb;
+  padding:10px;
+  border-radius:8px;
+  margin-top:12px;
+}
+
+.task-row{
+  display:flex;
+  gap:5px;
+  margin-bottom:6px;
+}
+.task-row input[type=text]{
+  flex:1;
+}
+.task-row input[type=checkbox]{
+  width:20px;
+}
+
+.small-btn{
+  background:#e5e7eb;
+  color:#333;
   border:none;
-  font-weight:600;
+  padding:5px;
+  font-size:12px;
   cursor:pointer;
 }
+
+button{
+  background:#2563eb;
+  color:white;
+  border:none;
+  margin-top:12px;
+  cursor:pointer;
+}
+
 button:hover{opacity:.9}
-
-.section{display:none;margin-top:16px}
-
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-  margin-top:10px;
-}
-
-.box{
-  background:#fafafa;
-  border-radius:10px;
-  padding:10px;
-  border:1px solid #eee;
-  max-height:300px;
-  overflow:auto;
-}
-
-.box h4{
-  margin:0 0 8px 0;
-  font-size:14px;
-}
-
-.task{
-  background:#fff;
-  padding:6px 8px;
-  border-radius:6px;
-  margin-bottom:6px;
-  font-size:13px;
-  border:1px solid #eee;
-}
-
-.pending{border-left:4px solid #f59e0b}
-.clear{border-left:4px solid #22c55e}
-
-@media(max-width:600px){
-  .grid{grid-template-columns:1fr}
-}
 </style>
 </head>
+
 <body>
 
 <div class="card">
-<h2>📋 Checklist Harian</h2>
+<h2>📋 Daily Tasks</h2>
 
-<label>Nama Staff</label>
-<select id="staff" onchange="initApp()">
+<label>Nama</label>
+<select id="staff">
   <option value="">-- Pilih Staff --</option>
   <option>Muhamad Mustopa - Staff GA</option>
   <option>Abdul Apso - Staff Services</option>
 </select>
 
-<div id="mainSection" class="section">
-
 <label>Tanggal</label>
 <input type="date" id="tanggal">
 
-<div class="grid">
-
-  <!-- TASK CLEAR -->
-  <div class="box">
-    <h4>✅ Task Clear (8)</h4>
-    <div id="clearList"></div>
-  </div>
-
-  <!-- TASK PENDING -->
-  <div class="box">
-    <h4>⏳ Task Pending (5)</h4>
-    <div id="pendingList"></div>
-  </div>
-
+<!-- CLEAR -->
+<div class="section">
+  <b>✅ Task Clear</b>
+  <div id="clearContainer"></div>
+  <button type="button" class="small-btn" onclick="addClear()">+ Add Task</button>
 </div>
 
-<h4 style="margin-top:14px">➕ Tambah Task Pending Baru</h4>
-<textarea id="newPending" rows="3"
-placeholder="Satu task per baris"></textarea>
+<!-- PENDING -->
+<div class="section">
+  <b>⏳ Task Pending</b>
+  <div id="pendingContainer"></div>
+  <button type="button" class="small-btn" onclick="addPending()">+ Add Task</button>
+</div>
 
 <button onclick="submitData()">Simpan</button>
 
 </div>
-</div>
 
 <script>
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwwWZxjV21Cd_3GGE7ODbopbCGriMhKH0FOdFdIwX737tDzxfATQMsIQwY-1-6FIIlqVA/exec';
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwwWZxjV21Cd_3GGE7ODbopbCGriMhKH0FOdFdIwX737tDzxfATQMsIQwY-1-6FIIlqVA/exec";
 
-let clearTasks = [];
-let pendingTasks = [];
+let maxRow = 20;
 
-function initApp(){
-  const staff = staffEl().value;
-  if(!staff){
-    mainEl().style.display='none';
-    return;
+function createRow(type,value="",checked=false){
+  const div=document.createElement("div");
+  div.className="task-row";
+
+  if(type==="pending"){
+    const chk=document.createElement("input");
+    chk.type="checkbox";
+    chk.checked=checked;
+    chk.onchange=function(){
+      if(chk.checked){
+        addClear(input.value);
+        div.remove();
+      }
+    };
+    div.appendChild(chk);
   }
 
-  mainEl().style.display='block';
+  const input=document.createElement("input");
+  input.type="text";
+  input.value=value;
+  div.appendChild(input);
 
-  if(!dateEl().value){
-    dateEl().value = new Date().toISOString().split('T')[0];
-  }
-
-  loadData();
+  return div;
 }
 
-/* ================= LOAD ================= */
-function loadData(){
-  const staff = staffEl().value;
+/* INIT DEFAULT ROW */
+function initRows(){
+  for(let i=0;i<8;i++) addClear();
+  for(let i=0;i<5;i++) addPending();
+}
+
+function addClear(value=""){
+  const c=document.getElementById("clearContainer");
+  if(c.children.length>=maxRow) return;
+  c.appendChild(createRow("clear",value));
+}
+
+function addPending(value=""){
+  const c=document.getElementById("pendingContainer");
+  if(c.children.length>=maxRow) return;
+  c.appendChild(createRow("pending",value));
+}
+
+/* LOAD PENDING DARI SERVER */
+function loadPending(){
+  const staff=document.getElementById("staff").value;
+  if(!staff) return;
 
   fetch(`${WEB_APP_URL}?staff=${encodeURIComponent(staff)}`)
   .then(r=>r.json())
   .then(d=>{
-    clearTasks = d.clear || [];
-    pendingTasks = d.pending || [];
-    render();
+    document.getElementById("pendingContainer").innerHTML="";
+    d.pending.forEach(t=>{
+      addPending(t);
+    });
   });
 }
 
-/* ================= RENDER ================= */
-function render(){
-
-  const clearDiv = document.getElementById('clearList');
-  const pendingDiv = document.getElementById('pendingList');
-
-  clearDiv.innerHTML='';
-  pendingDiv.innerHTML='';
-
-  // tampil max 8 clear
-  clearTasks.slice(0,8).forEach(t=>{
-    clearDiv.innerHTML+=`
-      <div class="task clear">${t}</div>
-    `;
-  });
-
-  // tampil max 5 pending
-  pendingTasks.slice(0,5).forEach(t=>{
-    pendingDiv.innerHTML+=`
-      <div class="task pending">
-        <label>
-          <input type="checkbox"
-            onchange="moveToClear('${encodeURIComponent(t)}')">
-          ${t}
-        </label>
-      </div>
-    `;
-  });
-
-}
-
-/* ================= PINDAH PENDING → CLEAR ================= */
-function moveToClear(taskEncoded){
-  const task = decodeURIComponent(taskEncoded);
-
-  pendingTasks = pendingTasks.filter(t=>t!==task);
-  clearTasks.push(task);
-
-  render();
-}
-
-/* ================= SUBMIT ================= */
+/* SUBMIT */
 function submitData(){
 
-  const staff = staffEl().value;
-  const tanggal = dateEl().value;
+  const staff=document.getElementById("staff").value;
+  const tanggal=document.getElementById("tanggal").value;
 
-  if(!tanggal){
-    alert('Tanggal wajib diisi');
+  if(!staff || !tanggal){
+    alert("Lengkapi data");
     return;
   }
 
-  const newPending = document.getElementById('newPending')
-    .value.split('\n')
-    .filter(Boolean);
+  const clear=[...document.querySelectorAll("#clearContainer input")]
+    .map(i=>i.value).filter(Boolean);
 
-  pendingTasks = [...pendingTasks, ...newPending];
+  const pending=[...document.querySelectorAll("#pendingContainer input[type=text]")]
+    .map(i=>i.value).filter(Boolean);
 
   fetch(WEB_APP_URL,{
-    method:'POST',
-    body:JSON.stringify({
-      staff,
-      tanggal,
-      clear:clearTasks,
-      pending:pendingTasks
-    })
+    method:"POST",
+    body:JSON.stringify({staff,tanggal,clear,pending})
   })
   .then(r=>r.json())
   .then(res=>{
-    alert(res.message || 'Data disimpan');
-    document.getElementById('newPending').value='';
-    loadData();
+    alert("Berhasil disimpan");
+    loadPending();
   });
 
 }
 
-/* ================= HELPER ================= */
-const staffEl=()=>document.getElementById('staff');
-const dateEl=()=>document.getElementById('tanggal');
-const mainEl=()=>document.getElementById('mainSection');
+document.getElementById("staff").addEventListener("change",loadPending);
 
+initRows();
 </script>
+
 </body>
 </html>
