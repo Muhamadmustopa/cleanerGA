@@ -7,212 +7,242 @@
 
 <style>
 body{
-  margin:0;
   font-family:Segoe UI;
-  background:#f1f5f9;
+  background:#f4f6f8;
   padding:15px;
 }
-
 .card{
   background:#fff;
-  padding:16px;
   border-radius:12px;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  padding:15px;
   max-width:500px;
   margin:auto;
+  box-shadow:0 6px 16px rgba(0,0,0,.1);
 }
+h2{text-align:center;margin-top:0}
 
-h2{
-  text-align:center;
-  margin-top:0;
-}
-
-label{
-  font-weight:600;
-  margin-top:10px;
-  display:block;
-}
-
-select,input,textarea,button{
+label{font-weight:600;margin-top:10px;display:block}
+input,select,button{
   width:100%;
-  padding:10px;
-  margin-top:6px;
-  border-radius:8px;
-  border:1px solid #d1d5db;
+  padding:8px;
+  margin-top:5px;
+  border-radius:6px;
+  border:1px solid #ccc;
   font-size:14px;
+}
+
+.section{
+  background:#f9fafb;
+  padding:10px;
+  border-radius:8px;
+  margin-top:12px;
+}
+
+.task-row{
+  display:flex;
+  gap:6px;
+  margin-bottom:6px;
+}
+.task-row input[type=text]{
+  flex:1;
+}
+.task-row input[type=checkbox]{
+  width:20px;
+}
+
+.small-btn{
+  background:#e5e7eb;
+  color:#333;
+  border:none;
+  padding:5px;
+  font-size:12px;
+  cursor:pointer;
+  margin-top:5px;
 }
 
 button{
   background:#2563eb;
-  color:#fff;
+  color:white;
   border:none;
-  margin-top:15px;
-  font-weight:600;
+  margin-top:12px;
+  cursor:pointer;
 }
-
-button:hover{
-  opacity:.9;
-}
-
-.section{
-  margin-top:15px;
-  display:none;
-}
-
-.container-box{
-  background:#f8fafc;
-  padding:12px;
-  border-radius:8px;
-  margin-top:10px;
-}
-
-.task-input{
-  margin-bottom:6px;
-}
+button:hover{opacity:.9}
 </style>
 </head>
+
 <body>
 
 <div class="card">
-
-<h2>📋 Report Daily </h2>
+<h2>📋 Daily Report Staff</h2>
 
 <label>Nama</label>
-<select id="staff" onchange="handleStaff()">
-  <option value="">-- Pilih Nama --</option>
-  <option value="Muhamad Mustopa - Staff GA">
-    Muhamad Mustopa - Staff GA
-  </option>
-  <option value="Abdul Apso - Staff Services">
-    Abdul Apso - Staff Services
-  </option>
+<select id="staff">
+  <option value="">-- Pilih Staff --</option>
+  <option>Muhamad Mustopa - Staff GA</option>
+  <option>Abdul Apso - Staff Services</option>
 </select>
-
-<!-- SECTION TASK (Hidden Awal) -->
-<div id="taskSection" class="section">
 
 <label>Tanggal</label>
 <input type="date" id="tanggal">
 
-<!-- TASK CLEAR -->
-<div class="container-box">
-  <h3>✅ Task Clear</h3>
-  <div id="clearList"></div>
-  <button type="button" onclick="addClear()">+Add Task</button>
+<!-- CONTAINER TASK (Hidden Awal) -->
+<div id="taskSection" style="display:none">
+
+  <!-- CLEAR -->
+  <div class="section">
+    <b>✅ Task Clear/Today</b>
+    <div id="clearContainer"></div>
+    <button type="button" class="small-btn" onclick="addClear()">+Add Task</button>
+  </div>
+
+  <!-- PENDING -->
+  <div class="section">
+    <b>⏳ Task Pending/Plan for Tomorrow</b>
+    <div id="pendingContainer"></div>
+    <button type="button" class="small-btn" onclick="addPending()">+Add Task</button>
+  </div>
+
+  <button onclick="submitData()">Simpan</button>
+
 </div>
-
-<!-- TASK PENDING -->
-<div class="container-box">
-  <h3>⏳ Task Pending</h3>
-  <div id="pendingList"></div>
-  <button type="button" onclick="addPending()">+Add Task</button>
-</div>
-
-<button onclick="submitData()">Simpan</button>
-
-</div>
-
 </div>
 
 <script>
+const WEB_APP_URL = "PASTE_URL_KAMU";
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwwWZxjV21Cd_3GGE7ODbopbCGriMhKH0FOdFdIwX737tDzxfATQMsIQwY-1-6FIIlqVA/exec";
+let maxRow = 20;
 
-let clearCount = 0;
-let pendingCount = 0;
+/* =============================
+   BUAT ROW
+============================= */
+function createRow(type,value="",checked=false){
+  const div=document.createElement("div");
+  div.className="task-row";
 
-function handleStaff(){
-  const staff = document.getElementById("staff").value;
-  const section = document.getElementById("taskSection");
+  if(type==="pending"){
+    const chk=document.createElement("input");
+    chk.type="checkbox";
+    chk.checked=checked;
 
-  if(staff){
-    section.style.display="block";
-    loadData();
-  }else{
-    section.style.display="none";
+    chk.onchange=function(){
+      if(chk.checked){
+        addClear(input.value);
+        div.remove();
+      }
+    };
+    div.appendChild(chk);
   }
+
+  const input=document.createElement("input");
+  input.type="text";
+  input.value=value;
+  div.appendChild(input);
+
+  return div;
 }
 
-function loadData(){
-  const staff = document.getElementById("staff").value;
+/* =============================
+   INIT DEFAULT ROW (7 & 5)
+============================= */
+function initDefaultRows(){
+  document.getElementById("clearContainer").innerHTML="";
+  document.getElementById("pendingContainer").innerHTML="";
+
+  for(let i=0;i<7;i++) addClear();
+  for(let i=0;i<5;i++) addPending();
+}
+
+/* =============================
+   ADD CLEAR
+============================= */
+function addClear(value=""){
+  const c=document.getElementById("clearContainer");
+  if(c.children.length>=maxRow){
+    alert("Max 20 baris");
+    return;
+  }
+  c.appendChild(createRow("clear",value));
+}
+
+/* =============================
+   ADD PENDING
+============================= */
+function addPending(value=""){
+  const c=document.getElementById("pendingContainer");
+  if(c.children.length>=maxRow){
+    alert("Max 20 baris");
+    return;
+  }
+  c.appendChild(createRow("pending",value));
+}
+
+/* =============================
+   LOAD PENDING DARI SERVER
+============================= */
+function loadPending(){
+  const staff=document.getElementById("staff").value;
+  if(!staff) return;
 
   fetch(`${WEB_APP_URL}?staff=${encodeURIComponent(staff)}`)
-  .then(res=>res.json())
-  .then(data=>{
+  .then(r=>r.json())
+  .then(d=>{
+    initDefaultRows(); // reset default 7 & 5
 
-    document.getElementById("clearList").innerHTML="";
-    document.getElementById("pendingList").innerHTML="";
-
-    clearCount = 0;
-    pendingCount = 0;
-
-    // TAMPIL CLEAR (MAX 8)
-    data.clear.forEach(task=>{
-      addClear(task);
+    // isi pending lama
+    document.getElementById("pendingContainer").innerHTML="";
+    d.pending.forEach(t=>{
+      addPending(t);
     });
-
-    // TAMPIL PENDING (MAX 5)
-    data.pending.forEach(task=>{
-      addPending(task);
-    });
-
   });
 }
 
-/* ADD CLEAR */
-function addClear(value=""){
-  if(clearCount >= 20) return alert("Max 20 baris");
+/* =============================
+   STAFF DIPILIH
+============================= */
+document.getElementById("staff").addEventListener("change",function(){
+  const staff=this.value;
 
-  clearCount++;
+  if(!staff){
+    document.getElementById("taskSection").style.display="none";
+    return;
+  }
 
-  const div = document.createElement("div");
-  div.className="task-input";
-  div.innerHTML = `
-    <input type="text" value="${value}" placeholder="Isi task clear">
-  `;
-  document.getElementById("clearList").appendChild(div);
-}
+  document.getElementById("taskSection").style.display="block";
+  loadPending();
+});
 
-/* ADD PENDING */
-function addPending(value=""){
-  if(pendingCount >= 20) return alert("Max 20 baris");
-
-  pendingCount++;
-
-  const div = document.createElement("div");
-  div.className="task-input";
-  div.innerHTML = `
-    <input type="text" value="${value}" placeholder="Isi task pending">
-  `;
-  document.getElementById("pendingList").appendChild(div);
-}
-
+/* =============================
+   SUBMIT
+============================= */
 function submitData(){
 
-  const staff = document.getElementById("staff").value;
-  const tanggal = document.getElementById("tanggal").value;
+  const staff=document.getElementById("staff").value;
+  const tanggal=document.getElementById("tanggal").value;
 
-  if(!staff) return alert("Pilih nama staff dulu");
-  if(!tanggal) return alert("Isi tanggal dulu");
+  if(!staff || !tanggal){
+    alert("Lengkapi data");
+    return;
+  }
 
-  const clear = [...document.querySelectorAll("#clearList input")]
-                .map(i=>i.value).filter(Boolean);
+  const clear=[...document.querySelectorAll("#clearContainer input")]
+    .map(i=>i.value).filter(Boolean);
 
-  const pending = [...document.querySelectorAll("#pendingList input")]
-                .map(i=>i.value).filter(Boolean);
+  const pending=[...document.querySelectorAll("#pendingContainer input[type=text]")]
+    .map(i=>i.value).filter(Boolean);
 
   fetch(WEB_APP_URL,{
     method:"POST",
     body:JSON.stringify({staff,tanggal,clear,pending})
   })
-  .then(res=>res.json())
+  .then(r=>r.json())
   .then(res=>{
-    alert(res.message || "Berhasil disimpan");
-    loadData();
+    alert("Berhasil disimpan");
+    loadPending();
   });
 
 }
-
 </script>
+
 </body>
 </html>
