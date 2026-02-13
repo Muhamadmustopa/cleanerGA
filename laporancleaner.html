@@ -27,4 +27,327 @@ body{
 h2{text-align:center;margin:6px 0 16px}
 
 .filters{
-  display:
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:10px;
+  margin-bottom:16px;
+}
+
+select,input{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:14px;
+}
+
+.dashboard{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  justify-content:center;
+  margin-bottom:20px;
+}
+
+.chart-box{
+  width:260px;
+  background:#fafafa;
+  border-radius:16px;
+  padding:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
+
+.chart-box h4{
+  text-align:center;
+  font-size:14px;
+  margin:6px 0;
+}
+
+.table-wrap{
+  overflow-x:auto;
+  max-height:500px;
+  overflow-y:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th,td{
+  padding:8px 10px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+}
+
+th{
+  background:#f1f3f4;
+  position:sticky;
+  top:0;
+}
+
+tr.group td{
+  background:#e3f2fd;
+  font-weight:600;
+}
+
+input.comment{
+  width:100%;
+  padding:6px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+@media(max-width:600px){
+  th,td{font-size:12px}
+}
+
+.top-btn{
+  position:absolute;
+  top:20px;
+  left:20px;
+  background:#2196F3;
+  color:#fff;
+  padding:10px 16px;
+  border-radius:10px;
+  text-decoration:none;
+  font-size:14px;
+  font-weight:500;
+  box-shadow:0 4px 10px rgba(0,0,0,.15);
+  transition:all .2s ease;
+}
+
+.top-btn:hover{
+  background:#1976D2;
+  transform:translateY(-2px);
+  box-shadow:0 6px 14px rgba(0,0,0,.25);
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+<h2>📊 Laporan Checklist Cleaner</h2>
+<a href="login.html" class="top-btn">Kembali</a>
+
+<div class="filters">
+<select id="filterBulan">
+<option value="">Semua Bulan</option>
+</select>
+
+<select id="filterNama">
+<option value="">Semua Cleaner</option>
+</select>
+
+<select id="filterLokasi">
+<option value="">Semua Lokasi</option>
+</select>
+
+<select id="sortBy">
+<option value="desc">Terbaru → Terlama</option>
+<option value="asc">Terlama → Terbaru</option>
+</select>
+
+<input type="text" id="search" placeholder="Cari task / area">
+</div>
+
+<div class="dashboard">
+<div class="chart-box">
+<h4>Status Checklist</h4>
+<canvas id="pieStatus"></canvas>
+</div>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Tanggal</th>
+<th>Nama</th>
+<th>Lokasi</th>
+<th>Area</th>
+<th>Task</th>
+<th>Status</th>
+<th>Keterangan</th>
+<th>Komentar</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+</div>
+
+<script>
+
+/* ================= CONFIG ================= */
+
+const DATA_URL = "https://script.google.com/macros/s/AKfycby7ziY9k2Frrmnp-YNRbPDVtppIb7UE3m5Ww6iEdRkeKdw5S7k-rGQrivZxhVQbXxXs/exec?action=data";
+const SAVE_URL = "https://script.google.com/macros/s/AKfycby7ziY9k2Frrmnp-YNRbPDVtppIb7UE3m5Ww6iEdRkeKdw5S7k-rGQrivZxhVQbXxXs/exec";
+
+/* ================= ELEMENT ================= */
+
+const tbody = document.getElementById("tbody");
+const filterBulan = document.getElementById("filterBulan");
+const filterNama = document.getElementById("filterNama");
+const filterLokasi = document.getElementById("filterLokasi");
+const sortBy = document.getElementById("sortBy");
+const search = document.getElementById("search");
+
+let rawData = [];
+let pie;
+
+/* ================= FORMAT TANGGAL ================= */
+
+function formatDate(dateString){
+  const d = new Date(dateString);
+  if(isNaN(d)) return dateString;
+  const day = String(d.getDate()).padStart(2,'0');
+  const month = String(d.getMonth()+1).padStart(2,'0');
+  const year = d.getFullYear();
+  return `${day}-${month}-${year}`;
+}
+
+/* ================= LOAD DATA ================= */
+
+function loadData(){
+  fetch(DATA_URL)
+  .then(r=>r.json())
+  .then(data=>{
+    rawData = data;
+    initFilter();
+    render();
+  });
+}
+loadData();
+
+/* ================= INIT FILTER ================= */
+
+function initFilter(){
+
+  filterBulan.innerHTML='<option value="">Semua Bulan</option>';
+  filterNama.innerHTML='<option value="">Semua Cleaner</option>';
+  filterLokasi.innerHTML='<option value="">Semua Lokasi</option>';
+
+  const bulan = new Set();
+  const nama = new Set();
+  const lokasi = new Set();
+
+  rawData.forEach(r=>{
+    if(r[3]) bulan.add(r[3].toString().substring(0,7));
+    if(r[1]) nama.add(r[1]);
+    if(r[2]) lokasi.add(r[2]);
+  });
+
+  [...bulan].sort().forEach(b=>{
+    filterBulan.innerHTML += `<option value="${b}">${b}</option>`;
+  });
+
+  [...nama].forEach(n=>{
+    filterNama.innerHTML += `<option value="${n}">${n}</option>`;
+  });
+
+  [...lokasi].forEach(l=>{
+    filterLokasi.innerHTML += `<option value="${l}">${l}</option>`;
+  });
+}
+
+/* ================= RENDER ================= */
+
+function render(){
+
+  tbody.innerHTML="";
+  let lastMonth="";
+  let selesai=0, belum=0;
+
+  const data = rawData
+  .filter(r=>{
+    if(filterBulan.value && !r[3].toString().startsWith(filterBulan.value)) return false;
+    if(filterNama.value && r[1]!==filterNama.value) return false;
+    if(filterLokasi.value && r[2]!==filterLokasi.value) return false;
+    if(search.value && !(r[4]+r[5]).toLowerCase().includes(search.value.toLowerCase())) return false;
+    return true;
+  })
+  .sort((a,b)=>{
+    return sortBy.value==="asc"
+      ? new Date(a[3]) - new Date(b[3])
+      : new Date(b[3]) - new Date(a[3]);
+  });
+
+  data.forEach(r=>{
+
+    const month = r[3].toString().substring(0,7);
+    const rowNumber = r[9];
+
+    if(month!==lastMonth){
+      tbody.innerHTML += `<tr class="group"><td colspan="8">${month}</td></tr>`;
+      lastMonth = month;
+    }
+
+    r[6]==="SELESAI" ? selesai++ : belum++;
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${formatDate(r[3])}</td>
+        <td>${r[1]}</td>
+        <td>${r[2]}</td>
+        <td>${r[4]}</td>
+        <td>${r[5]}</td>
+        <td>${r[6]}</td>
+        <td>${r[7] || ''}</td>
+        <td>
+          <input class="comment"
+            value="${r[8] || ''}"
+            onchange="saveComment(${rowNumber}, this.value)"
+            placeholder="Tambah komentar">
+        </td>
+      </tr>
+    `;
+  });
+
+  renderPie(selesai,belum);
+}
+
+/* ================= SAVE COMMENT ================= */
+
+function saveComment(rowNumber, comment){
+  fetch(SAVE_URL,{
+    method:"POST",
+    body:new URLSearchParams({
+      action:"saveComment",
+      rowNumber:rowNumber,
+      comment:comment
+    })
+  }).then(()=>loadData());
+}
+
+/* ================= PIE ================= */
+
+function renderPie(done,pending){
+
+  if(pie) pie.destroy();
+
+  pie = new Chart(document.getElementById("pieStatus"),{
+    type:"pie",
+    data:{
+      labels:["Selesai","Belum"],
+      datasets:[{
+        data:[done,pending],
+        backgroundColor:["#4CAF50","#f44336"]
+      }]
+    },
+    options:{
+      plugins:{legend:{position:"bottom"}},
+      responsive:true
+    }
+  });
+}
+
+/* ================= EVENT ================= */
+
+[filterBulan,filterNama,filterLokasi,sortBy,search]
+.forEach(el=>el.onchange=render);
+
+</script>
+</body>
+</html>
