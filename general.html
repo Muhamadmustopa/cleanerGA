@@ -31,6 +31,7 @@ body{
   margin-bottom:12px;
 }
 .header strong{font-size:16px}
+
 .logout{
   background:#f44336;
   color:#fff;
@@ -44,6 +45,7 @@ label{
   font-size:14px;
   font-weight:600;
 }
+
 select,input{
   width:100%;
   padding:12px;
@@ -60,16 +62,19 @@ select,input{
   margin-top:12px;
   background:#fff;
 }
+
 .task-area{
   font-size:13px;
   font-weight:600;
   color:#1976d2;
   margin-bottom:4px;
 }
+
 .task-name{
   font-size:14px;
   margin-bottom:10px;
 }
+
 .check-row{
   display:flex;
   align-items:center;
@@ -77,6 +82,7 @@ select,input{
   margin-bottom:8px;
   font-size:14px;
 }
+
 .note{
   width:100%;
   padding:10px;
@@ -100,6 +106,34 @@ button.save{
 @media(max-width:600px){
   body{padding:10px}
   .card{padding:14px}
+}
+
+/* ===== LOADING OVERLAY ===== */
+.loading-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(255,255,255,0.7);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+.spinner{
+  width:60px;
+  height:60px;
+  border:6px solid #ddd;
+  border-top:6px solid #4CAF50;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  0%{transform:rotate(0deg);}
+  100%{transform:rotate(360deg);}
 }
 </style>
 </head>
@@ -139,7 +173,12 @@ button.save{
 
   <div id="taskContainer"></div>
 
-  <button class="save" onclick="simpan()">Simpan Checklist</button>
+  <button class="save" id="saveBtn" onclick="simpan()">Simpan Checklist</button>
+</div>
+
+<!-- LOADING SPINNER -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
 </div>
 
 <script>
@@ -150,6 +189,8 @@ const cleanerSelect = document.getElementById('cleaner');
 const lokasiSelect  = document.getElementById('lokasi');
 const tanggalInput  = document.getElementById('tanggal');
 const taskContainer = document.getElementById('taskContainer');
+const loading       = document.getElementById('loading');
+const saveBtn       = document.getElementById('saveBtn');
 
 const savedUser = localStorage.getItem('cleaner_name');
 if(savedUser){
@@ -158,7 +199,6 @@ if(savedUser){
 
 cleanerSelect.addEventListener('change',()=>{
   localStorage.setItem('cleaner_name', cleanerSelect.value);
-
   if(lokasiSelect.value){
     renderTask();
   }
@@ -235,6 +275,9 @@ function simpan(){
     return;
   }
 
+  loading.style.display = "flex";
+  saveBtn.disabled = true;
+
   const payload = [];
   taskByLocation[lokasi].forEach((t,i)=>{
     payload.push({
@@ -254,10 +297,14 @@ function simpan(){
   })
   .then(r=>r.text())
   .then(()=>{
+    loading.style.display = "none";
+    saveBtn.disabled = false;
     alert('Checklist berhasil disimpan');
     location.reload();
   })
   .catch(()=>{
+    loading.style.display = "none";
+    saveBtn.disabled = false;
     alert('Gagal menyimpan data');
   });
 }
