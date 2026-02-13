@@ -58,11 +58,17 @@ select,input{
   margin:6px 0;
 }
 
-.table-wrap{overflow-x:auto}
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
+.table-wrap{
+  overflow-y:auto;
+  max-height:480px; /* kira-kira 12 baris */
+}
+thead th{
+  position:sticky;
+  top:0;
+  background:#f1f3f4;
+  z-index:2;
+}
+
 }
 th,td{
   padding:8px 10px;
@@ -136,8 +142,8 @@ input.comment{
   </select>
 
   <select id="sortBy">
-    <option value="desc">Terbaru → Terlama</option>
-    <option value="asc">Terlama → Terbaru</option>
+    <input type="date" id="dateFrom">
+<input type="date" id="dateTo">
   </select>
 
   <input type="text" id="search" placeholder="Cari task / area">
