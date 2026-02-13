@@ -43,12 +43,8 @@ input,select,button{
   gap:6px;
   margin-bottom:6px;
 }
-.task-row input[type=text]{
-  flex:1;
-}
-.task-row input[type=checkbox]{
-  width:20px;
-}
+.task-row input[type=text]{ flex:1; }
+.task-row input[type=checkbox]{ width:20px; }
 
 .small-btn{
   background:#e5e7eb;
@@ -68,6 +64,34 @@ button{
   cursor:pointer;
 }
 button:hover{opacity:.9}
+
+/* ===== LOADING OVERLAY ===== */
+.loading-overlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(255,255,255,0.7);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+.spinner{
+  width:60px;
+  height:60px;
+  border:6px solid #ddd;
+  border-top:6px solid #2563eb;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  0%{transform:rotate(0deg);}
+  100%{transform:rotate(360deg);}
+}
 </style>
 </head>
 
@@ -86,17 +110,14 @@ button:hover{opacity:.9}
 <label>Tanggal</label>
 <input type="date" id="tanggal">
 
-<!-- CONTAINER TASK (Hidden Awal) -->
 <div id="taskSection" style="display:none">
 
-  <!-- CLEAR -->
   <div class="section">
     <b>✅ Task Clear/Today</b>
     <div id="clearContainer"></div>
     <button type="button" class="small-btn" onclick="addClear()">+Add Task</button>
   </div>
 
-  <!-- PENDING -->
   <div class="section">
     <b>⏳ Task Pending/Plan for Tomorrow</b>
     <div id="pendingContainer"></div>
@@ -108,12 +129,15 @@ button:hover{opacity:.9}
 </div>
 </div>
 
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+</div>
+
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx-7TMemLXso-Bvx3ReuU4ok3vID7lPFYePAFkXamj0IoiyvswIael0xgAMKPXgpzlK/exec";
-
 let maxRow = 20;
 
-/* ============================= */
 function createRow(type,value=""){
   const div=document.createElement("div");
   div.className="task-row";
@@ -140,7 +164,6 @@ function createRow(type,value=""){
   return div;
 }
 
-/* ============================= */
 function initDefaultRows(){
   const clearBox=document.getElementById("clearContainer");
   const pendingBox=document.getElementById("pendingContainer");
@@ -157,7 +180,6 @@ function initDefaultRows(){
   }
 }
 
-/* ============================= */
 function addClear(value=""){
   const box=document.getElementById("clearContainer");
   if(box.children.length>=maxRow){
@@ -167,7 +189,6 @@ function addClear(value=""){
   box.appendChild(createRow("clear",value));
 }
 
-/* ============================= */
 function addPending(value=""){
   const box=document.getElementById("pendingContainer");
   if(box.children.length>=maxRow){
@@ -177,9 +198,7 @@ function addPending(value=""){
   box.appendChild(createRow("pending",value));
 }
 
-/* ============================= */
 document.getElementById("staff").addEventListener("change",function(){
-
   const staff=this.value;
 
   if(!staff){
@@ -189,10 +208,8 @@ document.getElementById("staff").addEventListener("change",function(){
 
   document.getElementById("taskSection").style.display="block";
   initDefaultRows();
-
 });
 
-/* ============================= */
 function submitData(){
 
   const staff=document.getElementById("staff").value;
@@ -211,6 +228,9 @@ function submitData(){
     .map(i=>i.value.trim())
     .filter(Boolean);
 
+  const loading = document.getElementById("loading");
+  loading.style.display = "flex";
+
   const formData=new URLSearchParams();
   formData.append("staff",staff);
   formData.append("tanggal",tanggal);
@@ -223,16 +243,16 @@ function submitData(){
   })
   .then(res=>res.text())
   .then(()=>{
+    loading.style.display = "none";
     alert("Laporan berhasil disimpan");
     initDefaultRows();
   })
   .catch(()=>{
+    loading.style.display = "none";
     alert("Gagal koneksi server");
   });
-
 }
 </script>
-
 
 </body>
 </html>
