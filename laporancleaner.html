@@ -237,7 +237,7 @@ function render(){
 
   const data = rawData
   .filter(r=>{
-    if(filterBulan.value && !r[3].startsWith(filterBulan.value)) return false;
+    if(filterBulan.value && !r[3].toString().startsWith(filterBulan.value)) return false;
     if(filterNama.value && r[1]!==filterNama.value) return false;
     if(filterLokasi.value && r[2]!==filterLokasi.value) return false;
     if(search.value && !(r[4]+r[5]).toLowerCase().includes(search.value.toLowerCase())) return false;
@@ -251,7 +251,7 @@ function render(){
 
   data.forEach(r=>{
 
-    const month = r[3].substring(0,7);
+    const month = r[3].toString().substring(0,7);
     const rowNumber = r[9]; // nomor baris asli dari sheet
 
     if(month!==lastMonth){
