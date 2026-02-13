@@ -15,7 +15,6 @@ body{
   background:linear-gradient(180deg,#e3f2fd,#f4f6f8);
 }
 
-/* CARD */
 .card{
   max-width:900px;
   margin:auto;
@@ -25,7 +24,6 @@ body{
   box-shadow:0 8px 20px rgba(0,0,0,.12);
 }
 
-/* HEADER */
 .header{
   display:flex;
   justify-content:space-between;
@@ -42,7 +40,6 @@ body{
   cursor:pointer;
 }
 
-/* FORM */
 label{
   font-size:14px;
   font-weight:600;
@@ -56,7 +53,6 @@ select,input{
   font-size:14px;
 }
 
-/* TASK CARD */
 .task-card{
   border:1px solid #e0e0e0;
   border-radius:14px;
@@ -88,7 +84,6 @@ select,input{
   border:1px solid #ccc;
 }
 
-/* BUTTON */
 button.save{
   width:100%;
   margin-top:18px;
@@ -102,7 +97,6 @@ button.save{
   cursor:pointer;
 }
 
-/* MOBILE */
 @media(max-width:600px){
   body{padding:10px}
   .card{padding:14px}
@@ -122,7 +116,6 @@ button.save{
     <button class="logout" onclick="logout()">Keluar</button>
   </div>
 
-  <!-- USER -->
   <label>Nama Cleaner</label>
   <select id="cleaner">
     <option value="">-- Pilih Cleaner --</option>
@@ -132,7 +125,6 @@ button.save{
 
   <br><br>
 
-  <!-- LOKASI -->
   <label>Lokasi Kerja</label>
   <select id="lokasi" onchange="renderTask()">
     <option value="">-- Pilih Lokasi --</option>
@@ -142,38 +134,36 @@ button.save{
 
   <br><br>
 
-  <!-- TANGGAL -->
   <label>Tanggal</label>
   <input type="date" id="tanggal">
 
-  <!-- TASK LIST -->
   <div id="taskContainer"></div>
 
   <button class="save" onclick="simpan()">Simpan Checklist</button>
 </div>
 
 <script>
-/* ================== KONFIG ================== */
+
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7ziY9k2Frrmnp-YNRbPDVtppIb7UE3m5Ww6iEdRkeKdw5S7k-rGQrivZxhVQbXxXs/exec';
 
-/* ================== ELEMENT ================== */
 const cleanerSelect = document.getElementById('cleaner');
 const lokasiSelect  = document.getElementById('lokasi');
 const tanggalInput  = document.getElementById('tanggal');
 const taskContainer = document.getElementById('taskContainer');
 
-/* ================== AUTO ISI CLEANER (JIKA ADA) ================== */
 const savedUser = localStorage.getItem('cleaner_name');
 if(savedUser){
   cleanerSelect.value = savedUser;
 }
 
-/* ================== SIMPAN KE LOCAL STORAGE ================== */
 cleanerSelect.addEventListener('change',()=>{
   localStorage.setItem('cleaner_name', cleanerSelect.value);
+
+  if(lokasiSelect.value){
+    renderTask();
+  }
 });
 
-/* ================== TASK DATA ================== */
 const taskByLocation = {
   MTH:[
     {area:'Area Kerja',task:'Sapu & Pel Lantai'},
@@ -194,7 +184,6 @@ const taskByLocation = {
     {area:'Service',task:'Pembelian Sarapan Pagi'},
     {area:'Service',task:'Pembelian Makan Siang Tepat Waktu'},
     {area:'Service',task:'Membantu Karyawan (Tolong isi catatan keterangan'}
-    
   ],
   BIZ:[
     {area:'Gudang',task:'Sapu & Pel Lantai Gudang'},
@@ -212,10 +201,8 @@ const taskByLocation = {
   ]
 };
 
-/* ================== DEFAULT TANGGAL ================== */
 tanggalInput.valueAsDate = new Date();
 
-/* ================== RENDER TASK ================== */
 function renderTask(){
   taskContainer.innerHTML='';
   const lokasi = lokasiSelect.value;
@@ -238,7 +225,6 @@ function renderTask(){
   });
 }
 
-/* ================== SIMPAN ================== */
 function simpan(){
   const cleaner = cleanerSelect.value;
   const lokasi  = lokasiSelect.value;
@@ -263,10 +249,9 @@ function simpan(){
   });
 
   fetch(SCRIPT_URL, {
-  method: "POST",
-  body: JSON.stringify(payload)
-});
-
+    method: "POST",
+    body: JSON.stringify(payload)
+  })
   .then(r=>r.text())
   .then(()=>{
     alert('Checklist berhasil disimpan');
@@ -277,11 +262,11 @@ function simpan(){
   });
 }
 
-/* ================== LOGOUT ================== */
 function logout(){
   localStorage.clear();
   location.href='login.html';
 }
+
 </script>
 
 </body>
