@@ -253,25 +253,34 @@ function submitData(){
   const loading = document.getElementById("loading");
   loading.style.display = "flex";
 
-  const formData=new URLSearchParams();
-  formData.append("staff",staff);
-  formData.append("tanggal",tanggal);
-  formData.append("clear",JSON.stringify(clear));
-  formData.append("pending",JSON.stringify(pending));
-
   fetch(WEB_APP_URL,{
     method:"POST",
-    body:formData
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body: JSON.stringify({
+      action: "save",
+      staff: staff,
+      tanggal: tanggal,
+      clear: clear,
+      pending: pending
+    })
   })
-  .then(res=>res.text())
-  .then(()=>{
+  .then(res=>res.json())
+  .then(res=>{
     loading.style.display = "none";
-    alert("Laporan berhasil disimpan");
-    initDefaultRows();
+
+    if(res.status==="success"){
+      alert("Laporan berhasil disimpan");
+      initDefaultRows();
+    }else{
+      alert("Gagal: "+res.message);
+    }
   })
-  .catch(()=>{
+  .catch(err=>{
     loading.style.display = "none";
-    alert("Gagal koneksi server");
+    alert("Error koneksi");
+    console.log(err);
   });
 }
 </script>
