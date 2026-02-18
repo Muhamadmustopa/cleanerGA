@@ -196,27 +196,27 @@ function render(){
     return;
   }
 
-  data.forEach((d,i)=>{
-    tbody.innerHTML+=`
-      <tr>
-        <td>${d.tanggal}</td>
-        <td>${d.staff}</td>
-        <td>${d.kategori}</td>
-        <td>${d.detail}</td>
-        <td>
-          <span class="badge ${d.status==='OK'?'ok':'progress'}">
-            ${d.status}
-          </span>
-        </td>
-        <td>${d.catatan||'-'}</td>
-        <td>
-          <button class="btn edit" onclick="editData(${i})">Edit</button>
-          <button class="btn delete" onclick="deleteData('${d.id}')">Hapus</button>
-        </td>
-      </tr>
-    `;
-  });
-}
+ data.forEach((d,i)=>{
+  tbody.innerHTML+=`
+    <tr>
+      <td>${d.tanggal}</td>
+      <td>${d.staff}</td>
+      <td>${d.tipe}</td>
+      <td>${d.uraian}</td>
+      <td>
+        <span class="badge ${d.status==='DONE'?'ok':'progress'}">
+          ${d.status}
+        </span>
+      </td>
+      <td>-</td>
+      <td>
+        <button class="btn edit" onclick="editData(${i})">Edit</button>
+        <button class="btn delete" onclick="deleteData('${d.id}')">Hapus</button>
+      </td>
+    </tr>
+  `;
+});
+
 
 /* ===============================
    DELETE
@@ -273,6 +273,10 @@ function editData(index){
    EVENT
 ================================ */
 [fStaff,dFrom,dTo].forEach(e=>e.addEventListener('input',render));
+  
+  function goBack(){
+  window.history.back();
+}
 
 </script>
 </body>
