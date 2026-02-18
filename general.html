@@ -305,13 +305,23 @@ async function simpan(){
     });
   }
 
-  fetch(SCRIPT_URL, {
+ fetch(SCRIPT_URL, {
   method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify(payload)
+  body: JSON.stringify(payload),
+  mode: "no-cors"
 })
+.then(()=>{
+  loading.style.display = "none";
+  saveBtn.disabled = false;
+  alert("Checklist berhasil disimpan");
+  location.reload();
+})
+.catch(()=>{
+  loading.style.display = "none";
+  saveBtn.disabled = false;
+  alert("Gagal menyimpan data");
+});
+
 
   .then(r=>r.text())
   .then(()=>{
