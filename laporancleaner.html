@@ -203,7 +203,7 @@ input.comment{
 <div class="modal" id="imgModal" onclick="closeModal()">
   <img id="modalImg">
 </div>
-
+  
 <script>
 
 const DATA_URL = "https://script.google.com/macros/s/AKfycby7ziY9k2Frrmnp-YNRbPDVtppIb7UE3m5Ww6iEdRkeKdw5S7k-rGQrivZxhVQbXxXs/exec?action=data";
@@ -219,14 +219,7 @@ const search = document.getElementById("search");
 let rawData = [];
 let pie;
 
-function formatDate(dateString){
-  const d = new Date(dateString);
-  if(isNaN(d)) return dateString;
-  const day = String(d.getDate()).padStart(2,'0');
-  const month = String(d.getMonth()+1).padStart(2,'0');
-  const year = d.getFullYear();
-  return `${day}-${month}-${year}`;
-}
+/* ================= LOAD DATA ================= */
 
 function loadData(){
   fetch(DATA_URL)
@@ -235,11 +228,17 @@ function loadData(){
     rawData = data;
     initFilter();
     render();
+  })
+  .catch(err=>{
+    console.error("Gagal load data:", err);
   });
 }
 loadData();
 
+/* ================= INIT FILTER ================= */
+
 function initFilter(){
+
   filterBulan.innerHTML='<option value="">Semua Bulan</option>';
   filterNama.innerHTML='<option value="">Semua Cleaner</option>';
   filterLokasi.innerHTML='<option value="">Semua Lokasi</option>';
@@ -249,9 +248,9 @@ function initFilter(){
   const lokasi = new Set();
 
   rawData.forEach(r=>{
-    if(r[3]) bulan.add(r[3].toString().substring(0,7));
-    if(r[1]) nama.add(r[1]);
-    if(r[2]) lokasi.add(r[2]);
+    if(r.tanggal) bulan.add(r.tanggal.substring(0,7));
+    if(r.cleaner) nama.add(r.cleaner);
+    if(r.lokasi) lokasi.add(r.lokasi);
   });
 
   [...bulan].sort().forEach(b=>{
@@ -267,56 +266,57 @@ function initFilter(){
   });
 }
 
+/* ================= RENDER ================= */
+
 function render(){
+
   tbody.innerHTML="";
   let lastMonth="";
   let selesai=0, belum=0;
 
   const data = rawData
   .filter(r=>{
-    if(filterBulan.value && !r[3].toString().startsWith(filterBulan.value)) return false;
-    if(filterNama.value && r[1]!==filterNama.value) return false;
-    if(filterLokasi.value && r[2]!==filterLokasi.value) return false;
-    if(search.value && !(r[4]+r[5]).toLowerCase().includes(search.value.toLowerCase())) return false;
+    if(filterBulan.value && !r.tanggal.startsWith(filterBulan.value)) return false;
+    if(filterNama.value && r.cleaner!==filterNama.value) return false;
+    if(filterLokasi.value && r.lokasi!==filterLokasi.value) return false;
+    if(search.value && !(r.area+r.task).toLowerCase().includes(search.value.toLowerCase())) return false;
     return true;
   })
   .sort((a,b)=>{
     return sortBy.value==="asc"
-      ? new Date(a[3]) - new Date(b[3])
-      : new Date(b[3]) - new Date(a[3]);
+      ? new Date(a.tanggal) - new Date(b.tanggal)
+      : new Date(b.tanggal) - new Date(a.tanggal);
   });
 
   data.forEach(r=>{
 
-    const month = r[3].toString().substring(0,7);
-    const rowNumber = r[9];
-    const photoUrl = r[10] || "";
+    const month = r.tanggal.substring(0,7);
 
     if(month!==lastMonth){
       tbody.innerHTML += `<tr class="group"><td colspan="9">${month}</td></tr>`;
       lastMonth = month;
     }
 
-    r[6]==="SELESAI" ? selesai++ : belum++;
+    r.status==="SELESAI" ? selesai++ : belum++;
 
     tbody.innerHTML += `
       <tr>
-        <td>${formatDate(r[3])}</td>
-        <td>${r[1]}</td>
-        <td>${r[2]}</td>
-        <td>${r[4]}</td>
-        <td>${r[5]}</td>
-        <td>${r[6]}</td>
-        <td>${r[7] || ''}</td>
+        <td>${r.tanggal}</td>
+        <td>${r.cleaner}</td>
+        <td>${r.lokasi}</td>
+        <td>${r.area}</td>
+        <td>${r.task}</td>
+        <td>${r.status}</td>
+        <td>${r.catatan || ''}</td>
         <td>
-          ${photoUrl 
-            ? `<img src="${photoUrl}" class="thumb" onclick="showImage('${photoUrl}')">`
+          ${r.photoUrl 
+            ? `<img src="${r.photoUrl}" class="thumb" onclick="showImage('${r.photoUrl}')">`
             : '-'}
         </td>
         <td>
           <input class="comment"
-            value="${r[8] || ''}"
-            onchange="saveComment(${rowNumber}, this.value)"
+            value=""
+            onchange="saveComment(${r.id}, this.value)"
             placeholder="Tambah komentar">
         </td>
       </tr>
@@ -325,6 +325,8 @@ function render(){
 
   renderPie(selesai,belum);
 }
+
+/* ================= SAVE COMMENT ================= */
 
 function saveComment(rowNumber, comment){
   fetch(SAVE_URL,{
@@ -337,8 +339,11 @@ function saveComment(rowNumber, comment){
   }).then(()=>loadData());
 }
 
+/* ================= PIE ================= */
+
 function renderPie(done,pending){
   if(pie) pie.destroy();
+
   pie = new Chart(document.getElementById("pieStatus"),{
     type:"pie",
     data:{
@@ -355,6 +360,8 @@ function renderPie(done,pending){
   });
 }
 
+/* ================= MODAL FOTO ================= */
+
 function showImage(src){
   document.getElementById("modalImg").src = src;
   document.getElementById("imgModal").style.display = "flex";
@@ -363,6 +370,8 @@ function showImage(src){
 function closeModal(){
   document.getElementById("imgModal").style.display = "none";
 }
+
+/* ================= EVENT ================= */
 
 [filterBulan,filterNama,filterLokasi,sortBy,search]
 .forEach(el=>el.onchange=render);
