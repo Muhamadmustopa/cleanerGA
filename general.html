@@ -307,21 +307,8 @@ async function simpan(){
 
  fetch(SCRIPT_URL, {
   method: "POST",
-  body: JSON.stringify(payload),
-  mode: "no-cors"
-})
-.then(()=>{
-  loading.style.display = "none";
-  saveBtn.disabled = false;
-  alert("Checklist berhasil disimpan");
-  location.reload();
-})
-.catch(()=>{
-  loading.style.display = "none";
-  saveBtn.disabled = false;
-  alert("Gagal menyimpan data");
+  body: JSON.stringify(payload)
 });
-
 
   .then(r=>r.text())
   .then(()=>{
