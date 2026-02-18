@@ -56,13 +56,18 @@ input,select,button{
   margin-top:5px;
 }
  .logout{
-  background:var(--danger);
+  background:#dc2626;
   color:#fff;
   border:none;
-  padding:10px 14px;
-  border-radius:12px;
+  padding:8px 12px;
+  border-radius:8px;
   cursor:pointer;
+  font-size:13px;
 }
+.logout:hover{
+  opacity:0.9;
+}
+
 
 button{
   background:#2563eb;
@@ -106,10 +111,11 @@ button:hover{opacity:.9}
 <body>
 
 <div class="card">
-<h2>📋 Daily Report Staff</h2>
- </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <h2 style="margin:0;">📋 Daily Report Staff</h2>
     <button class="logout" onclick="logout()">Keluar</button>
   </div>
+
   
 <label>Nama</label>
 <select id="staff">
@@ -146,6 +152,11 @@ button:hover{opacity:.9}
 </div>
 
 <script>
+  function logout(){
+  localStorage.removeItem("loginUser");
+  window.location.href="login.html"; // arahkan ke halaman login kamu
+}
+
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx-7TMemLXso-Bvx3ReuU4ok3vID7lPFYePAFkXamj0IoiyvswIael0xgAMKPXgpzlK/exec";
 let maxRow = 20;
 
