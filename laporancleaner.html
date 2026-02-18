@@ -116,11 +116,41 @@ input.comment{
   box-shadow:0 4px 10px rgba(0,0,0,.15);
   transition:all .2s ease;
 }
-
 .top-btn:hover{
   background:#1976D2;
   transform:translateY(-2px);
   box-shadow:0 6px 14px rgba(0,0,0,.25);
+}
+
+/* ===== FOTO THUMBNAIL ===== */
+.thumb{
+  width:60px;
+  height:60px;
+  object-fit:cover;
+  border-radius:8px;
+  cursor:pointer;
+  border:1px solid #ddd;
+}
+
+/* ===== MODAL FOTO ===== */
+.modal{
+  display:none;
+  position:fixed;
+  z-index:9999;
+  left:0;
+  top:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.8);
+  justify-content:center;
+  align-items:center;
+}
+
+.modal img{
+  max-width:90%;
+  max-height:90%;
+  border-radius:12px;
+  box-shadow:0 0 20px rgba(0,0,0,0.5);
 }
 </style>
 </head>
@@ -132,23 +162,13 @@ input.comment{
 <a href="login.html" class="top-btn">Kembali</a>
 
 <div class="filters">
-<select id="filterBulan">
-<option value="">Semua Bulan</option>
-</select>
-
-<select id="filterNama">
-<option value="">Semua Cleaner</option>
-</select>
-
-<select id="filterLokasi">
-<option value="">Semua Lokasi</option>
-</select>
-
+<select id="filterBulan"><option value="">Semua Bulan</option></select>
+<select id="filterNama"><option value="">Semua Cleaner</option></select>
+<select id="filterLokasi"><option value="">Semua Lokasi</option></select>
 <select id="sortBy">
 <option value="desc">Terbaru → Terlama</option>
 <option value="asc">Terlama → Terbaru</option>
 </select>
-
 <input type="text" id="search" placeholder="Cari task / area">
 </div>
 
@@ -170,6 +190,7 @@ input.comment{
 <th>Task</th>
 <th>Status</th>
 <th>Keterangan</th>
+<th>Foto</th>
 <th>Komentar</th>
 </tr>
 </thead>
@@ -178,14 +199,15 @@ input.comment{
 </div>
 </div>
 
-<script>
+<!-- MODAL FOTO -->
+<div class="modal" id="imgModal" onclick="closeModal()">
+  <img id="modalImg">
+</div>
 
-/* ================= CONFIG ================= */
+<script>
 
 const DATA_URL = "https://script.google.com/macros/s/AKfycby7ziY9k2Frrmnp-YNRbPDVtppIb7UE3m5Ww6iEdRkeKdw5S7k-rGQrivZxhVQbXxXs/exec?action=data";
 const SAVE_URL = "https://script.google.com/macros/s/AKfycby7ziY9k2Frrmnp-YNRbPDVtppIb7UE3m5Ww6iEdRkeKdw5S7k-rGQrivZxhVQbXxXs/exec";
-
-/* ================= ELEMENT ================= */
 
 const tbody = document.getElementById("tbody");
 const filterBulan = document.getElementById("filterBulan");
@@ -197,8 +219,6 @@ const search = document.getElementById("search");
 let rawData = [];
 let pie;
 
-/* ================= FORMAT TANGGAL ================= */
-
 function formatDate(dateString){
   const d = new Date(dateString);
   if(isNaN(d)) return dateString;
@@ -207,8 +227,6 @@ function formatDate(dateString){
   const year = d.getFullYear();
   return `${day}-${month}-${year}`;
 }
-
-/* ================= LOAD DATA ================= */
 
 function loadData(){
   fetch(DATA_URL)
@@ -221,10 +239,7 @@ function loadData(){
 }
 loadData();
 
-/* ================= INIT FILTER ================= */
-
 function initFilter(){
-
   filterBulan.innerHTML='<option value="">Semua Bulan</option>';
   filterNama.innerHTML='<option value="">Semua Cleaner</option>';
   filterLokasi.innerHTML='<option value="">Semua Lokasi</option>';
@@ -252,10 +267,7 @@ function initFilter(){
   });
 }
 
-/* ================= RENDER ================= */
-
 function render(){
-
   tbody.innerHTML="";
   let lastMonth="";
   let selesai=0, belum=0;
@@ -278,9 +290,10 @@ function render(){
 
     const month = r[3].toString().substring(0,7);
     const rowNumber = r[9];
+    const photoUrl = r[10] || "";
 
     if(month!==lastMonth){
-      tbody.innerHTML += `<tr class="group"><td colspan="8">${month}</td></tr>`;
+      tbody.innerHTML += `<tr class="group"><td colspan="9">${month}</td></tr>`;
       lastMonth = month;
     }
 
@@ -296,6 +309,11 @@ function render(){
         <td>${r[6]}</td>
         <td>${r[7] || ''}</td>
         <td>
+          ${photoUrl 
+            ? `<img src="${photoUrl}" class="thumb" onclick="showImage('${photoUrl}')">`
+            : '-'}
+        </td>
+        <td>
           <input class="comment"
             value="${r[8] || ''}"
             onchange="saveComment(${rowNumber}, this.value)"
@@ -308,8 +326,6 @@ function render(){
   renderPie(selesai,belum);
 }
 
-/* ================= SAVE COMMENT ================= */
-
 function saveComment(rowNumber, comment){
   fetch(SAVE_URL,{
     method:"POST",
@@ -321,12 +337,8 @@ function saveComment(rowNumber, comment){
   }).then(()=>loadData());
 }
 
-/* ================= PIE ================= */
-
 function renderPie(done,pending){
-
   if(pie) pie.destroy();
-
   pie = new Chart(document.getElementById("pieStatus"),{
     type:"pie",
     data:{
@@ -343,7 +355,14 @@ function renderPie(done,pending){
   });
 }
 
-/* ================= EVENT ================= */
+function showImage(src){
+  document.getElementById("modalImg").src = src;
+  document.getElementById("imgModal").style.display = "flex";
+}
+
+function closeModal(){
+  document.getElementById("imgModal").style.display = "none";
+}
 
 [filterBulan,filterNama,filterLokasi,sortBy,search]
 .forEach(el=>el.onchange=render);
