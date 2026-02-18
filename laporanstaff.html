@@ -6,52 +6,98 @@
 <title>Laporan Staff</title>
 
 <style>
+*{box-sizing:border-box}
 body{
+  margin:0;
+  padding:20px;
   font-family:Segoe UI,Arial;
   background:#f4f6f8;
-  padding:20px;
-  margin:0;
 }
+
+/* TOP BAR */
 .top-bar{
-  margin-bottom:10px;
+  margin-bottom:15px;
 }
 .top-bar button{
+  padding:8px 14px;
+  border:none;
+  border-radius:8px;
   background:#2196f3;
   color:#fff;
-  border:none;
-  padding:8px 14px;
-  border-radius:8px;
   cursor:pointer;
 }
+
+/* CARD */
 .card{
-  max-width:1100px;
+  max-width:1200px;
   margin:auto;
   background:#fff;
+  border-radius:14px;
   padding:16px;
-  border-radius:12px;
-  box-shadow:0 6px 14px rgba(0,0,0,.1);
+  box-shadow:0 6px 14px rgba(0,0,0,.12)
 }
+h2{text-align:center;margin-bottom:16px}
+
+/* FILTER */
+.filter{
+  display:grid;
+  grid-template-columns:1.5fr 1fr 1fr;
+  gap:10px;
+  margin-bottom:14px
+}
+select,input{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:14px
+}
+
+/* TABLE */
+.table-wrap{
+  max-height:520px;
+  overflow-y:auto;
+  border:1px solid #ddd;
+  border-radius:10px
+}
+
 table{
   width:100%;
   border-collapse:collapse;
+  font-size:14px
+}
+thead th{
+  position:sticky;
+  top:0;
+  background:#f1f3f4;
+  z-index:2;
+  border-bottom:1px solid #ccc
 }
 th,td{
-  padding:8px;
+  padding:10px;
   border-bottom:1px solid #eee;
+  text-align:left;
+  vertical-align:top
 }
+tr:hover{background:#fafafa}
+
+/* STATUS */
 .badge{
-  padding:4px 8px;
+  padding:4px 10px;
   border-radius:999px;
   font-size:12px;
+  font-weight:600;
+  display:inline-block
 }
 .ok{background:#e8f5e9;color:#2e7d32}
 .progress{background:#fff3e0;color:#ef6c00}
+
+/* BUTTON */
 .btn{
-  padding:5px 8px;
+  padding:6px 10px;
   border:none;
-  border-radius:6px;
+  border-radius:8px;
   cursor:pointer;
-  font-size:12px;
+  font-size:12px
 }
 .edit{background:#2196f3;color:#fff}
 .delete{background:#f44336;color:#fff}
@@ -65,63 +111,117 @@ th,td{
 </div>
 
 <div class="card">
-  <h2>📋 Laporan Staff</h2>
+  <h2>📋 Laporan Aktivitas Staff</h2>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Tanggal</th>
-        <th>Staff</th>
-        <th>Kategori</th>
-        <th>Detail</th>
-        <th>Status</th>
-        <th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
+  <div class="filter">
+    <select id="filterStaff">
+      <option value="">Semua Staff</option>
+    </select>
+    <input type="date" id="dateFrom">
+    <input type="date" id="dateTo">
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Nama Staff</th>
+          <th>Kategori</th>
+          <th>Detail</th>
+          <th>Status</th>
+          <th>Catatan</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
 </div>
 
 <script>
 
-const SCRIPT_URL="ISI_URL_WEBAPP_KAMU";
+/* ===============================
+   KONFIG
+================================ */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxguijFfLZ4u0XoRvGl9sJ0zhwG8Bbmbj-A-WipMMO-B-fDjahsU_msrgWhaCJxiads/exec";
 
-let rawData=[];
-const tbody=document.getElementById("tbody");
+let rawData = [];
 
+const tbody  = document.getElementById('tbody');
+const fStaff = document.getElementById('filterStaff');
+const dFrom  = document.getElementById('dateFrom');
+const dTo    = document.getElementById('dateTo');
+
+/* ===============================
+   LOAD DATA
+================================ */
 function loadData(){
-  fetch(SCRIPT_URL+"?action=reportStaff")
-    .then(res=>res.json())
-    .then(res=>{
-      rawData=res.data || [];
+  fetch(SCRIPT_URL + '?action=reportStaff')
+    .then(res => res.json())
+    .then(res => {
+      rawData = res.data || [];
+      initStaff();
       render();
     })
-    .catch(err=>{
+    .catch(err => {
       console.log(err);
-      tbody.innerHTML="<tr><td colspan='6'>Gagal load data</td></tr>";
+      tbody.innerHTML = '<tr><td colspan="7">Gagal load data</td></tr>';
+    });
+}
+loadData();
+
+/* ===============================
+   INIT STAFF FILTER
+================================ */
+function initStaff(){
+  fStaff.innerHTML = '<option value="">Semua Staff</option>';
+
+  [...new Set(rawData.map(d => d.staff))]
+    .sort()
+    .forEach(n => {
+      const opt = document.createElement('option');
+      opt.value = n;
+      opt.textContent = n;
+      fStaff.appendChild(opt);
     });
 }
 
+/* ===============================
+   RENDER TABLE
+================================ */
 function render(){
-  tbody.innerHTML="";
+  tbody.innerHTML = '';
 
-  if(rawData.length===0){
-    tbody.innerHTML="<tr><td colspan='6'>Tidak ada data</td></tr>";
+  const staff = fStaff.value;
+  const from  = dFrom.value;
+  const to    = dTo.value;
+
+  const data = rawData.filter(d => {
+    if(staff && d.staff !== staff) return false;
+    if(from && d.tanggal < from) return false;
+    if(to && d.tanggal > to) return false;
+    return true;
+  });
+
+  if(data.length === 0){
+    tbody.innerHTML = '<tr><td colspan="7">Data tidak ditemukan</td></tr>';
     return;
   }
 
-  rawData.forEach((d,i)=>{
-    tbody.innerHTML+=`
+  data.forEach((d,i) => {
+    tbody.innerHTML += `
       <tr>
         <td>${d.tanggal}</td>
         <td>${d.staff}</td>
         <td>${d.tipe}</td>
         <td>${d.uraian}</td>
         <td>
-          <span class="badge ${d.status==='DONE'?'ok':'progress'}">
+          <span class="badge ${d.status === 'DONE' ? 'ok' : 'progress'}">
             ${d.status}
           </span>
         </td>
+        <td>${d.catatan || '-'}</td>
         <td>
           <button class="btn edit" onclick="editData(${i})">Edit</button>
           <button class="btn delete" onclick="deleteData('${d.id}')">Hapus</button>
@@ -131,24 +231,67 @@ function render(){
   });
 }
 
-function editData(index){
-  const d=rawData[index];
-  const detail=prompt("Edit Detail:",d.uraian);
-  if(detail===null) return;
-  alert("Contoh edit berhasil (backend belum dihubungkan)");
-}
-
+/* ===============================
+   DELETE
+================================ */
 function deleteData(id){
-  alert("Contoh delete (backend belum dihubungkan)");
+  if(!confirm('Yakin ingin hapus data ini?')) return;
+
+  fetch(SCRIPT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      action:'deleteStaff',
+      id:id
+    })
+  })
+  .then(res=>res.json())
+  .then(()=>loadData());
 }
 
+/* ===============================
+   EDIT
+================================ */
+function editData(index){
+  const d = rawData[index];
+
+  const detail  = prompt('Edit Detail:', d.uraian);
+  if(detail === null) return;
+
+  const status  = prompt('Edit Status (DONE / OPEN):', d.status);
+  if(status === null) return;
+
+  const catatan = prompt('Edit Catatan:', d.catatan || '');
+
+  fetch(SCRIPT_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      action:'updateStaff',
+      id:d.id,
+      detail:detail,
+      status:status,
+      catatan:catatan
+    })
+  })
+  .then(res=>res.json())
+  .then(()=>loadData());
+}
+
+/* ===============================
+   EVENT LISTENER
+================================ */
+[fStaff,dFrom,dTo].forEach(el=>{
+  el.addEventListener('input',render);
+});
+
+/* ===============================
+   GO BACK
+================================ */
 function goBack(){
-  window.location.href="login.html";
+  window.history.back();
 }
-
-loadData();
 
 </script>
-
 </body>
 </html>
