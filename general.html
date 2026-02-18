@@ -7,12 +7,14 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   padding:16px;
   font-family:Segoe UI,Arial;
   background:linear-gradient(180deg,#e3f2fd,#f4f6f8);
 }
+
 .card{
   max-width:900px;
   margin:auto;
@@ -21,12 +23,15 @@ body{
   padding:18px;
   box-shadow:0 8px 20px rgba(0,0,0,.12);
 }
+
 .header{
   display:flex;
   justify-content:space-between;
   align-items:center;
   margin-bottom:12px;
 }
+.header strong{font-size:16px}
+
 .logout{
   background:#f44336;
   color:#fff;
@@ -35,10 +40,12 @@ body{
   border-radius:12px;
   cursor:pointer;
 }
+
 label{
   font-size:14px;
   font-weight:600;
 }
+
 select,input{
   width:100%;
   padding:12px;
@@ -47,6 +54,7 @@ select,input{
   margin-top:6px;
   font-size:14px;
 }
+
 .task-card{
   border:1px solid #e0e0e0;
   border-radius:14px;
@@ -54,34 +62,34 @@ select,input{
   margin-top:12px;
   background:#fff;
 }
+
 .task-area{
   font-size:13px;
   font-weight:600;
   color:#1976d2;
+  margin-bottom:4px;
 }
+
 .task-name{
   font-size:14px;
-  margin:6px 0;
+  margin-bottom:10px;
 }
+
 .check-row{
   display:flex;
   align-items:center;
   gap:8px;
-  margin:8px 0;
+  margin-bottom:8px;
+  font-size:14px;
 }
+
 .note{
-  margin-top:6px;
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
 }
-.photo-input{
-  margin-top:8px;
-  font-size:13px;
-}
-.preview img{
-  width:80px;
-  border-radius:8px;
-  margin-top:6px;
-  border:1px solid #ddd;
-}
+
 button.save{
   width:100%;
   margin-top:18px;
@@ -94,6 +102,13 @@ button.save{
   font-weight:600;
   cursor:pointer;
 }
+
+@media(max-width:600px){
+  body{padding:10px}
+  .card{padding:14px}
+}
+
+/* ===== LOADING OVERLAY ===== */
 .loading-overlay{
   position:fixed;
   top:0;
@@ -106,6 +121,7 @@ button.save{
   align-items:center;
   z-index:9999;
 }
+
 .spinner{
   width:60px;
   height:60px;
@@ -114,6 +130,7 @@ button.save{
   border-radius:50%;
   animation:spin 1s linear infinite;
 }
+
 @keyframes spin{
   0%{transform:rotate(0deg);}
   100%{transform:rotate(360deg);}
@@ -159,6 +176,7 @@ button.save{
   <button class="save" id="saveBtn" onclick="simpan()">Simpan Checklist</button>
 </div>
 
+<!-- LOADING SPINNER -->
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
 </div>
@@ -174,50 +192,83 @@ const taskContainer = document.getElementById('taskContainer');
 const loading       = document.getElementById('loading');
 const saveBtn       = document.getElementById('saveBtn');
 
+const savedUser = localStorage.getItem('cleaner_name');
+if(savedUser){
+  cleanerSelect.value = savedUser;
+}
+
+cleanerSelect.addEventListener('change',()=>{
+  localStorage.setItem('cleaner_name', cleanerSelect.value);
+  if(lokasiSelect.value){
+    renderTask();
+  }
+});
+
+const taskByLocation = {
+  MTH:[
+    {area:'Area Kerja',task:'Sapu & Pel Lantai'},
+    {area:'Area Kerja',task:'Vacum Karpet Lantai'},
+    {area:'Area Kerja',task:'Lap Pintu Kaca'},
+    {area:'Area Kerja',task:'Menyalakan Lampu, AC, dan Air Purifier'},
+    {area:'Area Kerja',task:'Bersihkan meja, kursi, lemari, Akrilik, Screen TV'},
+    {area:'Area Kerja',task:'Membersihkan sudut tembok atas langit-langit dari debu'},
+    {area:'Area Kerja',task:'Menyiapkan minum untuk BoD'},
+    {area:'Area Kerja',task:'Menjaga Meja Receptionist'},
+    {area:'Area Kerja',task:'Membersihkan tempat sampah'},
+    {area:'Area Kerja',task:'Merapihkan area Ruang Meeting'},
+    {area:'Pantry',task:'Buang sampah ke TPS'},
+    {area:'Pantry',task:'Bersihkan alat makan & wastafel'},
+    {area:'Pantry',task:'Lap kulkas secara berkala'},
+    {area:'Pantry',task:'Sapu Pel Lantai'},
+    {area:'Pantry',task:'Refill Air Galon'},
+    {area:'Service',task:'Pembelian Sarapan Pagi'},
+    {area:'Service',task:'Pembelian Makan Siang Tepat Waktu'},
+    {area:'Service',task:'Membantu Karyawan (Tolong isi catatan keterangan'}
+  ],
+  BIZ:[
+    {area:'Gudang',task:'Sapu & Pel Lantai Gudang'},
+    {area:'Gudang',task:'Sapu halaman depan'},
+    {area:'Gudang',task:'Bersihkan racking & dus produk'},
+    {area:'Gudang',task:'Bersihkan sarang di langit-langit'},
+    {area:'Gudang',task:'Menyiram tanaman'},
+    {area:'Office',task:'Sapu & Pel Lantai'},
+    {area:'Office',task:'Bersihkan meja kerja semua & ruang meeting'},
+    {area:'Pantry',task:'Bersihkan pantry & wastafel'},
+    {area:'Toilet',task:'Bersihkan closet dan seluruh area toilet B05 dan C01'},
+    {area:'Service',task:'Pembelian Sarapan Pagi'},
+    {area:'Service',task:'Pembelian Makan Siang Tepat Waktu'},
+    {area:'Service',task:'Membantu Karyawan (Tolong isi catatan keterangan'}
+  ]
+};
+
 tanggalInput.valueAsDate = new Date();
 
-/* ===============================
-   DATA TASK (TETAP SEPERTI ASLI)
-================================= */
+function renderTask(){
+  taskContainer.innerHTML='';
+  const lokasi = lokasiSelect.value;
+  if(!lokasi) return;
 
-const taskByLocation = { ... }; // BIARKAN SEPERTI PUNYA ANDA
+  taskByLocation[lokasi].forEach((t,i)=>{
+    taskContainer.innerHTML += `
+      <div class="task-card">
+        <div class="task-area">${t.area}</div>
+        <div class="task-name">${t.task}</div>
 
-/* ===============================
-   PERBAIKAN FOTO SAJA
-================================= */
+        <label class="check-row">
+          <input type="checkbox" id="check${i}">
+          Selesai
+        </label>
 
-function compressImage(file){
-  return new Promise((resolve,reject)=>{
-    const img = new Image();
-    const reader = new FileReader();
+        <input type="text" id="note${i}" class="note" placeholder="Catatan (opsional)">
 
-    reader.onload = e => img.src = e.target.result;
-
-    img.onload = function(){
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      const MAX_WIDTH = 800;
-      const scale = MAX_WIDTH / img.width;
-
-      canvas.width = MAX_WIDTH;
-      canvas.height = img.height * scale;
-
-      ctx.drawImage(img,0,0,canvas.width,canvas.height);
-
-      const compressed = canvas.toDataURL("image/jpeg",0.6);
-      resolve(compressed);
-    };
-
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+        <!-- TAMBAHAN FOTO (OPSIONAL) -->
+        <input type="file" id="photo${i}" accept="image/*" style="margin-top:8px;">
+      </div>
+    `;
   });
 }
 
-/* =============================== */
-
 async function simpan(){
-
   const cleaner = cleanerSelect.value;
   const lokasi  = lokasiSelect.value;
   const tanggal = tanggalInput.value;
@@ -232,18 +283,14 @@ async function simpan(){
 
   const payload = [];
 
-  for(let i=0; i<taskByLocation[lokasi].length; i++){
+  for(let i=0;i<taskByLocation[lokasi].length;i++){
 
+    const fileInput = document.getElementById('photo'+i);
     let photoBase64 = "";
-    const photoInput = document.getElementById('photo'+i);
 
-    if(photoInput && photoInput.files.length){
-      try{
-        const compressed = await compressImage(photoInput.files[0]);
-        photoBase64 = compressed.split(',')[1];
-      }catch(err){
-        console.log("Foto gagal diproses:", err);
-      }
+    if(fileInput.files[0]){
+      photoBase64 = await toBase64(fileInput.files[0]);
+      photoBase64 = photoBase64.split(',')[1]; // ambil base64 saja
     }
 
     payload.push({
@@ -254,25 +301,34 @@ async function simpan(){
       task:taskByLocation[lokasi][i].task,
       status:document.getElementById('check'+i).checked ? 'SELESAI' : 'BELUM',
       catatan:document.getElementById('note'+i).value,
-      photoBase64
+      photoBase64: photoBase64
     });
   }
 
-  fetch(SCRIPT_URL,{
-    method:"POST",
-    body:JSON.stringify(payload)
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(payload)
   })
   .then(r=>r.text())
   .then(()=>{
-    loading.style.display="none";
-    saveBtn.disabled=false;
+    loading.style.display = "none";
+    saveBtn.disabled = false;
     alert('Checklist berhasil disimpan');
     location.reload();
   })
   .catch(()=>{
-    loading.style.display="none";
-    saveBtn.disabled=false;
+    loading.style.display = "none";
+    saveBtn.disabled = false;
     alert('Gagal menyimpan data');
+  });
+}
+  
+function toBase64(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = ()=> resolve(reader.result);
+    reader.onerror = error => reject(error);
   });
 }
 
