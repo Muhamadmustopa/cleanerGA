@@ -30,7 +30,6 @@ body{
   align-items:center;
   margin-bottom:12px;
 }
-.header strong{font-size:16px}
 
 .logout{
   background:#f44336;
@@ -67,27 +66,34 @@ select,input{
   font-size:13px;
   font-weight:600;
   color:#1976d2;
-  margin-bottom:4px;
 }
 
 .task-name{
   font-size:14px;
-  margin-bottom:10px;
+  margin:6px 0;
 }
 
 .check-row{
   display:flex;
   align-items:center;
   gap:8px;
-  margin-bottom:8px;
-  font-size:14px;
+  margin:8px 0;
 }
 
 .note{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
+  margin-top:6px;
+}
+
+.photo-input{
+  margin-top:8px;
+  font-size:13px;
+}
+
+.preview img{
+  width:80px;
+  border-radius:8px;
+  margin-top:6px;
+  border:1px solid #ddd;
 }
 
 button.save{
@@ -103,24 +109,6 @@ button.save{
   cursor:pointer;
 }
 
-.preview{
-  margin-top:10px;
-  text-align:center;
-}
-
-.preview img{
-  width:120px;
-  border-radius:10px;
-  margin-top:8px;
-  border:1px solid #ddd;
-}
-
-@media(max-width:600px){
-  body{padding:10px}
-  .card{padding:14px}
-}
-
-/* LOADING */
 .loading-overlay{
   position:fixed;
   top:0;
@@ -183,12 +171,6 @@ button.save{
   <label>Tanggal</label>
   <input type="date" id="tanggal">
 
-  <br><br>
-
-  <label>Foto Bukti (Wajib)</label>
-  <input type="file" id="photo" accept="image/*" capture="environment">
-  <div class="preview" id="preview"></div>
-
   <div id="taskContainer"></div>
 
   <button class="save" id="saveBtn" onclick="simpan()">Simpan Checklist</button>
@@ -208,31 +190,43 @@ const tanggalInput  = document.getElementById('tanggal');
 const taskContainer = document.getElementById('taskContainer');
 const loading       = document.getElementById('loading');
 const saveBtn       = document.getElementById('saveBtn');
-const photoInput    = document.getElementById('photo');
-const preview       = document.getElementById('preview');
 
 tanggalInput.valueAsDate = new Date();
 
-photoInput.addEventListener("change", function(){
-  preview.innerHTML = "";
-  if(this.files && this.files[0]){
-    const reader = new FileReader();
-    reader.onload = function(e){
-      preview.innerHTML = `<img src="${e.target.result}">`;
-    }
-    reader.readAsDataURL(this.files[0]);
-  }
-});
-
 const taskByLocation = {
   MTH:[
-    {area:'Area Kerja',task:'Sapu & Pel Lantai'},
+   {area:'Area Kerja',task:'Sapu & Pel Lantai'},
     {area:'Area Kerja',task:'Vacum Karpet Lantai'},
-    {area:'Area Kerja',task:'Lap Pintu Kaca'}
+    {area:'Area Kerja',task:'Lap Pintu Kaca'},
+    {area:'Area Kerja',task:'Menyalakan Lampu, AC, dan Air Purifier'},
+    {area:'Area Kerja',task:'Bersihkan meja, kursi, lemari, Akrilik, Screen TV'},
+    {area:'Area Kerja',task:'Membersihkan sudut tembok atas langit-langit dari debu'},
+    {area:'Area Kerja',task:'Menyiapkan minum untuk BoD'},
+    {area:'Area Kerja',task:'Menjaga Meja Receptionist'},
+    {area:'Area Kerja',task:'Membersihkan tempat sampah'},
+    {area:'Area Kerja',task:'Merapihkan area Ruang Meeting'},
+    {area:'Pantry',task:'Buang sampah ke TPS'},
+    {area:'Pantry',task:'Bersihkan alat makan & wastafel'},
+    {area:'Pantry',task:'Lap kulkas secara berkala'},
+    {area:'Pantry',task:'Sapu Pel Lantai'},
+    {area:'Pantry',task:'Refill Air Galon'},
+    {area:'Service',task:'Pembelian Sarapan Pagi'},
+    {area:'Service',task:'Pembelian Makan Siang Tepat Waktu'},
+    {area:'Service',task:'Membantu Karyawan (Tolong isi catatan keterangan'} 
   ],
   BIZ:[
     {area:'Gudang',task:'Sapu & Pel Lantai Gudang'},
-    {area:'Office',task:'Bersihkan meja kerja semua'}
+    {area:'Gudang',task:'Sapu halaman depan'},
+    {area:'Gudang',task:'Bersihkan racking & dus produk'},
+    {area:'Gudang',task:'Bersihkan sarang di langit-langit'},
+    {area:'Gudang',task:'Menyiram tanaman'},
+    {area:'Office',task:'Sapu & Pel Lantai'},
+    {area:'Office',task:'Bersihkan meja kerja semua & ruang meeting'},
+    {area:'Pantry',task:'Bersihkan pantry & wastafel'},
+    {area:'Toilet',task:'Bersihkan closet dan seluruh area toilet B05 dan C01'},
+    {area:'Service',task:'Pembelian Sarapan Pagi'},
+    {area:'Service',task:'Pembelian Makan Siang Tepat Waktu'},
+    {area:'Service',task:'Membantu Karyawan (Tolong isi catatan keterangan'}
   ]
 };
 
@@ -253,12 +247,33 @@ function renderTask(){
         </label>
 
         <input type="text" id="note${i}" class="note" placeholder="Catatan (opsional)">
+
+        <input type="file" id="photo${i}" class="photo-input" 
+               accept="image/*" capture="environment">
+
+        <div class="preview" id="preview${i}"></div>
       </div>
     `;
   });
+
+  // preview handler
+  taskByLocation[lokasi].forEach((_,i)=>{
+    const photoInput = document.getElementById('photo'+i);
+    photoInput.addEventListener("change", function(){
+      const preview = document.getElementById('preview'+i);
+      preview.innerHTML="";
+      if(this.files && this.files[0]){
+        const reader = new FileReader();
+        reader.onload = function(e){
+          preview.innerHTML = `<img src="${e.target.result}">`;
+        }
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+  });
 }
 
-function simpan(){
+async function simpan(){
 
   const cleaner = cleanerSelect.value;
   const lokasi  = lokasiSelect.value;
@@ -269,54 +284,60 @@ function simpan(){
     return;
   }
 
-  if(!photoInput.files.length){
-    alert('Foto wajib diupload');
-    return;
-  }
-
   loading.style.display = "flex";
   saveBtn.disabled = true;
 
-  const reader = new FileReader();
+  const payload = [];
 
-  reader.onload = function(e){
+  for(let i=0; i<taskByLocation[lokasi].length; i++){
 
-    const base64 = e.target.result.split(',')[1];
-    const payload = [];
+    let photoBase64 = "";
 
-    taskByLocation[lokasi].forEach((t,i)=>{
-      payload.push({
-        cleaner,
-        tanggal,
-        lokasi,
-        area:t.area,
-        task:t.task,
-        status:document.getElementById('check'+i).checked ? 'SELESAI' : 'BELUM',
-        catatan:document.getElementById('note'+i).value,
-        photoBase64: base64
-      });
+    const photoInput = document.getElementById('photo'+i);
+
+    if(photoInput.files.length){
+      const file = photoInput.files[0];
+      photoBase64 = await toBase64(file);
+      photoBase64 = photoBase64.split(',')[1];
+    }
+
+    payload.push({
+      cleaner,
+      tanggal,
+      lokasi,
+      area:taskByLocation[lokasi][i].area,
+      task:taskByLocation[lokasi][i].task,
+      status:document.getElementById('check'+i).checked ? 'SELESAI' : 'BELUM',
+      catatan:document.getElementById('note'+i).value,
+      photoBase64: photoBase64
     });
+  }
 
-    fetch(SCRIPT_URL,{
-      method:"POST",
-      body:JSON.stringify(payload)
-    })
-    .then(r=>r.text())
-    .then(()=>{
-      loading.style.display="none";
-      saveBtn.disabled=false;
-      alert('Checklist berhasil disimpan');
-      location.reload();
-    })
-    .catch(()=>{
-      loading.style.display="none";
-      saveBtn.disabled=false;
-      alert('Gagal menyimpan data');
-    });
+  fetch(SCRIPT_URL,{
+    method:"POST",
+    body:JSON.stringify(payload)
+  })
+  .then(r=>r.text())
+  .then(()=>{
+    loading.style.display="none";
+    saveBtn.disabled=false;
+    alert('Checklist berhasil disimpan');
+    location.reload();
+  })
+  .catch(()=>{
+    loading.style.display="none";
+    saveBtn.disabled=false;
+    alert('Gagal menyimpan data');
+  });
+}
 
-  };
-
-  reader.readAsDataURL(photoInput.files[0]);
+function toBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=error=>reject(error);
+  });
 }
 
 function logout(){
