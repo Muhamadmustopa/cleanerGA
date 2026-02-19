@@ -158,16 +158,17 @@ input:focus,select:focus{
 <body>
 
 <div class="card">
-  <h2>🕒 Daily Timesheet Staff</h2>
+  <h2>🕒 Daily Timesheet Team GA </h2>
 
   <button class="logout" onclick="logout()">Keluar</button>
 
   <label>Nama</label>
   <select id="staff">
     <option value="">-- Pilih Staff --</option>
+    <option>Anni Sumartiani - Supervisor GA</option>
     <option>Muhamad Mustopa - Staff GA</option>
     <option>Abdul Apso - Staff Services</option>
-    <option>Anni Sumartiani - Supervisor GA</option>
+    <option>Ahmad Yani - Driver</option>
   </select>
 
   <label>Tanggal</label>
@@ -175,7 +176,7 @@ input:focus,select:focus{
 
   <div id="taskSection" style="display:none">
     <div class="timesheet" id="timesheetContainer"></div>
-    <button class="main-btn" onclick="submitData()">Simpan Timesheet</button>
+    <button class="main-btn" onclick="submitData()">Simpan</button>
   </div>
 </div>
 
@@ -197,7 +198,7 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQFe0VZcFiOo-gJvx5
 const times = [
 "08:00","08:30","09:00","09:30",
 "10:00","10:30","11:00","11:30",
-"12:00","12:59",
+"12:00","12:30",
 "13:00","13:30","14:00","14:30",
 "15:00","15:30","16:00","16:30",
 "17:00"
@@ -219,7 +220,7 @@ function generateTimesheet(){
     input.type="text";
     input.placeholder="Tulis task...";
 
-    if(time==="12:00" || time==="12:59"){
+    if(time==="12:00" || time==="12:30"){
       label.classList.add("break");
       input.disabled=true;
       input.placeholder="Jam Istirahat";
