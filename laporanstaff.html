@@ -1,121 +1,111 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Laporan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Laporan Task</title>
 
-  <style>
-    body{
-      font-family: 'Segoe UI', sans-serif;
-      background:#f4f6f9;
-      margin:0;
-      padding:20px;
-    }
+<style>
+body{
+  font-family:'Segoe UI',sans-serif;
+  background:#f4f6f9;
+  margin:0;
+  padding:20px;
+}
+h1{margin-bottom:20px}
 
-    h1{
-      margin-bottom:20px;
-    }
+.card{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.05);
+  margin-bottom:20px;
+}
 
-    .card{
-      background:white;
-      padding:20px;
-      border-radius:12px;
-      box-shadow:0 4px 10px rgba(0,0,0,0.05);
-      margin-bottom:20px;
-    }
+.filters{
+  display:flex;
+  gap:15px;
+  flex-wrap:wrap;
+  align-items:end;
+}
 
-    .filters{
-      display:flex;
-      gap:15px;
-      flex-wrap:wrap;
-      align-items:end;
-    }
+label{
+  font-size:13px;
+  font-weight:600;
+}
 
-    label{
-      font-size:13px;
-      font-weight:600;
-    }
+input, select{
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #ddd;
+  width:180px;
+}
 
-    input, select{
-      padding:8px;
-      border-radius:6px;
-      border:1px solid #ddd;
-      width:180px;
-    }
+button{
+  padding:10px 15px;
+  border:none;
+  border-radius:8px;
+  background:#007bff;
+  color:white;
+  cursor:pointer;
+  font-weight:600;
+}
 
-    button{
-      padding:10px 15px;
-      border:none;
-      border-radius:8px;
-      background:#007bff;
-      color:white;
-      cursor:pointer;
-      font-weight:600;
-    }
+button:hover{background:#0056b3}
 
-    button:hover{
-      background:#0056b3;
-    }
+.stats{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+}
 
-    .stats{
-      display:flex;
-      gap:20px;
-      flex-wrap:wrap;
-    }
+.stat-box{
+  flex:1;
+  min-width:200px;
+  background:#007bff;
+  color:white;
+  padding:20px;
+  border-radius:12px;
+}
 
-    .stat-box{
-      flex:1;
-      min-width:200px;
-      background:#007bff;
-      color:white;
-      padding:20px;
-      border-radius:12px;
-    }
+.stat-box h2{
+  margin:0;
+  font-size:28px;
+}
 
-    .stat-box h2{
-      margin:0;
-      font-size:28px;
-    }
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
 
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:14px;
-    }
+th, td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+}
 
-    th, td{
-      padding:10px;
-      border-bottom:1px solid #eee;
-      text-align:left;
-    }
+th{
+  background:#fafafa;
+  cursor:pointer;
+}
 
-    th{
-      background:#fafafa;
-      cursor:pointer;
-    }
+tr:hover{background:#f9f9f9}
 
-    tr:hover{
-      background:#f9f9f9;
-    }
+.status{
+  padding:4px 8px;
+  border-radius:6px;
+  font-size:12px;
+  font-weight:600;
+}
 
-    .status{
-      padding:4px 8px;
-      border-radius:6px;
-      font-size:12px;
-      font-weight:600;
-    }
+.done{background:#d4edda;color:#155724}
+.pending{background:#fff3cd;color:#856404}
 
-    .done{ background:#d4edda; color:#155724; }
-    .pending{ background:#fff3cd; color:#856404; }
-
-    .loading{
-      text-align:center;
-      padding:20px;
-      display:none;
-    }
-
-  </style>
+.loading{
+  text-align:center;
+  padding:20px;
+}
+</style>
 </head>
 
 <body>
@@ -141,7 +131,7 @@
       </select>
     </div>
 
-    <button onclick="loadData()">🔎 Filter</button>
+    <button onclick="renderTable(globalData)">🔎 Filter</button>
   </div>
 </div>
 
@@ -153,7 +143,7 @@
 
   <div class="stat-box">
     <h2 id="doneTask">0</h2>
-    <p>Task Selesai</p> 
+    <p>Task Selesai</p>
   </div>
 
   <div class="stat-box">
@@ -167,8 +157,8 @@
   <table id="dataTable">
     <thead>
       <tr>
-        <th onclick="sortTable(0)">Tanggal</th>
-        <th onclick="sortTable(1)">Nama</th>
+        <th onclick="sortTable('tanggal')">Tanggal</th>
+        <th onclick="sortTable('nama')">Nama</th>
         <th>Jam</th>
         <th>Task</th>
         <th>Status</th>
@@ -181,25 +171,32 @@
 
 <script>
 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQFe0VZcFiOo-gJvx5WF8lCVpvD5EFC3eq6sY4FLIqiWcGT8aziSkGEVZ-VfG0uemE/exec";
+
 let globalData = [];
 let sortAsc = true;
 
 function loadData(){
   document.getElementById("loading").style.display="block";
 
-  google.script.run.withSuccessHandler(function(data){
+  fetch(WEB_APP_URL + "?action=getReportData")
+  .then(res=>res.json())
+  .then(data=>{
     globalData = data;
     populateUserFilter(data);
     renderTable(data);
     document.getElementById("loading").style.display="none";
-  }).getReportData();
+  })
+  .catch(err=>{
+    console.error(err);
+    alert("Gagal load data");
+  });
 }
 
 function populateUserFilter(data){
   const users = [...new Set(data.map(d=>d.nama))];
   const select = document.getElementById("userFilter");
-  select.innerHTML = '<option value="">Semua User</option>';
-
+  select.innerHTML='<option value="">Semua User</option>';
   users.forEach(u=>{
     select.innerHTML += `<option value="${u}">${u}</option>`;
   });
@@ -218,13 +215,13 @@ function renderTable(data){
   });
 
   const tbody = document.querySelector("#dataTable tbody");
-  tbody.innerHTML = "";
+  tbody.innerHTML="";
 
   let total=0, done=0, pending=0;
 
   filtered.forEach(row=>{
     total++;
-    if(row.status === "Done") done++;
+    if(row.status==="Done") done++;
     else pending++;
 
     tbody.innerHTML += `
@@ -239,17 +236,17 @@ function renderTable(data){
     `;
   });
 
-  document.getElementById("totalTask").innerText = total;
-  document.getElementById("doneTask").innerText = done;
-  document.getElementById("pendingTask").innerText = pending;
+  document.getElementById("totalTask").innerText=total;
+  document.getElementById("doneTask").innerText=done;
+  document.getElementById("pendingTask").innerText=pending;
 }
 
-function sortTable(col){
-  sortAsc = !sortAsc;
+function sortTable(key){
+  sortAsc=!sortAsc;
   globalData.sort((a,b)=>{
-    let valA = Object.values(a)[col];
-    let valB = Object.values(b)[col];
-    return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    return sortAsc
+      ? a[key].localeCompare(b[key])
+      : b[key].localeCompare(a[key]);
   });
   renderTable(globalData);
 }
