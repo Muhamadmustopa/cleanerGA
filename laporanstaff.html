@@ -1,297 +1,262 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laporan Staff</title>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Laporan</title>
 
-<style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  padding:20px;
-  font-family:Segoe UI,Arial;
-  background:#f4f6f8;
-}
+  <style>
+    body{
+      font-family: 'Segoe UI', sans-serif;
+      background:#f4f6f9;
+      margin:0;
+      padding:20px;
+    }
 
-/* TOP BAR */
-.top-bar{
-  margin-bottom:15px;
-}
-.top-bar button{
-  padding:8px 14px;
-  border:none;
-  border-radius:8px;
-  background:#2196f3;
-  color:#fff;
-  cursor:pointer;
-}
+    h1{
+      margin-bottom:20px;
+    }
 
-/* CARD */
-.card{
-  max-width:1200px;
-  margin:auto;
-  background:#fff;
-  border-radius:14px;
-  padding:16px;
-  box-shadow:0 6px 14px rgba(0,0,0,.12)
-}
-h2{text-align:center;margin-bottom:16px}
+    .card{
+      background:white;
+      padding:20px;
+      border-radius:12px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.05);
+      margin-bottom:20px;
+    }
 
-/* FILTER */
-.filter{
-  display:grid;
-  grid-template-columns:1.5fr 1fr 1fr;
-  gap:10px;
-  margin-bottom:14px
-}
-select,input{
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  font-size:14px
-}
+    .filters{
+      display:flex;
+      gap:15px;
+      flex-wrap:wrap;
+      align-items:end;
+    }
 
-/* TABLE */
-.table-wrap{
-  max-height:520px;
-  overflow-y:auto;
-  border:1px solid #ddd;
-  border-radius:10px
-}
+    label{
+      font-size:13px;
+      font-weight:600;
+    }
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:14px
-}
-thead th{
-  position:sticky;
-  top:0;
-  background:#f1f3f4;
-  z-index:2;
-  border-bottom:1px solid #ccc
-}
-th,td{
-  padding:10px;
-  border-bottom:1px solid #eee;
-  text-align:left;
-  vertical-align:top
-}
-tr:hover{background:#fafafa}
+    input, select{
+      padding:8px;
+      border-radius:6px;
+      border:1px solid #ddd;
+      width:180px;
+    }
 
-/* STATUS */
-.badge{
-  padding:4px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:600;
-  display:inline-block
-}
-.ok{background:#e8f5e9;color:#2e7d32}
-.progress{background:#fff3e0;color:#ef6c00}
+    button{
+      padding:10px 15px;
+      border:none;
+      border-radius:8px;
+      background:#007bff;
+      color:white;
+      cursor:pointer;
+      font-weight:600;
+    }
 
-/* BUTTON */
-.btn{
-  padding:6px 10px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-size:12px
-}
-.edit{background:#2196f3;color:#fff}
-.delete{background:#f44336;color:#fff}
-</style>
+    button:hover{
+      background:#0056b3;
+    }
+
+    .stats{
+      display:flex;
+      gap:20px;
+      flex-wrap:wrap;
+    }
+
+    .stat-box{
+      flex:1;
+      min-width:200px;
+      background:#007bff;
+      color:white;
+      padding:20px;
+      border-radius:12px;
+    }
+
+    .stat-box h2{
+      margin:0;
+      font-size:28px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:14px;
+    }
+
+    th, td{
+      padding:10px;
+      border-bottom:1px solid #eee;
+      text-align:left;
+    }
+
+    th{
+      background:#fafafa;
+      cursor:pointer;
+    }
+
+    tr:hover{
+      background:#f9f9f9;
+    }
+
+    .status{
+      padding:4px 8px;
+      border-radius:6px;
+      font-size:12px;
+      font-weight:600;
+    }
+
+    .done{ background:#d4edda; color:#155724; }
+    .pending{ background:#fff3cd; color:#856404; }
+
+    .loading{
+      text-align:center;
+      padding:20px;
+      display:none;
+    }
+
+  </style>
 </head>
 
 <body>
 
-<div class="top-bar">
-  <button onclick="goBack()">Keluar</button>
+<h1>📊 Dashboard Laporan Task</h1>
+
+<div class="card">
+  <div class="filters">
+    <div>
+      <label>Dari Tanggal</label><br>
+      <input type="date" id="fromDate">
+    </div>
+
+    <div>
+      <label>Sampai Tanggal</label><br>
+      <input type="date" id="toDate">
+    </div>
+
+    <div>
+      <label>Pilih User</label><br>
+      <select id="userFilter">
+        <option value="">Semua User</option>
+      </select>
+    </div>
+
+    <button onclick="loadData()">🔎 Filter</button>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat-box">
+    <h2 id="totalTask">0</h2>
+    <p>Total Task</p>
+  </div>
+
+  <div class="stat-box">
+    <h2 id="doneTask">0</h2>
+    <p>Task Selesai</p>
+  </div>
+
+  <div class="stat-box">
+    <h2 id="pendingTask">0</h2>
+    <p>Task Pending</p>
+  </div>
 </div>
 
 <div class="card">
-  <h2>📋 Laporan Aktivitas Staff</h2>
-
-  <div class="filter">
-    <select id="filterStaff">
-      <option value="">Semua Staff</option>
-    </select>
-    <input type="date" id="dateFrom">
-    <input type="date" id="dateTo">
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Tanggal</th>
-          <th>Nama Staff</th>
-          <th>Kategori</th>
-          <th>Detail</th>
-          <th>Status</th>
-          <th>Catatan</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
+  <div class="loading" id="loading">Loading data...</div>
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">Tanggal</th>
+        <th onclick="sortTable(1)">Nama</th>
+        <th>Jam</th>
+        <th>Task</th>
+        <th>Status</th>
+        <th>Keterangan</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
 
 <script>
 
-/* ===============================
-   KONFIG
-================================ */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxguijFfLZ4u0XoRvGl9sJ0zhwG8Bbmbj-A-WipMMO-B-fDjahsU_msrgWhaCJxiads/exec";
+let globalData = [];
+let sortAsc = true;
 
-let rawData = [];
-
-const tbody  = document.getElementById('tbody');
-const fStaff = document.getElementById('filterStaff');
-const dFrom  = document.getElementById('dateFrom');
-const dTo    = document.getElementById('dateTo');
-
-/* ===============================
-   LOAD DATA
-================================ */
 function loadData(){
-  fetch(SCRIPT_URL + '?action=reportStaff')
-    .then(res => res.json())
-    .then(res => {
-      rawData = res.data || [];
-      initStaff();
-      render();
-    })
-    .catch(err => {
-      console.log(err);
-      tbody.innerHTML = '<tr><td colspan="7">Gagal load data</td></tr>';
-    });
-}
-loadData();
+  document.getElementById("loading").style.display="block";
 
-/* ===============================
-   INIT STAFF FILTER
-================================ */
-function initStaff(){
-  fStaff.innerHTML = '<option value="">Semua Staff</option>';
-
-  [...new Set(rawData.map(d => d.staff))]
-    .sort()
-    .forEach(n => {
-      const opt = document.createElement('option');
-      opt.value = n;
-      opt.textContent = n;
-      fStaff.appendChild(opt);
-    });
+  google.script.run.withSuccessHandler(function(data){
+    globalData = data;
+    populateUserFilter(data);
+    renderTable(data);
+    document.getElementById("loading").style.display="none";
+  }).getReportData();
 }
 
-/* ===============================
-   RENDER TABLE
-================================ */
-function render(){
-  tbody.innerHTML = '';
+function populateUserFilter(data){
+  const users = [...new Set(data.map(d=>d.nama))];
+  const select = document.getElementById("userFilter");
+  select.innerHTML = '<option value="">Semua User</option>';
 
-  const staff = fStaff.value;
-  const from  = dFrom.value;
-  const to    = dTo.value;
+  users.forEach(u=>{
+    select.innerHTML += `<option value="${u}">${u}</option>`;
+  });
+}
 
-  const data = rawData.filter(d => {
-    if(staff && d.staff !== staff) return false;
-    if(from && d.tanggal < from) return false;
-    if(to && d.tanggal > to) return false;
-    return true;
+function renderTable(data){
+
+  const from = document.getElementById("fromDate").value;
+  const to = document.getElementById("toDate").value;
+  const user = document.getElementById("userFilter").value;
+
+  let filtered = data.filter(d=>{
+    return (!from || d.tanggal >= from)
+        && (!to || d.tanggal <= to)
+        && (!user || d.nama === user);
   });
 
-  if(data.length === 0){
-    tbody.innerHTML = '<tr><td colspan="7">Data tidak ditemukan</td></tr>';
-    return;
-  }
+  const tbody = document.querySelector("#dataTable tbody");
+  tbody.innerHTML = "";
 
-  data.forEach((d,i) => {
+  let total=0, done=0, pending=0;
+
+  filtered.forEach(row=>{
+    total++;
+    if(row.status === "Done") done++;
+    else pending++;
+
     tbody.innerHTML += `
       <tr>
-        <td>${d.tanggal}</td>
-        <td>${d.staff}</td>
-        <td>${d.tipe}</td>
-        <td>${d.uraian}</td>
-        <td>
-          <span class="badge ${d.status === 'DONE' ? 'ok' : 'progress'}">
-            ${d.status}
-          </span>
-        </td>
-        <td>${d.catatan || '-'}</td>
-        <td>
-          <button class="btn edit" onclick="editData(${i})">Edit</button>
-          <button class="btn delete" onclick="deleteData('${d.id}')">Hapus</button>
-        </td>
+        <td>${row.tanggal}</td>
+        <td>${row.nama}</td>
+        <td>${row.jam}</td>
+        <td>${row.task}</td>
+        <td><span class="status ${row.status==="Done"?"done":"pending"}">${row.status}</span></td>
+        <td>${row.keterangan || "-"}</td>
       </tr>
     `;
   });
+
+  document.getElementById("totalTask").innerText = total;
+  document.getElementById("doneTask").innerText = done;
+  document.getElementById("pendingTask").innerText = pending;
 }
 
-/* ===============================
-   DELETE
-================================ */
-function deleteData(id){
-  if(!confirm('Yakin ingin hapus data ini?')) return;
-
-  fetch(SCRIPT_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      action:'deleteStaff',
-      id:id
-    })
-  })
-  .then(res=>res.json())
-  .then(()=>loadData());
+function sortTable(col){
+  sortAsc = !sortAsc;
+  globalData.sort((a,b)=>{
+    let valA = Object.values(a)[col];
+    let valB = Object.values(b)[col];
+    return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+  });
+  renderTable(globalData);
 }
 
-/* ===============================
-   EDIT
-================================ */
-function editData(index){
-  const d = rawData[index];
-
-  const detail  = prompt('Edit Detail:', d.uraian);
-  if(detail === null) return;
-
-  const status  = prompt('Edit Status (DONE / OPEN):', d.status);
-  if(status === null) return;
-
-  const catatan = prompt('Edit Catatan:', d.catatan || '');
-
-  fetch(SCRIPT_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      action:'updateStaff',
-      id:d.id,
-      detail:detail,
-      status:status,
-      catatan:catatan
-    })
-  })
-  .then(res=>res.json())
-  .then(()=>loadData());
-}
-
-/* ===============================
-   EVENT LISTENER
-================================ */
-[fStaff,dFrom,dTo].forEach(el=>{
-  el.addEventListener('input',render);
-});
-
-/* ===============================
-   GO BACK
-================================ */
-function goBack(){
-  window.history.back();
-}
+loadData();
 
 </script>
+
 </body>
 </html>
