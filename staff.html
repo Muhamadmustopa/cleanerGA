@@ -3,57 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checklist Harian</title>
+<title>Daily Timesheet Staff</title>
 
 <style>
 body{
   font-family:Segoe UI;
-  background:#f4f6f8;
-  padding:15px;
+  background:linear-gradient(135deg,#2563eb,#1e3a8a);
+  padding:20px;
 }
+
 .card{
   background:#fff;
-  border-radius:12px;
-  padding:15px;
-  max-width:500px;
+  border-radius:16px;
+  padding:20px;
+  max-width:700px;
   margin:auto;
-  box-shadow:0 6px 16px rgba(0,0,0,.1);
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
 }
-h2{text-align:center;margin-top:0}
+
+h2{
+  text-align:center;
+  margin-top:0;
+  color:#1e3a8a;
+}
 
 label{font-weight:600;margin-top:10px;display:block}
+
 input,select,button{
   width:100%;
-  padding:8px;
+  padding:10px;
   margin-top:5px;
-  border-radius:6px;
+  border-radius:8px;
   border:1px solid #ccc;
   font-size:14px;
-}
-
-.section{
-  background:#f9fafb;
-  padding:10px;
-  border-radius:8px;
-  margin-top:12px;
-}
-
-.task-row{
-  display:flex;
-  gap:6px;
-  margin-bottom:6px;
-}
-.task-row input[type=text]{ flex:1; }
-.task-row input[type=checkbox]{ width:20px; }
-
-.small-btn{
-  background:#e5e7eb;
-  color:#333;
-  border:none;
-  padding:5px;
-  font-size:12px;
-  cursor:pointer;
-  margin-top:5px;
 }
 
 .logout{
@@ -64,16 +46,47 @@ input,select,button{
   border-radius:8px;
   cursor:pointer;
   font-size:13px;
+  margin-bottom:10px;
 }
 
 button{
   background:#2563eb;
   color:white;
   border:none;
-  margin-top:12px;
+  margin-top:15px;
   cursor:pointer;
+  font-weight:600;
 }
 button:hover{opacity:.9}
+
+.timesheet{
+  margin-top:15px;
+}
+
+.row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:8px;
+}
+
+.time-label{
+  width:70px;
+  font-weight:600;
+  text-align:center;
+  background:#f1f5f9;
+  padding:8px;
+  border-radius:8px;
+}
+
+.break{
+  background:#fee2e2 !important;
+  color:#b91c1c;
+}
+
+.row input{
+  flex:1;
+}
 
 /* LOADING */
 .loading-overlay{
@@ -108,7 +121,7 @@ button:hover{opacity:.9}
 <body>
 
 <div class="card">
-  <h2>📋 Daily Report Staff</h2>
+  <h2>🕒 Daily Timesheet Staff</h2>
 
   <button class="logout" onclick="logout()">Keluar</button>
 
@@ -124,17 +137,7 @@ button:hover{opacity:.9}
 
   <div id="taskSection" style="display:none">
 
-    <div class="section">
-      <b>✅ Task Clear/Today</b>
-      <div id="clearContainer"></div>
-      <button type="button" class="small-btn" onclick="addClear()">+Add Task</button>
-    </div>
-
-    <div class="section">
-      <b>⏳ Task Pending/Plan for Tomorrow</b>
-      <div id="pendingContainer"></div>
-      <button type="button" class="small-btn" onclick="addPending()">+Add Task</button>
-    </div>
+    <div class="timesheet" id="timesheetContainer"></div>
 
     <button onclick="submitData()">Simpan</button>
 
@@ -153,65 +156,47 @@ function logout(){
 }
 
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxguijFfLZ4u0XoRvGl9sJ0zhwG8Bbmbj-A-WipMMO-B-fDjahsU_msrgWhaCJxiads/exec";
-let maxRow = 20;
 
-function createRow(type,value=""){
-  const div=document.createElement("div");
-  div.className="task-row";
+const times = [
+"08:00","08:30",
+"09:00","09:30",
+"10:00","10:30",
+"11:00","11:30",
+"12:00","12:30",
+"13:00",
+"13:30","14:00","14:30",
+"15:00","15:30",
+"16:00","16:30",
+"17:00"
+];
 
-  if(type==="pending"){
-    const chk=document.createElement("input");
-    chk.type="checkbox";
-    chk.onchange=function(){
-      if(chk.checked){
-        addClear(input.value);
-        div.remove();
-      }
-    };
-    div.appendChild(chk);
-  }
+function generateTimesheet(){
+  const container = document.getElementById("timesheetContainer");
+  container.innerHTML="";
 
-  const input=document.createElement("input");
-  input.type="text";
-  input.placeholder="Tulis task...";
-  input.value=value;
+  times.forEach(time=>{
+    const row = document.createElement("div");
+    row.className="row";
 
-  div.appendChild(input);
-  return div;
-}
+    const label = document.createElement("div");
+    label.className="time-label";
+    label.innerText=time;
 
-function initDefaultRows(){
-  const clearBox=document.getElementById("clearContainer");
-  const pendingBox=document.getElementById("pendingContainer");
+    const input = document.createElement("input");
+    input.type="text";
+    input.placeholder="Tulis task...";
 
-  clearBox.innerHTML="";
-  pendingBox.innerHTML="";
+    // Jam Istirahat
+    if(time==="12:00" || time==="12:30" || time==="13:00"){
+      label.classList.add("break");
+      input.disabled=true;
+      input.placeholder="Jam Istirahat";
+    }
 
-  for(let i=0;i<8;i++){
-    clearBox.appendChild(createRow("clear"));
-  }
-
-  for(let i=0;i<5;i++){
-    pendingBox.appendChild(createRow("pending"));
-  }
-}
-
-function addClear(value=""){
-  const box=document.getElementById("clearContainer");
-  if(box.children.length>=maxRow){
-    alert("Max 20 baris");
-    return;
-  }
-  box.appendChild(createRow("clear",value));
-}
-
-function addPending(value=""){
-  const box=document.getElementById("pendingContainer");
-  if(box.children.length>=maxRow){
-    alert("Max 20 baris");
-    return;
-  }
-  box.appendChild(createRow("pending",value));
+    row.appendChild(label);
+    row.appendChild(input);
+    container.appendChild(row);
+  });
 }
 
 document.getElementById("staff").addEventListener("change",function(){
@@ -220,7 +205,7 @@ document.getElementById("staff").addEventListener("change",function(){
     return;
   }
   document.getElementById("taskSection").style.display="block";
-  initDefaultRows();
+  generateTimesheet();
 });
 
 function submitData(){
@@ -233,23 +218,27 @@ function submitData(){
     return;
   }
 
-  const clear = [...document.querySelectorAll("#clearContainer input[type=text]")]
-    .map(i=>i.value.trim())
-    .filter(Boolean);
+  const tasks = [];
 
-  const pending = [...document.querySelectorAll("#pendingContainer input[type=text]")]
-    .map(i=>i.value.trim())
-    .filter(Boolean);
+  document.querySelectorAll(".row").forEach(row=>{
+    const time = row.querySelector(".time-label").innerText;
+    const input = row.querySelector("input");
+    if(!input.disabled && input.value.trim()){
+      tasks.push({
+        time: time,
+        task: input.value.trim()
+      });
+    }
+  });
 
   const loading=document.getElementById("loading");
   loading.style.display="flex";
 
   const formData=new URLSearchParams();
-  formData.append("action","save");
+  formData.append("action","saveTimesheet");
   formData.append("staff",staff);
   formData.append("tanggal",tanggal);
-  formData.append("clear",JSON.stringify(clear));
-  formData.append("pending",JSON.stringify(pending));
+  formData.append("tasks",JSON.stringify(tasks));
 
   fetch(WEB_APP_URL,{
     method:"POST",
@@ -260,8 +249,8 @@ function submitData(){
     loading.style.display="none";
 
     if(res.status==="success"){
-      alert("Laporan berhasil disimpan");
-      initDefaultRows();
+      alert("Timesheet berhasil disimpan");
+      generateTimesheet();
     }else{
       alert("Gagal: "+res.message);
     }
