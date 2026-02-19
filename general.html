@@ -7,14 +7,12 @@
 
 <style>
 *{box-sizing:border-box}
-
 body{
   margin:0;
   padding:16px;
   font-family:Segoe UI,Arial;
   background:linear-gradient(180deg,#e3f2fd,#f4f6f8);
 }
-
 .card{
   max-width:900px;
   margin:auto;
@@ -23,7 +21,6 @@ body{
   padding:18px;
   box-shadow:0 8px 20px rgba(0,0,0,.12);
 }
-
 .header{
   display:flex;
   justify-content:space-between;
@@ -31,7 +28,6 @@ body{
   margin-bottom:12px;
 }
 .header strong{font-size:16px}
-
 .logout{
   background:#f44336;
   color:#fff;
@@ -40,12 +36,10 @@ body{
   border-radius:12px;
   cursor:pointer;
 }
-
 label{
   font-size:14px;
   font-weight:600;
 }
-
 select,input{
   width:100%;
   padding:12px;
@@ -54,7 +48,6 @@ select,input{
   margin-top:6px;
   font-size:14px;
 }
-
 .task-card{
   border:1px solid #e0e0e0;
   border-radius:14px;
@@ -62,19 +55,16 @@ select,input{
   margin-top:12px;
   background:#fff;
 }
-
 .task-area{
   font-size:13px;
   font-weight:600;
   color:#1976d2;
   margin-bottom:4px;
 }
-
 .task-name{
   font-size:14px;
   margin-bottom:10px;
 }
-
 .check-row{
   display:flex;
   align-items:center;
@@ -82,14 +72,12 @@ select,input{
   margin-bottom:8px;
   font-size:14px;
 }
-
 .note{
   width:100%;
   padding:10px;
   border-radius:10px;
   border:1px solid #ccc;
 }
-
 button.save{
   width:100%;
   margin-top:18px;
@@ -102,35 +90,23 @@ button.save{
   font-weight:600;
   cursor:pointer;
 }
-
-@media(max-width:600px){
-  body{padding:10px}
-  .card{padding:14px}
-}
-
-/* ===== LOADING OVERLAY ===== */
 .loading-overlay{
   position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
+  top:0;left:0;
+  width:100%;height:100%;
   background:rgba(255,255,255,0.7);
   display:none;
   justify-content:center;
   align-items:center;
   z-index:9999;
 }
-
 .spinner{
-  width:60px;
-  height:60px;
+  width:60px;height:60px;
   border:6px solid #ddd;
   border-top:6px solid #4CAF50;
   border-radius:50%;
   animation:spin 1s linear infinite;
 }
-
 @keyframes spin{
   0%{transform:rotate(0deg);}
   100%{transform:rotate(360deg);}
@@ -141,7 +117,6 @@ button.save{
 <body>
 
 <div class="card">
-
   <div class="header">
     <div>
       <strong>Checklist Cleaner Harian</strong><br>
@@ -176,7 +151,6 @@ button.save{
   <button class="save" id="saveBtn" onclick="simpan()">Simpan Checklist</button>
 </div>
 
-<!-- LOADING SPINNER -->
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
 </div>
@@ -194,8 +168,6 @@ const saveBtn       = document.getElementById('saveBtn');
 
 tanggalInput.valueAsDate = new Date();
 
-/* ================= AUTO RENDER ================= */
-
 cleanerSelect.addEventListener('change', checkRender);
 lokasiSelect.addEventListener('change', checkRender);
 tanggalInput.addEventListener('change', checkRender);
@@ -206,10 +178,7 @@ function checkRender(){
   }
 }
 
-/* ================= TASK DATA ================= */
-
 const taskByLocation = {
-
   MTH:[
     {area:'Area Kerja',task:'Sapu & Pel Lantai'},
     {area:'Area Kerja',task:'Vacum Karpet Lantai'},
@@ -230,7 +199,6 @@ const taskByLocation = {
     {area:'Service',task:'Pembelian Makan Siang Tepat Waktu'},
     {area:'Service',task:'Membantu Karyawan (Isi catatan keterangan)'}
   ],
-
   BIZ:[
     {area:'Gudang',task:'Sapu & Pel Lantai Gudang'},
     {area:'Gudang',task:'Sapu halaman depan'},
@@ -245,41 +213,30 @@ const taskByLocation = {
     {area:'Service',task:'Pembelian Makan Siang Tepat Waktu'},
     {area:'Service',task:'Membantu Karyawan (Isi catatan keterangan)'}
   ]
-
 };
 
-/* ================= RENDER TASK ================= */
-
 function renderTask(){
-
   taskContainer.innerHTML='';
   const lokasi = lokasiSelect.value;
   if(!lokasi || !taskByLocation[lokasi]) return;
 
   taskByLocation[lokasi].forEach((t,i)=>{
-
     taskContainer.innerHTML += `
       <div class="task-card">
         <div class="task-area">${t.area}</div>
         <div class="task-name">${t.task}</div>
-
         <label class="check-row">
           <input type="checkbox" id="check${i}">
           Selesai
         </label>
-
         <input type="text" id="note${i}" class="note" placeholder="Catatan (opsional)">
         <input type="file" id="photo${i}" accept="image/*" style="margin-top:8px;">
       </div>
     `;
   });
-
 }
 
-/* ================= SIMPAN ================= */
-
 async function simpan(){
-
   const cleaner = cleanerSelect.value;
   const lokasi  = lokasiSelect.value;
   const tanggal = tanggalInput.value;
@@ -295,7 +252,6 @@ async function simpan(){
   const payload = [];
 
   for(let i=0;i<taskByLocation[lokasi].length;i++){
-
     const fileInput = document.getElementById('photo'+i);
     let photoBase64 = "";
 
@@ -315,26 +271,25 @@ async function simpan(){
       photoBase64: photoBase64
     });
   }
-fetch(SCRIPT_URL, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/x-www-form-urlencoded"
-  },
-  body: "data=" + encodeURIComponent(JSON.stringify(payload))
-})
-.then(res => res.text())
-.then(res => {
-  console.log("Response:", res);
-  alert("Checklist berhasil disimpan");
-  location.reload();
-})
-.catch(err => {
-  console.error(err);
-  alert("Gagal menyimpan data");
-});
 
-
-/* ================= BASE64 ================= */
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: "data=" + encodeURIComponent(JSON.stringify(payload))
+  })
+  .then(res => res.text())
+  .then(res => {
+    console.log("Response:", res);
+    alert("Checklist berhasil disimpan");
+    location.reload();
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Gagal menyimpan data");
+  });
+}
 
 function toBase64(file){
   return new Promise((resolve, reject)=>{
@@ -351,3 +306,5 @@ function logout(){
 }
 
 </script>
+</body>
+</html>
