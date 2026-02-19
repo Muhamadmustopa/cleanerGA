@@ -192,19 +192,24 @@ const taskContainer = document.getElementById('taskContainer');
 const loading       = document.getElementById('loading');
 const saveBtn       = document.getElementById('saveBtn');
 
-const savedUser = localStorage.getItem('cleaner_name');
-if(savedUser){
-  cleanerSelect.value = savedUser;
-}
+tanggalInput.valueAsDate = new Date();
 
-cleanerSelect.addEventListener('change',()=>{
-  localStorage.setItem('cleaner_name', cleanerSelect.value);
-  if(lokasiSelect.value){
+/* ================= AUTO RENDER ================= */
+
+cleanerSelect.addEventListener('change', checkRender);
+lokasiSelect.addEventListener('change', checkRender);
+tanggalInput.addEventListener('change', checkRender);
+
+function checkRender(){
+  if(cleanerSelect.value && lokasiSelect.value && tanggalInput.value){
     renderTask();
   }
-});
+}
+
+/* ================= TASK DATA ================= */
 
 const taskByLocation = {
+
   MTH:[
     {area:'Area Kerja',task:'Sapu & Pel Lantai'},
     {area:'Area Kerja',task:'Vacum Karpet Lantai'},
@@ -223,8 +228,9 @@ const taskByLocation = {
     {area:'Pantry',task:'Refill Air Galon'},
     {area:'Service',task:'Pembelian Sarapan Pagi'},
     {area:'Service',task:'Pembelian Makan Siang Tepat Waktu'},
-    {area:'Service',task:'Membantu Karyawan (Tolong isi catatan keterangan'}
+    {area:'Service',task:'Membantu Karyawan (Isi catatan keterangan)'}
   ],
+
   BIZ:[
     {area:'Gudang',task:'Sapu & Pel Lantai Gudang'},
     {area:'Gudang',task:'Sapu halaman depan'},
@@ -237,18 +243,21 @@ const taskByLocation = {
     {area:'Toilet',task:'Bersihkan closet dan seluruh area toilet B05 dan C01'},
     {area:'Service',task:'Pembelian Sarapan Pagi'},
     {area:'Service',task:'Pembelian Makan Siang Tepat Waktu'},
-    {area:'Service',task:'Membantu Karyawan (Tolong isi catatan keterangan'}
+    {area:'Service',task:'Membantu Karyawan (Isi catatan keterangan)'}
   ]
+
 };
 
-tanggalInput.valueAsDate = new Date();
+/* ================= RENDER TASK ================= */
 
 function renderTask(){
+
   taskContainer.innerHTML='';
   const lokasi = lokasiSelect.value;
-  if(!lokasi) return;
+  if(!lokasi || !taskByLocation[lokasi]) return;
 
   taskByLocation[lokasi].forEach((t,i)=>{
+
     taskContainer.innerHTML += `
       <div class="task-card">
         <div class="task-area">${t.area}</div>
@@ -260,15 +269,17 @@ function renderTask(){
         </label>
 
         <input type="text" id="note${i}" class="note" placeholder="Catatan (opsional)">
-
-        <!-- TAMBAHAN FOTO (OPSIONAL) -->
         <input type="file" id="photo${i}" accept="image/*" style="margin-top:8px;">
       </div>
     `;
   });
+
 }
 
+/* ================= SIMPAN ================= */
+
 async function simpan(){
+
   const cleaner = cleanerSelect.value;
   const lokasi  = lokasiSelect.value;
   const tanggal = tanggalInput.value;
@@ -290,7 +301,7 @@ async function simpan(){
 
     if(fileInput.files[0]){
       photoBase64 = await toBase64(fileInput.files[0]);
-      photoBase64 = photoBase64.split(',')[1]; // ambil base64 saja
+      photoBase64 = photoBase64.split(',')[1];
     }
 
     payload.push({
@@ -304,23 +315,27 @@ async function simpan(){
       photoBase64: photoBase64
     });
   }
-fetch(SCRIPT_URL, {
-  method: "POST",
-  body: JSON.stringify(payload)
-})
-.then(r => r.text())
-.then(() => {
-  loading.style.display = "none";
-  saveBtn.disabled = false;
-  alert('Checklist berhasil disimpan');
-  location.reload();
-})
-.catch(() => {
-  loading.style.display = "none";
-  saveBtn.disabled = false;
-  alert('Gagal menyimpan data');
-});
-  
+
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    mode: "no-cors"
+  })
+  .then(()=>{
+    loading.style.display = "none";
+    saveBtn.disabled = false;
+    alert('Checklist berhasil disimpan');
+    location.reload();
+  })
+  .catch(()=>{
+    loading.style.display = "none";
+    saveBtn.disabled = false;
+    alert('Gagal menyimpan data');
+  });
+}
+
+/* ================= BASE64 ================= */
+
 function toBase64(file){
   return new Promise((resolve, reject)=>{
     const reader = new FileReader();
@@ -336,6 +351,3 @@ function logout(){
 }
 
 </script>
-
-</body>
-</html>
