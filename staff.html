@@ -187,11 +187,12 @@ function generateTimesheet(){
     input.placeholder="Tulis task...";
 
     // Jam Istirahat
-    if(time==="12:00" || time==="13:00"){
-      label.classList.add("break");
-      input.disabled=true;
-      input.placeholder="Jam Istirahat";
-    }
+if(time==="12:00" || time==="12:30"){
+  label.classList.add("break");
+  input.disabled=true;
+  input.placeholder="Jam Istirahat";
+}
+
 
     row.appendChild(label);
     row.appendChild(input);
