@@ -11,6 +11,7 @@ body{
   margin:0;
   padding:20px;
 }
+
 h1{margin-bottom:20px}
 
 .card{
@@ -91,16 +92,6 @@ th{
 
 tr:hover{background:#f9f9f9}
 
-.status{
-  padding:4px 8px;
-  border-radius:6px;
-  font-size:12px;
-  font-weight:600;
-}
-
-.done{background:#d4edda;color:#155724}
-.pending{background:#fff3cd;color:#856404}
-
 .loading{
   text-align:center;
   padding:20px;
@@ -132,6 +123,7 @@ tr:hover{background:#f9f9f9}
     </div>
 
     <button onclick="renderTable(globalData)">🔎 Filter</button>
+    <button onclick="exportExcel()">Export  Xls</button>
   </div>
 </div>
 
@@ -139,16 +131,6 @@ tr:hover{background:#f9f9f9}
   <div class="stat-box">
     <h2 id="totalTask">0</h2>
     <p>Total Task</p>
-  </div>
-
-  <div class="stat-box">
-    <h2 id="doneTask">0</h2>
-    <p>Task Selesai</p>
-  </div>
-
-  <div class="stat-box">
-    <h2 id="pendingTask">0</h2>
-    <p>Task Pending</p>
   </div>
 </div>
 
@@ -159,9 +141,8 @@ tr:hover{background:#f9f9f9}
       <tr>
         <th onclick="sortTable('tanggal')">Tanggal</th>
         <th onclick="sortTable('nama')">Nama</th>
-        <th>Jam</th>
+        <th onclick="sortTable('jam')">Jam</th>
         <th>Task</th>
-        <th>Status</th>
         <th>Keterangan</th>
       </tr>
     </thead>
@@ -174,6 +155,7 @@ tr:hover{background:#f9f9f9}
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQFe0VZcFiOo-gJvx5WF8lCVpvD5EFC3eq6sY4FLIqiWcGT8aziSkGEVZ-VfG0uemE/exec";
 
 let globalData = [];
+let filteredData = [];
 let sortAsc = true;
 
 function loadData(){
@@ -208,7 +190,7 @@ function renderTable(data){
   const to = document.getElementById("toDate").value;
   const user = document.getElementById("userFilter").value;
 
-  let filtered = data.filter(d=>{
+  filteredData = data.filter(d=>{
     return (!from || d.tanggal >= from)
         && (!to || d.tanggal <= to)
         && (!user || d.nama === user);
@@ -217,28 +199,19 @@ function renderTable(data){
   const tbody = document.querySelector("#dataTable tbody");
   tbody.innerHTML="";
 
-  let total=0, done=0, pending=0;
-
-  filtered.forEach(row=>{
-    total++;
-    if(row.status==="Done") done++;
-    else pending++;
-
+  filteredData.forEach(row=>{
     tbody.innerHTML += `
       <tr>
         <td>${row.tanggal}</td>
         <td>${row.nama}</td>
         <td>${row.jam}</td>
         <td>${row.task}</td>
-        <td><span class="status ${row.status==="Done"?"done":"pending"}">${row.status}</span></td>
         <td>${row.keterangan || "-"}</td>
       </tr>
     `;
   });
 
-  document.getElementById("totalTask").innerText=total;
-  document.getElementById("doneTask").innerText=done;
-  document.getElementById("pendingTask").innerText=pending;
+  document.getElementById("totalTask").innerText=filteredData.length;
 }
 
 function sortTable(key){
@@ -249,6 +222,40 @@ function sortTable(key){
       : b[key].localeCompare(a[key]);
   });
   renderTable(globalData);
+}
+
+function exportExcel(){
+
+  if(filteredData.length === 0){
+    alert("Tidak ada data untuk di export");
+    return;
+  }
+
+  let csv = [];
+  csv.push(["Tanggal","Nama","Jam","Task","Keterangan"]);
+
+  filteredData.forEach(row=>{
+    csv.push([
+      row.tanggal,
+      row.nama,
+      row.jam,
+      row.task,
+      row.keterangan || ""
+    ]);
+  });
+
+  let csvContent = csv.map(e => e.join(",")).join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+
+  const from = document.getElementById("fromDate").value || "ALL";
+  const to = document.getElementById("toDate").value || "ALL";
+  const user = document.getElementById("userFilter").value || "ALL_USER";
+
+  link.download = `Laporan_${user}_${from}_sampai_${to}.csv`;
+  link.click();
 }
 
 loadData();
