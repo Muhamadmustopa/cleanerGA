@@ -189,14 +189,21 @@ tbody tr:hover{
 
 <body>
 
-<h1>📊 Dashboard Laporan Task</h1>
+<h1>📊 Dashboard Time Sheet Reporting Daily Team General Affairs</h1>
 
 <!-- 🔔 NOTIFICATION ICON -->
-<div class="notif-wrapper" onclick="toggleNotif()">
-  <span style="font-size:26px;">🔔</span>
-  <span id="notifCount" class="notif-count"></span>
-</div>
+<div class="top-actions">
 
+  <!-- 🔔 Notification -->
+  <div class="notif-wrapper" onclick="toggleNotif()">
+    <span style="font-size:26px;">🔔</span>
+    <span id="notifCount" class="notif-count"></span>
+  </div>
+
+  <!-- 🔙 Back Button -->
+  <button class="back-btn" onclick="goBack()">Kembali</button>
+
+</div>
 <div class="card">
   <div class="filters">
 
@@ -219,7 +226,7 @@ tbody tr:hover{
 
     <div onclick="renderTable(globalData)" 
          style="padding:10px 15px;background:#007bff;color:white;border-radius:8px;cursor:pointer;">
-         🔎 Filter
+         🔎 Cari
     </div>
 
     <div class="excel-btn" onclick="exportExcel()">
@@ -248,7 +255,7 @@ tbody tr:hover{
           <th onclick="sortTable('tanggal')">Tanggal</th>
           <th onclick="sortTable('nama')">Nama</th>
           <th onclick="sortTable('jam')">Jam</th>
-          <th>Task</th>
+          <th>Kegiatan</th>
           <th>Keterangan</th>
         </tr>
       </thead>
