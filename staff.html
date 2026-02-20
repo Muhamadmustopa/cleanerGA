@@ -40,13 +40,6 @@ input,select{
   border-radius:10px;
   border:1px solid #d1d5db;
   font-size:14px;
-  transition:.2s;
-}
-
-input:focus,select:focus{
-  border-color:#2563eb;
-  outline:none;
-  box-shadow:0 0 0 3px rgba(37,99,235,.15);
 }
 
 .logout{
@@ -69,11 +62,6 @@ input:focus,select:focus{
   border-radius:12px;
   font-weight:600;
   cursor:pointer;
-  transition:.2s;
-}
-
-.main-btn:hover{
-  transform:scale(1.02);
 }
 
 .timesheet{
@@ -105,12 +93,6 @@ input:focus,select:focus{
   flex:1;
 }
 
-.row input:not(:disabled):not(:placeholder-shown){
-  background:#ecfdf5;
-  border-color:#10b981;
-}
-
-/* Toast */
 .toast{
   position:fixed;
   bottom:20px;
@@ -119,11 +101,9 @@ input:focus,select:focus{
   color:#fff;
   padding:15px 20px;
   border-radius:12px;
-  box-shadow:0 10px 25px rgba(0,0,0,.3);
   display:none;
 }
 
-/* Loading */
 .loading-overlay{
   position:fixed;
   top:0;left:0;
@@ -188,71 +168,61 @@ function logout(){
   window.location.href="login.html";
 }
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQFe0VZcFiOo-gJvx5WF8lCVpvD5EFC3eq6sY4FLIqiWcGT8aziSkGEVZ-VfG0uemE/exec";
+const WEB_APP_URL="YOUR_WEB_APP_URL_HERE";
 
-const times=[
-"08:00","08:30","09:00","09:30",
-"10:00","10:30","11:00","11:30",
-"12:00","12:30",
-"13:00","13:30","14:00","14:30",
-"15:00","15:30","16:00","16:30",
-"17:00"
+/* ===============================
+   USER YANG PUNYA JAM TAMBAHAN
+=================================*/
+
+const specialUsers=[
+"Evilla Agustin - Cleaner",
+"Irfan Affandi - Cleaner",
+"Abdul Apso - Staff Services"
 ];
 
-let debounceTimer;
+/* ===============================
+   GENERATE JAM DINAMIS
+=================================*/
 
-function getDraftKey(){
+function generateTimeSlots(){
+
   const staff=document.getElementById("staff").value;
-  const tanggal=document.getElementById("tanggal").value;
-  if(!staff || !tanggal) return null;
-  return "draft_"+staff+"_"+tanggal;
-}
 
-function saveDraft(){
-  const key=getDraftKey();
-  if(!key) return;
+  let times=[];
 
-  const data=[];
-  document.querySelectorAll(".row").forEach(row=>{
-    const time=row.querySelector(".time-label").innerText;
-    const input=row.querySelector("input");
-    if(!input.disabled){
-      data.push({time:time,task:input.value});
-    }
-  });
+  if(specialUsers.includes(staff)){
+    times=[
+      "07:00","07:30",
+      "08:00","08:30","09:00","09:30",
+      "10:00","10:30","11:00","11:30",
+      "12:00","12:30",
+      "13:00","13:30","14:00","14:30",
+      "15:00","15:30","16:00","16:30",
+      "17:00","17:30"
+    ];
+  }else{
+    times=[
+      "08:00","08:30","09:00","09:30",
+      "10:00","10:30","11:00","11:30",
+      "12:00","12:30",
+      "13:00","13:30","14:00","14:30",
+      "15:00","15:30","16:00","16:30",
+      "17:00"
+    ];
+  }
 
-  localStorage.setItem(key,JSON.stringify(data));
-}
-
-function debounceSave(){
-  clearTimeout(debounceTimer);
-  debounceTimer=setTimeout(saveDraft,1000);
-}
-
-function loadDraft(){
-  const key=getDraftKey();
-  if(!key) return;
-
-  const draft=localStorage.getItem(key);
-  if(!draft) return;
-
-  const data=JSON.parse(draft);
-
-  document.querySelectorAll(".row").forEach(row=>{
-    const time=row.querySelector(".time-label").innerText;
-    const input=row.querySelector("input");
-    const found=data.find(d=>d.time===time);
-    if(found && !input.disabled){
-      input.value=found.task;
-    }
-  });
+  return times;
 }
 
 function generateTimesheet(){
+
   const container=document.getElementById("timesheetContainer");
   container.innerHTML="";
 
+  const times=generateTimeSlots();
+
   times.forEach(time=>{
+
     const row=document.createElement("div");
     row.className="row";
 
@@ -267,17 +237,14 @@ function generateTimesheet(){
     if(time==="12:00" || time==="12:30"){
       label.classList.add("break");
       input.disabled=true;
-      input.placeholder="Jam Istirahat";
+      input.placeholder="Jam Istirahat 12.00 s/d 12.30 menyesuaikan jam kerja bulan puasa";
     }
-
-    input.addEventListener("input",debounceSave);
 
     row.appendChild(label);
     row.appendChild(input);
     container.appendChild(row);
-  });
 
-  setTimeout(loadDraft,100);
+  });
 }
 
 document.getElementById("staff").addEventListener("change",()=>{
@@ -302,7 +269,7 @@ function showToast(msg){
   setTimeout(()=>toast.style.display="none",4000);
 }
 
-async function submitData(){
+function submitData(){
 
   const staff=document.getElementById("staff").value;
   const tanggal=document.getElementById("tanggal").value;
@@ -312,13 +279,8 @@ async function submitData(){
     return;
   }
 
-  const duplicateKey=staff+"_"+tanggal;
-  if(localStorage.getItem(duplicateKey)){
-    alert("⚠️ Timesheet tanggal ini sudah pernah dikirim.");
-    return;
-  }
-
   const tasks=[];
+
   document.querySelectorAll(".row").forEach(row=>{
     const time=row.querySelector(".time-label").innerText;
     const input=row.querySelector("input");
@@ -346,10 +308,8 @@ async function submitData(){
     loading.style.display="none";
 
     if(res.status==="success"){
-      localStorage.setItem(duplicateKey,"submitted");
-      localStorage.removeItem(getDraftKey());
       generateTimesheet();
-      showToast("✨ Terima kasih kamu sudah bekerja keras hari ini! Sampai jumpa esok hari 🌅");
+      showToast("✨ Timesheet berhasil dikirim!");
     }else{
       alert("Gagal: "+res.message);
     }
@@ -358,6 +318,7 @@ async function submitData(){
     loading.style.display="none";
     alert("Error koneksi");
   });
+
 }
 
 </script>
