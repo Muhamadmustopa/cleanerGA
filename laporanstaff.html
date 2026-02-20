@@ -10,6 +10,7 @@ body{
   background:#f4f6f9;
   margin:0;
   padding:20px;
+  position:relative;
 }
 
 h1{margin-bottom:20px}
@@ -79,6 +80,40 @@ input, select{
   opacity:1;
 }
 
+/* ===== NOTIFICATION ===== */
+
+.notif-wrapper{
+  position:absolute;
+  top:25px;
+  right:30px;
+  cursor:pointer;
+}
+
+.notif-count{
+  background:red;
+  color:white;
+  border-radius:50%;
+  padding:3px 7px;
+  font-size:12px;
+  position:absolute;
+  top:-5px;
+  right:-10px;
+  display:none;
+}
+
+.notif-box{
+  display:none;
+  position:fixed;
+  top:80px;
+  right:30px;
+  background:white;
+  padding:20px;
+  width:300px;
+  border-radius:12px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.2);
+  z-index:999;
+}
+
 /* ===== STATS ===== */
 
 .stats{
@@ -104,7 +139,7 @@ input, select{
 /* ===== TABLE ===== */
 
 .table-container{
-  max-height:520px; /* kira2 11 row */
+  max-height:520px;
   overflow-y:auto;
   border:1px solid #ccc;
   border-radius:8px;
@@ -122,8 +157,6 @@ th, td{
   text-align:left;
 }
 
-/* HEADER KUNING */
-
 th{
   background:#FFD700;
   color:black;
@@ -133,8 +166,6 @@ th{
   z-index:2;
   cursor:pointer;
 }
-
-/* ZEBRA ROW */
 
 tbody tr:nth-child(odd){
   background:white;
@@ -159,6 +190,12 @@ tbody tr:hover{
 <body>
 
 <h1>📊 Dashboard Laporan Task</h1>
+
+<!-- 🔔 NOTIFICATION ICON -->
+<div class="notif-wrapper" onclick="toggleNotif()">
+  <span style="font-size:26px;">🔔</span>
+  <span id="notifCount" class="notif-count"></span>
+</div>
 
 <div class="card">
   <div class="filters">
@@ -185,7 +222,6 @@ tbody tr:hover{
          🔎 Filter
     </div>
 
-    <!-- Excel Icon -->
     <div class="excel-btn" onclick="exportExcel()">
       <svg width="22" height="22" fill="white" viewBox="0 0 24 24">
         <path d="M19 2H8c-1.1 0-2 .9-2 2v3H3v10h3v3c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 4h11v16H8V4zm-3 5h3v6H5V9zm7.2 7l-1.7-2.6L8.8 16H7l2.3-3.5L7 9h1.8l1.6 2.5L12 9h1.8l-2.3 3.5L14 16h-1.8z"/>
@@ -219,6 +255,12 @@ tbody tr:hover{
       <tbody></tbody>
     </table>
   </div>
+</div>
+
+<!-- 🔔 NOTIFICATION POPUP -->
+<div id="notifBox" class="notif-box">
+  <h4>User Belum Isi Laporan</h4>
+  <div id="notifContent"></div>
 </div>
 
 <script>
@@ -325,7 +367,38 @@ function exportExcel(){
   link.click();
 }
 
+/* 🔔 NOTIFICATION SYSTEM */
+
+function loadNotification(){
+  fetch(WEB_APP_URL + "?action=getMissingUsers")
+  .then(res=>res.json())
+  .then(data=>{
+
+    if(!data.users || data.users.length === 0){
+      document.getElementById("notifCount").style.display="none";
+      return;
+    }
+
+    document.getElementById("notifCount").style.display="inline";
+    document.getElementById("notifCount").innerText=data.total;
+
+    let html = `<b>Tanggal:</b> ${data.tanggal}<br><br>`;
+    data.users.forEach(u=>{
+      html += `• ${u}<br>`;
+    });
+
+    document.getElementById("notifContent").innerHTML=html;
+  });
+}
+
+function toggleNotif(){
+  const box = document.getElementById("notifBox");
+  box.style.display = box.style.display === "none" ? "block" : "none";
+}
+
 loadData();
+loadNotification();
+setInterval(loadNotification, 30000);
 
 </script>
 
