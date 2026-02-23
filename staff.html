@@ -6,113 +6,77 @@
 <title>Daily Timesheet Team GA</title>
 
 <style>
-*{box-sizing:border-box}
-
 body{
-  margin:0;
-  font-family:Segoe UI, sans-serif;
+  font-family:Segoe UI;
   background:linear-gradient(135deg,#1e3a8a,#2563eb);
-  padding:15px;
+  padding:20px;
 }
 
-/* CARD */
 .card{
   background:#fff;
-  border-radius:20px;
-  padding:20px;
-  max-width:800px;
+  border-radius:18px;
+  padding:25px;
+  max-width:760px;
   margin:auto;
   box-shadow:0 15px 35px rgba(0,0,0,.2);
 }
 
 h2{
   text-align:center;
-  margin:5px 0;
+  margin-top:0;
   color:#1e3a8a;
-  font-size:20px;
 }
 
-.user-info{
-  text-align:center;
-  font-size:12px;
-  color:#6b7280;
-  margin-bottom:15px;
-}
-
-/* INPUT */
 label{
   font-weight:600;
-  font-size:13px;
   margin-top:12px;
-  display:block;
+  display:block
 }
 
 input,select{
   width:100%;
-  padding:12px;
+  padding:10px;
   margin-top:6px;
-  border-radius:12px;
+  border-radius:10px;
   border:1px solid #d1d5db;
   font-size:14px;
 }
 
-input:focus,select:focus{
-  outline:none;
-  border-color:#2563eb;
-  box-shadow:0 0 0 3px rgba(37,99,235,.2);
+.logout{
+  background:#ef4444;
+  color:#fff;
+  border:none;
+  padding:8px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:13px;
+  margin-bottom:15px;
 }
 
-/* BUTTON */
 .main-btn{
   background:linear-gradient(90deg,#2563eb,#1e40af);
   color:white;
   border:none;
   margin-top:20px;
-  padding:14px;
-  border-radius:14px;
+  padding:12px;
+  border-radius:12px;
   font-weight:600;
-  font-size:15px;
-  width:100%;
+  cursor:pointer;
 }
 
-.logout{
-  background:#ef4444;
-  color:white;
-  border:none;
-  padding:8px 12px;
-  border-radius:10px;
-  font-size:12px;
-  float:right;
-}
-
-/* TIMESHEET */
 .timesheet{
   margin-top:20px;
 }
 
 .row{
   display:flex;
-  gap:8px;
-  margin-bottom:8px;
+  align-items:center;
+  gap:12px;
+  margin-bottom:10px;
 }
 
-.time-label{
-  min-width:70px;
-  text-align:center;
-  font-weight:600;
-  background:#f1f5f9;
-  padding:10px;
-  border-radius:10px;
-  font-size:13px;
-}
-
-.row input{
-  flex:1;
-}
-
-.break{
-  background:#fee2e2 !important;
-  color:#b91c1c;
+.row.break-row{
+  background:#fee2e2;
 }
 
 .row.break-row input{
@@ -120,43 +84,24 @@ input:focus,select:focus{
   cursor:not-allowed;
 }
 
-/* MOBILE OPTIMIZE */
-@media(max-width:600px){
-
-  .row{
-    flex-direction:column;
-  }
-
-  .time-label{
-    width:100%;
-  }
-
+.time-label{
+  width:75px;
+  font-weight:600;
+  text-align:center;
+  background:#f1f5f9;
+  padding:8px;
+  border-radius:10px;
 }
 
-/* LOADING */
-.loading-overlay{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(255,255,255,.6);
-  display:none;
-  justify-content:center;
-  align-items:center;
+.break{
+  background:#fee2e2 !important;
+  color:#b91c1c;
 }
 
-.spinner{
-  width:50px;height:50px;
-  border:5px solid #ddd;
-  border-top:5px solid #2563eb;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
+.row input{
+  flex:1;
 }
 
-@keyframes spin{
-  to{transform:rotate(360deg);}
-}
-
-/* TOAST */
 .toast{
   position:fixed;
   bottom:20px;
@@ -164,27 +109,51 @@ input:focus,select:focus{
   background:#111827;
   color:#fff;
   padding:15px 20px;
-  border-radius:14px;
+  border-radius:12px;
   display:none;
-  font-size:14px;
 }
 
+.loading-overlay{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(255,255,255,0.6);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.spinner{
+  width:60px;height:60px;
+  border:6px solid #ddd;
+  border-top:6px solid #2563eb;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg);}
+}
 </style>
 </head>
 
 <body>
 
 <div class="card">
+  <h2>🕒 Daily Timesheet Team GA</h2>
 
   <button class="logout" onclick="logout()">Keluar</button>
 
-  <h2>🕒 Daily Task Timesheet Team General Affair</h2>
-  <div class="user-info">
-    Login sebagai: <b id="userDisplay"></b>
-  </div>
-
   <label>Nama</label>
-  <select id="staff"></select>
+  <select id="staff">
+    <option value="">-- Pilih Staff --</option>
+    <option>Muhamad Mustopa - Staff GA</option>
+    <option>Abdul Apso - Staff Services</option>
+    <option>Anni Sumartiani - Supervisor GA</option>     
+    <option>Ahmad Yani - Driver</option>
+    <option>Evilla Agustin - Cleaner</option>
+    <option>Irfan Affandi - Cleaner</option>
+  </select>
 
   <label>Tanggal</label>
   <input type="date" id="tanggal">
@@ -193,7 +162,6 @@ input:focus,select:focus{
     <div class="timesheet" id="timesheetContainer"></div>
     <button class="main-btn" onclick="submitData()">Submit</button>
   </div>
-
 </div>
 
 <div class="loading-overlay" id="loading">
@@ -204,103 +172,52 @@ input:focus,select:focus{
 
 <script>
 
-/* ===============================
-   CONFIG
-=================================*/
-
-const WEB_APP_URL="https://script.google.com/macros/s/AKfycbzQFe0VZcFiOo-gJvx5WF8lCVpvD5EFC3eq6sY4FLIqiWcGT8aziSkGEVZ-VfG0uemE/exec";
-
-/* ===============================
-   ROLE SYSTEM
-=================================*/
-
-const userRoles={
-  "Muhamad Mustopa - Staff GA":"staff",
-  "Abdul Apso - Staff Services":"staff",
-  "Anni Sumartiani - Supervisor GA":"supervisor",
-  "Ahmad Yani - Driver":"driver",
-  "Evilla Agustin - Cleaner":"cleaner",
-  "Irfan Affandi - Cleaner":"cleaner"
-};
-
-const specialUsers=[
-  "Evilla Agustin - Cleaner",
-  "Irfan Affandi - Cleaner",
-  "Abdul Apso - Staff Services"
-];
-
-const loginUser=localStorage.getItem("loginUser");
-
-if(!loginUser){
+function logout(){
+  localStorage.removeItem("loginUser");
   window.location.href="login.html";
 }
 
-const userRole=userRoles[loginUser];
+const WEB_APP_URL="https://script.google.com/macros/s/AKfycbzQFe0VZcFiOo-gJvx5WF8lCVpvD5EFC3eq6sY4FLIqiWcGT8aziSkGEVZ-VfG0uemE/exec";
 
-document.getElementById("userDisplay").innerText=
-loginUser+" ("+userRole.toUpperCase()+")";
+const specialUsers=[
+"Evilla Agustin - Cleaner",
+"Irfan Affandi - Cleaner",
+"Abdul Apso - Staff Services"
+];
 
-/* ===============================
-   DROPDOWN BASED ON ROLE
-=================================*/
-
-function populateStaff(){
-  const select=document.getElementById("staff");
-  select.innerHTML='<option value="">-- Pilih Staff --</option>';
-
-  Object.keys(userRoles).forEach(name=>{
-
-    if(userRole==="supervisor"){
-      addOption(select,name);
-    }else{
-      if(name===loginUser){
-        addOption(select,name);
-      }
-    }
-
-  });
-
-  if(userRole!=="supervisor"){
-    select.value=loginUser;
-    select.disabled=true;
-  }
-}
-
-function addOption(select,value){
-  const option=document.createElement("option");
-  option.value=value;
-  option.textContent=value;
-  select.appendChild(option);
-}
-
-populateStaff();
-
-/* ===============================
-   GENERATE TIME
-=================================*/
+/* FIX: declare element dulu */
+const staffSelect = document.getElementById("staff");
+const tanggalInput = document.getElementById("tanggal");
+const taskSection = document.getElementById("taskSection");
+const loading = document.getElementById("loading");
 
 function generateTimeSlots(){
 
-  const staff=document.getElementById("staff").value;
-
-  if(!staff) return [];
+  const staff = staffSelect.value;
+  let times=[];
 
   if(specialUsers.includes(staff)){
-    return [
-      "07:00","07:30","08:00","08:30","09:00","09:30",
-      "10:00","10:30","11:00","11:30","12:00","12:30",
-      "13:00","13:30","14:00","14:30","15:00","15:30",
-      "16:00","16:30","17:00","17:30"
+    times=[
+      "07:00","07:30",
+      "08:00","08:30","09:00","09:30",
+      "10:00","10:30","11:00","11:30",
+      "12:00","12:30",
+      "13:00","13:30","14:00","14:30",
+      "15:00","15:30","16:00","16:30",
+      "17:00","17:30"
+    ];
+  }else{
+    times=[
+      "08:00","08:30","09:00","09:30",
+      "10:00","10:30","11:00","11:30",
+      "12:00","12:30",
+      "13:00","13:30","14:00","14:30",
+      "15:00","15:30","16:00","16:30",
+      "17:00"
     ];
   }
 
-  return [
-    "08:00","08:30","09:00","09:30",
-    "10:00","10:30","11:00","11:30",
-    "12:00","12:30",
-    "13:00","13:30","14:00","14:30",
-    "15:00","15:30","16:00","16:30","17:00"
-  ];
+  return times;
 }
 
 function generateTimesheet(){
@@ -319,27 +236,26 @@ function generateTimesheet(){
 
     const input=document.createElement("input");
     input.type="text";
-    input.placeholder="Tulis aktivitas...";
+    input.placeholder="Tulis task...";
 
     if(time==="12:00" || time==="12:30"){
       row.classList.add("break-row");
       label.classList.add("break");
       input.disabled=true;
-      input.value="Istirahat";
+      input.value="";
+      input.placeholder="Istirahat disesuaikan dengan jam kerja bulan puasa";
     }
 
     row.appendChild(label);
     row.appendChild(input);
     container.appendChild(row);
+
   });
 }
 
-/* ===============================
-   EVENT
-=================================*/
-
-staff.addEventListener("change",()=>{
-  if(!staff.value){
+/* FIX EVENT */
+staffSelect.addEventListener("change",()=>{
+  if(!staffSelect.value){
     taskSection.style.display="none";
     return;
   }
@@ -347,20 +263,23 @@ staff.addEventListener("change",()=>{
   generateTimesheet();
 });
 
-tanggal.addEventListener("change",()=>{
-  if(staff.value){
+tanggalInput.addEventListener("change",()=>{
+  if(staffSelect.value){
     generateTimesheet();
   }
 });
 
-/* ===============================
-   SUBMIT
-=================================*/
+function showToast(msg){
+  const toast=document.getElementById("toast");
+  toast.innerText=msg;
+  toast.style.display="block";
+  setTimeout(()=>toast.style.display="none",4000);
+}
 
 function submitData(){
 
-  const staff=document.getElementById("staff").value;
-  const tanggal=document.getElementById("tanggal").value;
+  const staff = staffSelect.value;
+  const tanggal = tanggalInput.value;
 
   if(!staff || !tanggal){
     alert("Lengkapi data dulu ya 🙂");
@@ -375,13 +294,14 @@ function submitData(){
 
     if(input.disabled){
       tasks.push({time:time,task:"Istirahat"});
-    }else if(input.value.trim()){
+    }
+    else if(input.value.trim()){
       tasks.push({time:time,task:input.value.trim()});
     }
-  });
+  }); /* FIX penutup forEach */
 
   if(tasks.length===0){
-    alert("Isi minimal 1 aktivitas 🙂");
+    alert("Isi minimal 1 task dulu ya 🙂");
     return;
   }
 
@@ -399,31 +319,15 @@ function submitData(){
     loading.style.display="none";
     if(res.status==="success"){
       generateTimesheet();
-      showToast("✨ Timesheet berhasil dikirim!");
+      showToast("✨ Timesheet berhasil dikirim! Terima kasih atas kerja keras anda hari ini");
     }else{
-      alert(res.message);
+      alert("Gagal: "+res.message);
     }
   })
   .catch(()=>{
     loading.style.display="none";
     alert("Error koneksi");
   });
-}
-
-/* ===============================
-   TOAST
-=================================*/
-
-function showToast(msg){
-  const toast=document.getElementById("toast");
-  toast.innerText=msg;
-  toast.style.display="block";
-  setTimeout(()=>toast.style.display="none",4000);
-}
-
-function logout(){
-  localStorage.removeItem("loginUser");
-  window.location.href="login.html";
 }
 
 </script>
