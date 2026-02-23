@@ -6,52 +6,23 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
 <style>
 body{
   font-family:'Segoe UI',sans-serif;
   margin:0;
   background:#f4f6f9;
-  transition:0.3s;
-}
-
-.dark{
-  background:#0f172a;
-  color:white;
 }
 
 .navbar{
   background:#111827;
   color:white;
-  padding:12px 20px;
+  padding:15px 20px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  flex-wrap:wrap;
 }
-
-.nav-left, .nav-right{
-  display:flex;
-  align-items:center;
-  gap:15px;
-}
-
-select,input{
-  padding:6px;
-  border-radius:6px;
-  border:1px solid #ccc;
-}
-
-button{
-  padding:6px 12px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-.btn-blue{background:#2563eb;color:white;}
-.btn-green{background:#16a34a;color:white;}
-.btn-red{background:#dc2626;color:white;}
 
 .container{
   padding:20px;
@@ -60,88 +31,104 @@ button{
 .card{
   background:white;
   padding:20px;
-  border-radius:12px;
+  border-radius:10px;
   box-shadow:0 4px 10px rgba(0,0,0,0.05);
   margin-bottom:20px;
 }
 
-.dark .card{background:#1e293b;}
+/* FILTER AREA */
+
+.filter-box{
+  display:flex;
+  gap:15px;
+  flex-wrap:wrap;
+  align-items:end;
+}
+
+.filter-box label{
+  font-size:13px;
+  font-weight:600;
+}
+
+input, select{
+  padding:8px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+button{
+  padding:8px 14px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.btn-primary{background:#2563eb;color:white;}
+.btn-success{background:#16a34a;color:white;}
+.btn-danger{background:#dc2626;color:white;}
+
+/* TABLE */
 
 .table-container{
   max-height:500px;
   overflow:auto;
+  border:1px solid #ccc;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
+  font-size:14px;
 }
 
-th,td{
+th, td{
+  border:1px solid #999;
   padding:10px;
-  border:1px solid #ddd;
-  font-size:14px;
+  text-align:left;
 }
 
 th{
   background:#FFD700;
-  cursor:pointer;
+  font-weight:bold;
   position:sticky;
   top:0;
-}
-
-.dark th{background:#334155;color:white;}
-
-.stats{
-  display:flex;
-  gap:20px;
-  flex-wrap:wrap;
-}
-
-.stat-box{
-  flex:1;
-  min-width:200px;
-  background:#2563eb;
-  color:white;
-  padding:20px;
-  border-radius:12px;
-}
-
-.notif{
-  position:relative;
   cursor:pointer;
 }
 
-.notif-count{
-  position:absolute;
-  top:-5px;
-  right:-8px;
-  background:red;
-  color:white;
-  border-radius:50%;
-  padding:2px 6px;
-  font-size:11px;
-  display:none;
+tbody tr:nth-child(even){
+  background:#f9f9f9;
 }
 
-.notif-box{
+/* PDF PREVIEW MODAL */
+
+.modal{
   display:none;
-  position:absolute;
-  right:0;
-  top:30px;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  justify-content:center;
+  align-items:center;
+}
+
+.modal-content{
   background:white;
-  color:black;
-  width:250px;
-  padding:15px;
-  border-radius:8px;
-  box-shadow:0 5px 20px rgba(0,0,0,0.2);
+  width:90%;
+  height:90%;
+  padding:10px;
+}
+
+.modal iframe{
+  width:100%;
+  height:100%;
 }
 
 @media(max-width:768px){
-  .navbar{
+  .filter-box{
     flex-direction:column;
     align-items:flex-start;
-    gap:10px;
   }
 }
 </style>
@@ -150,69 +137,71 @@ th{
 <body>
 
 <div class="navbar">
-
-  <div class="nav-left">
-    <h3>📊 Dashboard GA</h3>
-
-    <select id="userFilter" onchange="applyFilter()">
-      <option value="">Semua User</option>
-    </select>
-
-    <input type="text" id="searchInput" placeholder="Cari task..." onkeyup="applyFilter()">
-
-    <button class="btn-blue" onclick="toggleChart()">📈 Grafik</button>
-    <button class="btn-green" onclick="exportExcel()">Excel</button>
-    <button class="btn-green" onclick="exportPDF()">PDF</button>
-  </div>
-
-  <div class="nav-right">
-
-    <!-- Notifikasi -->
-    <div class="notif" onclick="toggleNotif()">
-      🔔
-      <span id="notifCount" class="notif-count"></span>
-      <div id="notifBox" class="notif-box"></div>
-    </div>
-
-    <!-- Dark Mode -->
-    🌙 <input type="checkbox" onchange="toggleDark(this)">
-
-    <!-- Logout -->
-    <button class="btn-red" onclick="logout()">Keluar</button>
-
-  </div>
-
+  <h2>📊 Dashboard Timesheet Task Team General Affair</h2>
+  <button class="btn-danger" onclick="logout()">Kembali</button>
 </div>
 
 <div class="container">
 
-<div class="stats">
-  <div class="stat-box">
-    <h2 id="totalTask">0</h2>
-    <p>Total Task</p>
+<div class="card">
+
+<div class="filter-box">
+
+  <div>
+    <label>Dari Tanggal</label><br>
+    <input type="date" id="fromDate">
   </div>
+
+  <div>
+    <label>Sampai Tanggal</label><br>
+    <input type="date" id="toDate">
+  </div>
+
+  <div>
+    <label>Users</label><br>
+    <select id="userFilter">
+      <option value="">Semua Users</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Find</label><br>
+    <input type="text" id="searchInput" placeholder="Cari task...">
+  </div>
+
+  <button class="btn-primary" onclick="applyFilter()">Find</button>
+  <button class="btn-success" onclick="exportExcel()">Export Excel</button>
+  <button class="btn-success" onclick="previewPDF()">Preview PDF</button>
+
 </div>
 
-<div class="card" id="chartCard" style="display:none">
-  <canvas id="taskChart"></canvas>
 </div>
 
 <div class="card">
-  <div class="table-container">
-    <table id="dataTable">
-      <thead>
-        <tr>
-          <th onclick="sortTable('tanggal')">Tanggal</th>
-          <th onclick="sortTable('nama')">Nama</th>
-          <th onclick="sortTable('jam')">Jam</th>
-          <th>Task</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+<div class="table-container">
+<table id="dataTable">
+<thead>
+<tr>
+<th onclick="sortTable('tanggal')">Tanggal</th>
+<th onclick="sortTable('nama')">Nama</th>
+<th onclick="sortTable('jam')">Jam</th>
+<th>Task</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
 </div>
 
+</div>
+
+<!-- PDF PREVIEW -->
+<div class="modal" id="pdfModal">
+  <div class="modal-content">
+    <button onclick="downloadPDF()" class="btn-primary">Download PDF</button>
+    <button onclick="closeModal()" class="btn-danger">Tutup</button>
+    <iframe id="pdfFrame"></iframe>
+  </div>
 </div>
 
 <script>
@@ -222,7 +211,7 @@ const WEB_APP_URL="https://script.google.com/macros/s/AKfycbzQFe0VZcFiOo-gJvx5WF
 let globalData=[];
 let filteredData=[];
 let sortAsc=true;
-let chart;
+let pdfBlob=null;
 
 function loadData(){
   fetch(WEB_APP_URL+"?action=getReportData")
@@ -243,11 +232,15 @@ function populateUsers(data){
 }
 
 function applyFilter(){
+  const from=document.getElementById("fromDate").value;
+  const to=document.getElementById("toDate").value;
   const user=document.getElementById("userFilter").value;
   const search=document.getElementById("searchInput").value.toLowerCase();
 
   filteredData=globalData.filter(d=>{
-    return (!user || d.nama===user)
+    return (!from || d.tanggal>=from)
+      && (!to || d.tanggal<=to)
+      && (!user || d.nama===user)
       && (!search || d.task.toLowerCase().includes(search));
   });
 
@@ -257,7 +250,6 @@ function applyFilter(){
 function renderTable(){
   const tbody=document.querySelector("#dataTable tbody");
   tbody.innerHTML="";
-
   filteredData.forEach(r=>{
     tbody.innerHTML+=`
       <tr>
@@ -268,9 +260,6 @@ function renderTable(){
       </tr>
     `;
   });
-
-  document.getElementById("totalTask").innerText=filteredData.length;
-  updateChart();
 }
 
 function sortTable(key){
@@ -283,85 +272,68 @@ function sortTable(key){
   renderTable();
 }
 
+/* EXCEL EXPORT */
+
 function exportExcel(){
   if(filteredData.length===0) return alert("Tidak ada data");
-  let csv="Tanggal,Nama,Jam,Task\n";
+
+  let html="<table border='1'><tr><th>Tanggal</th><th>Nama</th><th>Jam</th><th>Task</th></tr>";
   filteredData.forEach(r=>{
-    csv+=`${r.tanggal},${r.nama},${r.jam},${r.task}\n`;
+    html+=`<tr>
+      <td>${r.tanggal}</td>
+      <td>${r.nama}</td>
+      <td>${r.jam}</td>
+      <td>${r.task}</td>
+    </tr>`;
   });
-  const blob=new Blob([csv],{type:"text/csv"});
+  html+="</table>";
+
+  const blob=new Blob([html],{type:"application/vnd.ms-excel"});
   const link=document.createElement("a");
   link.href=URL.createObjectURL(blob);
-  link.download="Laporan_Timesheet.csv";
+  link.download="Laporan_Timesheet.xls";
   link.click();
 }
 
-function exportPDF(){
+/* PDF PREVIEW */
+
+function previewPDF(){
   if(filteredData.length===0) return alert("Tidak ada data");
+
   const { jsPDF } = window.jspdf;
   const doc=new jsPDF();
-  let y=10;
-  doc.text("Laporan Timesheet",10,y);
-  y+=10;
-  filteredData.forEach(r=>{
-    doc.text(`${r.tanggal} | ${r.nama} | ${r.jam} | ${r.task}`,10,y);
-    y+=8;
-    if(y>280){ doc.addPage(); y=10; }
-  });
-  doc.save("Laporan_Timesheet.pdf");
-}
 
-function toggleDark(el){
-  document.body.classList.toggle("dark",el.checked);
-}
+  doc.text("Laporan Timesheet",14,15);
 
-function toggleChart(){
-  const c=document.getElementById("chartCard");
-  c.style.display=c.style.display==="none"?"block":"none";
-}
+  const rows=filteredData.map(r=>[
+    r.tanggal,
+    r.nama,
+    r.jam,
+    r.task
+  ]);
 
-function updateChart(){
-  const count={};
-  filteredData.forEach(d=>{
-    count[d.nama]=(count[d.nama]||0)+1;
+  doc.autoTable({
+    startY:20,
+    head:[["Tanggal","Nama","Jam","Task"]],
+    body:rows,
+    styles:{fontSize:8},
+    theme:"grid"
   });
 
-  const labels=Object.keys(count);
-  const values=Object.values(count);
-
-  if(chart) chart.destroy();
-
-  chart=new Chart(document.getElementById("taskChart"),{
-    type:"bar",
-    data:{
-      labels:labels,
-      datasets:[{
-        label:"Jumlah Task",
-        data:values,
-        backgroundColor:"#2563eb"
-      }]
-    }
-  });
+  pdfBlob=doc.output("blob");
+  document.getElementById("pdfFrame").src=URL.createObjectURL(pdfBlob);
+  document.getElementById("pdfModal").style.display="flex";
 }
 
-function toggleNotif(){
-  const box=document.getElementById("notifBox");
-  box.style.display=box.style.display==="block"?"none":"block";
+function downloadPDF(){
+  const link=document.createElement("a");
+  link.href=URL.createObjectURL(pdfBlob);
+  link.download="Laporan_Timesheet.pdf";
+  link.click();
 }
 
-function loadNotification(){
-  fetch(WEB_APP_URL+"?action=getMissingUsers")
-  .then(res=>res.json())
-  .then(data=>{
-    if(!data.users || data.users.length===0) return;
-
-    document.getElementById("notifCount").style.display="block";
-    document.getElementById("notifCount").innerText=data.total;
-
-    let html=`<b>${data.tanggal}</b><br>`;
-    data.users.forEach(u=>html+=`• ${u}<br>`);
-    document.getElementById("notifBox").innerHTML=html;
-  });
+function closeModal(){
+  document.getElementById("pdfModal").style.display="none";
 }
 
 function logout(){
@@ -370,8 +342,6 @@ function logout(){
 }
 
 loadData();
-loadNotification();
-setInterval(loadNotification,30000);
 
 </script>
 
