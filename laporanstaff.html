@@ -1,356 +1,522 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Laporan Task</title>
+<title>Dashboard Laporan Task</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
 <style>
 body{
+  font-family:'Segoe UI',sans-serif;
   margin:0;
-  font-family:Segoe UI;
-  background:#f1f5f9;
+  background:#f4f6f9;
 }
 
-/* HEADER */
-.header{
-  background:#2563eb;
+.navbar{
+  background:#111827;
   color:white;
-  padding:15px;
+  padding:15px 20px;
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
 
-.header h2{
-  margin:0;
+.container{
+  padding:20px;
 }
 
-.header-right{
+.card{
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.05);
+  margin-bottom:20px;
+}
+
+/* KPI SECTION */
+
+.summary{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+
+.kpi{
+  flex:1;
+  min-width:200px;
+  padding:20px;
+  border-radius:12px;
+  color:white;
+}
+
+.kpi-blue{
+  background:linear-gradient(135deg,#2563eb,#1e40af);
+}
+
+.kpi-green{
+  background:linear-gradient(135deg,#16a34a,#15803d);
+}
+
+.kpi h2{
+  margin:0;
+  font-size:28px;
+}
+
+/* FILTER */
+
+.filter-box{
   display:flex;
   gap:15px;
-  align-items:center;
-}
-
-.icon-btn{
-  cursor:pointer;
-  font-size:20px;
-  position:relative;
-}
-
-.badge-notif{
-  position:absolute;
-  top:-6px;
-  right:-8px;
-  background:red;
-  color:white;
-  font-size:10px;
-  padding:2px 6px;
-  border-radius:50%;
-}
-
-.logout-btn{
-  background:white;
-  color:#2563eb;
-  padding:6px 12px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-/* FILTER SECTION */
-.filter-box{
-  background:white;
-  padding:15px;
-  margin:15px;
-  border-radius:10px;
-  display:flex;
   flex-wrap:wrap;
-  gap:10px;
-  align-items:center;
-  box-shadow:0 4px 10px rgba(0,0,0,0.05);
+  align-items:end;
 }
 
 input, select{
-  padding:6px;
-  border:1px solid #ccc;
+  padding:8px;
   border-radius:6px;
+  border:1px solid #ccc;
 }
 
 button{
-  padding:6px 12px;
+  padding:8px 14px;
   border:none;
   border-radius:6px;
   cursor:pointer;
-  background:#2563eb;
-  color:white;
 }
 
-/* SUMMARY */
-.summary{
-  display:flex;
-  gap:15px;
-  margin:15px;
-  flex-wrap:wrap;
-}
+.btn-primary{background:#2563eb;color:white;}
+.btn-success{background:#16a34a;color:white;}
+.btn-danger{background:#dc2626;color:white;}
 
-.box{
-  flex:1;
-  min-width:200px;
-  padding:15px;
-  border-radius:10px;
-  color:white;
-}
-
-.box-blue{
-  background:#2563eb;
-}
-
-.box-green{
-  background:#16a34a;
-}
-
-/* TABLE */
 .table-container{
-  background:white;
-  margin:15px;
-  padding:15px;
-  border-radius:10px;
-  box-shadow:0 6px 15px rgba(0,0,0,0.08);
-  overflow-x:auto;
+  max-height:500px;
+  overflow:auto;
+  border:1px solid #ccc;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
+  font-size:14px;
 }
+  /* ===== UPGRADE TABLE LOOK ===== */
 
-thead{
-  background:#2563eb;
-  color:white;
-}
-
-th, td{
-  padding:10px;
-  border:1px solid #ddd;
-  text-align:left;
-}
-
-tbody tr:nth-child(even){
+#dataTable tbody tr:nth-child(even){
   background:#f9fafb;
 }
 
-tbody tr:hover{
+#dataTable tbody tr:nth-child(odd){
+  background:#ffffff;
+}
+
+#dataTable tbody tr:hover{
   background:#e0f2fe;
+  transform:scale(1.002);
+  transition:all 0.2s ease;
+}
+
+#dataTable th{
+  background:linear-gradient(90deg,#facc15,#fbbf24);
+  font-weight:600;
+}
+
+#dataTable td{
   transition:0.2s;
 }
 
+/* Scrollbar Modern */
+.table-container::-webkit-scrollbar{
+  height:8px;
+  width:8px;
+}
+.table-container::-webkit-scrollbar-thumb{
+  background:#2563eb;
+  border-radius:10px;
+}
+
+th, td{
+  border:1px solid #999;
+  padding:10px;
+}
+
 th{
+  background:#FFD700;
   cursor:pointer;
 }
 
+canvas{
+  max-width:200px !important;
+  max-height:200px !important;
+}
+
+.modal{
+  display:none;
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.6);
+  justify-content:center;
+  align-items:center;
+}
+
+.modal-content{
+  background:white;
+  width:90%;
+  height:90%;
+  padding:10px;
+}
+
+.modal iframe{
+  width:100%;
+  height:100%;
+}
+
 @media(max-width:768px){
-  .summary{
-    flex-direction:column;
-  }
+  .summary{flex-direction:column;}
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <h2>Dashboard Timesheet Task Team General Affair</h2>
-  <div class="header-right">
-    <div class="icon-btn" onclick="checkNotFilled()">
+<div class="navbar">
+  <h2>📊 Dashboard Timesheet Task Team General Affairs</h2>
+  <div style="display:flex;align-items:center;gap:15px;">
+    <div style="position:relative;cursor:pointer;" onclick="checkNotFilled()">
       🔔
-      <span id="notifCount" class="badge-notif" style="display:none">0</span>
+      <span id="notifBadge"
+        style="position:absolute;top:-6px;right:-8px;
+        background:red;color:white;font-size:10px;
+        padding:2px 6px;border-radius:50%;display:none;">0</span>
     </div>
-    <button class="logout-btn" onclick="logout()">Kembali</button>
+    <button class="btn-danger" onclick="logout()">Kembali</button>
   </div>
 </div>
 
-<!-- FILTER -->
-<div class="filter-box">
-  Dari: <input type="date" id="fromDate">
-  Sampai: <input type="date" id="toDate">
+<div class="container">
 
-  User:
-  <select id="filterUser">
-    <option value="all">All User</option>
-  </select>
-
-  <button onclick="applyFilter()">Filter</button>
-  <button onclick="exportExcel()">Export Excel</button>
-  <button onclick="previewPDF()">Preview PDF</button>
-</div>
-
-<!-- SUMMARY -->
+<!-- KPI SECTION -->
 <div class="summary">
-  <div class="box box-blue">
-    <h3>Total Task</h3>
+  <div class="kpi kpi-blue">
     <h2 id="totalTask">0</h2>
+    <p>Total Task (Filter Result)</p>
   </div>
 
-  <div class="box box-green">
+  <div class="kpi kpi-green">
     <canvas id="pieChart"></canvas>
   </div>
 </div>
 
-<!-- TABLE -->
+<div class="card">
+
+<div class="filter-box">
+
+  <div>
+    <label>Dari</label><br>
+    <input type="date" id="fromDate">
+  </div>
+
+  <div>
+    <label>Sampai</label><br>
+    <input type="date" id="toDate">
+  </div>
+
+  <div>
+    <label>User</label><br>
+    <select id="userFilter">
+      <option value="">Semua User</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Cari</label><br>
+    <input type="text" id="searchInput">
+  </div>
+
+  <button class="btn-primary" onclick="applyFilter()">Cari</button>
+  <button class="btn-success" onclick="exportExcel()">Excel</button>
+  <button class="btn-success" onclick="previewPDF()">Preview PDF</button>
+
+</div>
+
+</div>
+
+<div class="card">
 <div class="table-container">
-<table id="reportTable">
+<table id="dataTable">
 <thead>
 <tr>
-  <th onclick="sortTable(0)">Tanggal</th>
-  <th onclick="sortTable(1)">User</th>
-  <th onclick="sortTable(2)">Jam</th>
-  <th onclick="sortTable(3)">Task</th>
-  <th onclick="sortTable(4)">Keterangan</th>
+<th onclick="sortTable('tanggal')">Tanggal</th>
+<th onclick="sortTable('nama')">Nama</th>
+<th onclick="sortTable('jam')">Jam</th>
+<th>Kegiatan</th>
+<th>Keterangan</th>
 </tr>
 </thead>
 <tbody></tbody>
 </table>
 </div>
+</div>
+
+</div>
+
+<!-- PDF MODAL -->
+<div class="modal" id="pdfModal">
+  <div class="modal-content">
+    <div style="margin-bottom:10px;">
+      <label>Pilih User untuk PDF:</label>
+      <select id="pdfUserOption">
+        <option value="ALL">All User (Sesuai Filter)</option>
+      </select>
+      <button onclick="downloadPDF()" class="btn-primary">Download</button>
+      <button onclick="closeModal()" class="btn-danger">Tutup</button>
+    </div>
+    <iframe id="pdfFrame"></iframe>
+  </div>
+</div>
 
 <script>
 
-let allData = [
-  {tanggal:"2026-02-20", user:"Andi", jam:"08:00", task:"Input Data", keterangan:"OK"},
-  {tanggal:"2026-02-20", user:"Budi", jam:"09:00", task:"Cek Email", keterangan:"Done"},
-  {tanggal:"2026-02-21", user:"Andi", jam:"10:00", task:"Meeting", keterangan:"Client"}
-];
+const WEB_APP_URL="https://script.google.com/macros/s/AKfycbzQFe0VZcFiOo-gJvx5WF8lCVpvD5EFC3eq6sY4FLIqiWcGT8aziSkGEVZ-VfG0uemE/exec";
 
-let filteredData = [...allData];
-let chart;
+let globalData=[];
+let filteredData=[];
+let sortAsc=true;
+let pieChart;
+let pdfBlob=null;
 
-// INIT USER DROPDOWN
-function initUsers(){
-  let users = [...new Set(allData.map(d=>d.user))];
-  let select = document.getElementById("filterUser");
+function loadData(){
+  fetch(WEB_APP_URL+"?action=getReportData")
+  .then(res=>res.json())
+  .then(data=>{
+    globalData=data;
+    populateUsers(data);
+    applyFilter();
+  });
+}
+  
+
+function populateUsers(data){
+  const users=[...new Set(data.map(d=>d.nama))];
+  const select=document.getElementById("userFilter");
+  const pdfSelect=document.getElementById("pdfUserOption");
+
   users.forEach(u=>{
-    let opt = document.createElement("option");
-    opt.value=u;
-    opt.textContent=u;
-    select.appendChild(opt);
+    select.innerHTML+=`<option value="${u}">${u}</option>`;
+    pdfSelect.innerHTML+=`<option value="${u}">${u}</option>`;
   });
 }
 
 function applyFilter(){
-  let from = document.getElementById("fromDate").value;
-  let to = document.getElementById("toDate").value;
-  let user = document.getElementById("filterUser").value;
+  const from=fromDate.value;
+  const to=toDate.value;
+  const user=userFilter.value;
+  const search=searchInput.value.toLowerCase();
 
-  filteredData = allData.filter(d=>{
-    let validDate = true;
-    if(from) validDate = d.tanggal >= from;
-    if(to) validDate = validDate && d.tanggal <= to;
-
-    let validUser = user==="all" || d.user===user;
-
-    return validDate && validUser;
+  filteredData=globalData.filter(d=>{
+    return (!from || d.tanggal>=from)
+    && (!to || d.tanggal<=to)
+    && (!user || d.nama===user)
+    && (!search || d.task.toLowerCase().includes(search));
   });
 
   renderTable();
   updateSummary();
-  updateChart();
 }
 
 function renderTable(){
-  let tbody = document.querySelector("#reportTable tbody");
+  const tbody=document.querySelector("#dataTable tbody");
   tbody.innerHTML="";
-  filteredData.forEach(d=>{
-    let row = `<tr>
-      <td>${d.tanggal}</td>
-      <td>${d.user}</td>
-      <td>${d.jam}</td>
-      <td>${d.task}</td>
-      <td>${d.keterangan}</td>
-    </tr>`;
-    tbody.innerHTML += row;
+  filteredData.forEach(r=>{
+    tbody.innerHTML+=`
+      <tr>
+        <td>${r.tanggal}</td>
+        <td>${r.nama}</td>
+        <td>${r.jam}</td>
+        <td>${r.task}</td>
+        <td>${r.keterangan || "-"}</td>
+      </tr>`;
   });
 }
 
-function updateSummary(){
-  document.getElementById("totalTask").innerText = filteredData.length;
-}
+  function updateSummary(){
+  totalTask.innerText=filteredData.length;
 
-function updateChart(){
-  let userCount = {};
+  const count={};
   filteredData.forEach(d=>{
-    userCount[d.user] = (userCount[d.user]||0)+1;
+    count[d.nama]=(count[d.nama]||0)+1;
   });
 
-  let labels = Object.keys(userCount);
-  let data = Object.values(userCount);
+  if(pieChart) pieChart.destroy();
 
-  if(chart) chart.destroy();
-
-  chart = new Chart(document.getElementById("pieChart"),{
+  pieChart=new Chart(document.getElementById("pieChart"),{
     type:"doughnut",
     data:{
-      labels:labels,
+      labels:Object.keys(count),
       datasets:[{
-        data:data
+        data:Object.values(count),
+        backgroundColor:[
+          "#2563eb",
+          "#16a34a",
+          "#f59e0b",
+          "#ef4444",
+          "#8b5cf6",
+          "#14b8a6"
+        ],
+        borderWidth:2,
+        borderColor:"#fff"
       }]
     },
     options:{
       responsive:true,
       plugins:{
-        legend:{position:"bottom"}
+        legend:{
+          position:"bottom",
+          labels:{
+            usePointStyle:true,
+            padding:15
+          }
+        }
+      },
+      animation:{
+        animateScale:true,
+        animateRotate:true
       }
     }
   });
 }
 
-function sortTable(n){
-  filteredData.sort((a,b)=>{
-    let keys=["tanggal","user","jam","task","keterangan"];
-    return a[keys[n]].localeCompare(b[keys[n]]);
-  });
+function sortTable(key){
+  sortAsc=!sortAsc;
+  filteredData.sort((a,b)=>
+    sortAsc
+    ? a[key].localeCompare(b[key])
+    : b[key].localeCompare(a[key])
+  );
   renderTable();
 }
 
 function exportExcel(){
-  let ws = XLSX.utils.json_to_sheet(filteredData);
-  let wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Report");
-  XLSX.writeFile(wb,"LaporanTask.xlsx");
+  if(filteredData.length===0) return alert("Tidak ada data");
+  let html="<table border='1'><tr><th>Tanggal</th><th>Nama</th><th>Jam</th><th>Task</th><th>Keterangan</th></tr>";
+  filteredData.forEach(r=>{
+    html+=`<tr>
+      <td>${r.tanggal}</td>
+      <td>${r.nama}</td>
+      <td>${r.jam}</td>
+      <td>${r.task}</td>
+      <td>${r.keterangan||""}</td>
+    </tr>`;
+  });
+  html+="</table>";
+
+  const blob=new Blob([html],{type:"application/vnd.ms-excel"});
+  const link=document.createElement("a");
+  link.href=URL.createObjectURL(blob);
+  link.download="Laporan_Timesheet.xls";
+  link.click();
 }
 
 function previewPDF(){
-  const { jsPDF } = window.jspdf;
-  let doc = new jsPDF();
+  if(filteredData.length===0) return alert("Tidak ada data");
 
-  doc.text("Laporan Task",10,10);
-  let y=20;
-  filteredData.forEach(d=>{
-    doc.text(`${d.tanggal} - ${d.user} - ${d.task}`,10,y);
-    y+=8;
+  const selectedUser=document.getElementById("pdfUserOption").value;
+  let dataToPrint=filteredData;
+
+  if(selectedUser!=="ALL"){
+    dataToPrint=filteredData.filter(d=>d.nama===selectedUser);
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc=new jsPDF();
+
+  doc.text("Laporan Timesheet",14,15);
+
+  const rows=dataToPrint.map(r=>[
+    r.tanggal,
+    r.nama,
+    r.jam,
+    r.task,
+    r.keterangan||""
+  ]);
+
+  doc.autoTable({
+    startY:20,
+    head:[["Tanggal","Nama","Jam","Task","Keterangan"]],
+    body:rows,
+    theme:"grid"
   });
 
-  doc.output("dataurlnewwindow");
+  pdfBlob=doc.output("blob");
+  pdfFrame.src=URL.createObjectURL(pdfBlob);
+  pdfModal.style.display="flex";
 }
 
-function checkNotFilled(){
-  let users = [...new Set(allData.map(d=>d.user))];
-  alert("Semua user sudah isi task hari ini ✔");
+function downloadPDF(){
+  const link=document.createElement("a");
+  link.href=URL.createObjectURL(pdfBlob);
+  link.download="Laporan_Timesheet.pdf";
+  link.click();
+}
+
+function closeModal(){
+  pdfModal.style.display="none";
 }
 
 function logout(){
   localStorage.removeItem("loginUser");
   window.location.href="login.html";
 }
+function checkNotFilled(){
 
-initUsers();
-renderTable();
-updateSummary();
-updateChart();
+  const today=new Date().toISOString().split("T")[0];
+
+  const allUsers=[...new Set(globalData.map(d=>d.nama))];
+
+  const filledToday=[...new Set(
+    globalData
+    .filter(d=>d.tanggal===today)
+    .map(d=>d.nama)
+  )];
+
+  const notFilled=allUsers.filter(u=>!filledToday.includes(u));
+
+  if(notFilled.length===0){
+    alert("Semua user sudah isi task hari ini ✔");
+  }else{
+    alert("Belum isi task hari ini:\n\n"+notFilled.join("\n"));
+  }
+}
+  function updateNotification(){
+
+  const today=new Date().toISOString().split("T")[0];
+
+  const allUsers=[...new Set(globalData.map(d=>d.nama))];
+
+  const filledToday=[...new Set(
+    globalData
+    .filter(d=>d.tanggal===today)
+    .map(d=>d.nama)
+  )];
+
+  const notFilled=allUsers.filter(u=>!filledToday.includes(u));
+
+  const badge=document.getElementById("notifBadge");
+
+  if(notFilled.length>0){
+    badge.style.display="block";
+    badge.innerText=notFilled.length;
+  }else{
+    badge.style.display="none";
+  }
+}
+loadData();
 
 </script>
+
 </body>
 </html>
