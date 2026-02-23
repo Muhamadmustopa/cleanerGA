@@ -74,6 +74,14 @@ input,select{
   gap:12px;
   margin-bottom:10px;
 }
+  .row.break-row{
+  background:#fee2e2;
+}
+
+.row.break-row input{
+  background:#fee2e2;
+  cursor:not-allowed;
+}
 
 .time-label{
   width:75px;
@@ -235,10 +243,13 @@ function generateTimesheet(){
     input.placeholder="Tulis task...";
 
     if(time==="12:00" || time==="12:30"){
-      label.classList.add("break");
-      input.disabled=true;
-      input.placeholder="Jam Istirahat 12.00 s/d 12.30 menyesuaikan jam kerja bulan puasa";
-    }
+  label.classList.add("break");
+
+  input.disabled = true;
+  input.classList.add("break");
+  input.value = "";
+  input.placeholder = "Istirahat disesuaikan dengan jam kerja bulan puasa";
+}
 
     row.appendChild(label);
     row.appendChild(input);
@@ -284,10 +295,18 @@ function submitData(){
   document.querySelectorAll(".row").forEach(row=>{
     const time=row.querySelector(".time-label").innerText;
     const input=row.querySelector("input");
-    if(!input.disabled && input.value.trim()){
-      tasks.push({time:time,task:input.value.trim()});
-    }
+    if(input.disabled){
+  tasks.push({
+    time: time,
+    task: "Istirahat"
   });
+}
+else if(input.value.trim()){
+  tasks.push({
+    time: time,
+    task: input.value.trim()
+  });
+}
 
   if(tasks.length===0){
     alert("Isi minimal 1 task dulu ya 🙂");
