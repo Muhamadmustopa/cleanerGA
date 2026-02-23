@@ -5,11 +5,9 @@
 <title>Dashboard Laporan Task</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-
-/* ================= NAVBAR ================= */
-
 body{
   font-family:'Segoe UI',sans-serif;
   margin:0;
@@ -17,108 +15,43 @@ body{
   transition:0.3s;
 }
 
-.navbar{
-  background:#111827;
-  color:white;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 20px;
-  flex-wrap:wrap;
-}
-
-.nav-left{
-  display:flex;
-  align-items:center;
-  gap:15px;
-}
-
-.nav-left h2{
-  margin:0;
-  font-size:18px;
-}
-
-.nav-right{
-  display:flex;
-  align-items:center;
-  gap:15px;
-}
-
-select{
-  padding:6px;
-  border-radius:6px;
-  border:none;
-}
-
-.nav-btn{
-  background:#2563eb;
-  color:white;
-  border:none;
-  padding:6px 12px;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-/* DARK MODE */
-
 .dark{
   background:#0f172a;
   color:white;
 }
 
-.dark .card{
-  background:#1e293b;
+.navbar{
+  background:#111827;
   color:white;
+  padding:12px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
 }
 
-.dark table{
-  color:white;
+.nav-left, .nav-right{
+  display:flex;
+  align-items:center;
+  gap:15px;
 }
 
-.dark th{
-  background:#334155;
+select,input{
+  padding:6px;
+  border-radius:6px;
+  border:1px solid #ccc;
 }
 
-.toggle{
-  position:relative;
-  width:50px;
-  height:24px;
-}
-
-.toggle input{
-  display:none;
-}
-
-.slider{
-  position:absolute;
+button{
+  padding:6px 12px;
+  border:none;
+  border-radius:6px;
   cursor:pointer;
-  background:#ccc;
-  border-radius:20px;
-  top:0;left:0;right:0;bottom:0;
-  transition:0.3s;
 }
 
-.slider:before{
-  content:"";
-  position:absolute;
-  height:18px;
-  width:18px;
-  left:3px;
-  bottom:3px;
-  background:white;
-  border-radius:50%;
-  transition:0.3s;
-}
-
-input:checked + .slider{
-  background:#2563eb;
-}
-
-input:checked + .slider:before{
-  transform:translateX(26px);
-}
-
-/* ================= CONTENT ================= */
+.btn-blue{background:#2563eb;color:white;}
+.btn-green{background:#16a34a;color:white;}
+.btn-red{background:#dc2626;color:white;}
 
 .container{
   padding:20px;
@@ -131,6 +64,8 @@ input:checked + .slider:before{
   box-shadow:0 4px 10px rgba(0,0,0,0.05);
   margin-bottom:20px;
 }
+
+.dark .card{background:#1e293b;}
 
 .table-container{
   max-height:500px;
@@ -145,12 +80,17 @@ table{
 th,td{
   padding:10px;
   border:1px solid #ddd;
+  font-size:14px;
 }
 
 th{
   background:#FFD700;
   cursor:pointer;
+  position:sticky;
+  top:0;
 }
+
+.dark th{background:#334155;color:white;}
 
 .stats{
   display:flex;
@@ -167,7 +107,35 @@ th{
   border-radius:12px;
 }
 
-/* Mobile */
+.notif{
+  position:relative;
+  cursor:pointer;
+}
+
+.notif-count{
+  position:absolute;
+  top:-5px;
+  right:-8px;
+  background:red;
+  color:white;
+  border-radius:50%;
+  padding:2px 6px;
+  font-size:11px;
+  display:none;
+}
+
+.notif-box{
+  display:none;
+  position:absolute;
+  right:0;
+  top:30px;
+  background:white;
+  color:black;
+  width:250px;
+  padding:15px;
+  border-radius:8px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.2);
+}
 
 @media(max-width:768px){
   .navbar{
@@ -176,32 +144,44 @@ th{
     gap:10px;
   }
 }
-
 </style>
 </head>
 
 <body>
 
-<!-- ================= NAVBAR ================= -->
-
 <div class="navbar">
-  <div class="nav-left">
-    <h2>📊 Dashboard GA</h2>
 
-    <select id="userNavbar" onchange="filterByUser()">
+  <div class="nav-left">
+    <h3>📊 Dashboard GA</h3>
+
+    <select id="userFilter" onchange="applyFilter()">
       <option value="">Semua User</option>
     </select>
 
-    <button class="nav-btn" onclick="toggleChart()">📈 Grafik</button>
+    <input type="text" id="searchInput" placeholder="Cari task..." onkeyup="applyFilter()">
+
+    <button class="btn-blue" onclick="toggleChart()">📈 Grafik</button>
+    <button class="btn-green" onclick="exportExcel()">Excel</button>
+    <button class="btn-green" onclick="exportPDF()">PDF</button>
   </div>
 
   <div class="nav-right">
-    🌙
-    <label class="toggle">
-      <input type="checkbox" onchange="toggleDark(this)">
-      <span class="slider"></span>
-    </label>
+
+    <!-- Notifikasi -->
+    <div class="notif" onclick="toggleNotif()">
+      🔔
+      <span id="notifCount" class="notif-count"></span>
+      <div id="notifBox" class="notif-box"></div>
+    </div>
+
+    <!-- Dark Mode -->
+    🌙 <input type="checkbox" onchange="toggleDark(this)">
+
+    <!-- Logout -->
+    <button class="btn-red" onclick="logout()">Keluar</button>
+
   </div>
+
 </div>
 
 <div class="container">
@@ -224,8 +204,8 @@ th{
         <tr>
           <th onclick="sortTable('tanggal')">Tanggal</th>
           <th onclick="sortTable('nama')">Nama</th>
-          <th>Jam</th>
-          <th>Kegiatan</th>
+          <th onclick="sortTable('jam')">Jam</th>
+          <th>Task</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -250,82 +230,104 @@ function loadData(){
   .then(data=>{
     globalData=data;
     populateUsers(data);
-    renderTable(data);
+    applyFilter();
   });
 }
 
 function populateUsers(data){
   const users=[...new Set(data.map(d=>d.nama))];
-  const select=document.getElementById("userNavbar");
-  select.innerHTML='<option value="">Semua User</option>';
+  const select=document.getElementById("userFilter");
   users.forEach(u=>{
     select.innerHTML+=`<option value="${u}">${u}</option>`;
   });
 }
 
-function filterByUser(){
-  const user=document.getElementById("userNavbar").value;
-  if(!user){
-    renderTable(globalData);
-    return;
-  }
-  const data=globalData.filter(d=>d.nama===user);
-  renderTable(data);
+function applyFilter(){
+  const user=document.getElementById("userFilter").value;
+  const search=document.getElementById("searchInput").value.toLowerCase();
+
+  filteredData=globalData.filter(d=>{
+    return (!user || d.nama===user)
+      && (!search || d.task.toLowerCase().includes(search));
+  });
+
+  renderTable();
 }
 
-function renderTable(data){
-  filteredData=data;
+function renderTable(){
   const tbody=document.querySelector("#dataTable tbody");
   tbody.innerHTML="";
 
-  data.forEach(row=>{
+  filteredData.forEach(r=>{
     tbody.innerHTML+=`
       <tr>
-        <td>${row.tanggal}</td>
-        <td>${row.nama}</td>
-        <td>${row.jam}</td>
-        <td>${row.task}</td>
+        <td>${r.tanggal}</td>
+        <td>${r.nama}</td>
+        <td>${r.jam}</td>
+        <td>${r.task}</td>
       </tr>
     `;
   });
 
-  document.getElementById("totalTask").innerText=data.length;
-  updateChart(data);
+  document.getElementById("totalTask").innerText=filteredData.length;
+  updateChart();
 }
 
 function sortTable(key){
   sortAsc=!sortAsc;
-  globalData.sort((a,b)=>
+  filteredData.sort((a,b)=>
     sortAsc
     ? a[key].localeCompare(b[key])
     : b[key].localeCompare(a[key])
   );
-  renderTable(globalData);
+  renderTable();
 }
 
-/* ================= DARK MODE ================= */
+function exportExcel(){
+  if(filteredData.length===0) return alert("Tidak ada data");
+  let csv="Tanggal,Nama,Jam,Task\n";
+  filteredData.forEach(r=>{
+    csv+=`${r.tanggal},${r.nama},${r.jam},${r.task}\n`;
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const link=document.createElement("a");
+  link.href=URL.createObjectURL(blob);
+  link.download="Laporan_Timesheet.csv";
+  link.click();
+}
+
+function exportPDF(){
+  if(filteredData.length===0) return alert("Tidak ada data");
+  const { jsPDF } = window.jspdf;
+  const doc=new jsPDF();
+  let y=10;
+  doc.text("Laporan Timesheet",10,y);
+  y+=10;
+  filteredData.forEach(r=>{
+    doc.text(`${r.tanggal} | ${r.nama} | ${r.jam} | ${r.task}`,10,y);
+    y+=8;
+    if(y>280){ doc.addPage(); y=10; }
+  });
+  doc.save("Laporan_Timesheet.pdf");
+}
 
 function toggleDark(el){
-  document.body.classList.toggle("dark", el.checked);
+  document.body.classList.toggle("dark",el.checked);
 }
-
-/* ================= CHART ================= */
 
 function toggleChart(){
-  const card=document.getElementById("chartCard");
-  card.style.display=card.style.display==="none"?"block":"none";
+  const c=document.getElementById("chartCard");
+  c.style.display=c.style.display==="none"?"block":"none";
 }
 
-function updateChart(data){
-
-  const countByUser={};
-
-  data.forEach(d=>{
-    countByUser[d.nama]=(countByUser[d.nama]||0)+1;
+function updateChart(){
+  const count={};
+  filteredData.forEach(d=>{
+    count[d.nama]=(count[d.nama]||0)+1;
   });
 
-  const labels=Object.keys(countByUser);
-  const values=Object.values(countByUser);
+  const labels=Object.keys(count);
+  const values=Object.values(count);
 
   if(chart) chart.destroy();
 
@@ -342,7 +344,34 @@ function updateChart(data){
   });
 }
 
+function toggleNotif(){
+  const box=document.getElementById("notifBox");
+  box.style.display=box.style.display==="block"?"none":"block";
+}
+
+function loadNotification(){
+  fetch(WEB_APP_URL+"?action=getMissingUsers")
+  .then(res=>res.json())
+  .then(data=>{
+    if(!data.users || data.users.length===0) return;
+
+    document.getElementById("notifCount").style.display="block";
+    document.getElementById("notifCount").innerText=data.total;
+
+    let html=`<b>${data.tanggal}</b><br>`;
+    data.users.forEach(u=>html+=`• ${u}<br>`);
+    document.getElementById("notifBox").innerHTML=html;
+  });
+}
+
+function logout(){
+  localStorage.removeItem("loginUser");
+  window.location.href="login.html";
+}
+
 loadData();
+loadNotification();
+setInterval(loadNotification,30000);
 
 </script>
 
