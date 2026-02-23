@@ -111,11 +111,11 @@ table{
   border:1px solid #ccc;
 }
 
-#dataTable thead th{
+.sticky-header #dataTable thead th{
   position:sticky;
   top:0;
   z-index:2;
-  background:#FFD700; /* tetap warna kamu */
+  background:#FFD700;
 }
   /* ===== UPGRADE TABLE LOOK ===== */
 
@@ -436,7 +436,10 @@ function exportExcel(){
 }
 
 function previewPDF(){
+
   if(filteredData.length===0) return alert("Tidak ada data");
+
+  document.body.classList.remove("sticky-header"); // ⬅️ MATIKAN STICKY
 
   const selectedUser=document.getElementById("pdfUserOption").value;
   let dataToPrint=filteredData;
@@ -479,6 +482,7 @@ function downloadPDF(){
 
 function closeModal(){
   pdfModal.style.display="none";
+  document.body.classList.add("sticky-header"); // ⬅️ AKTIFKAN LAGI
 }
 
 function logout(){
