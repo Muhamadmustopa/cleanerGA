@@ -36,18 +36,43 @@ body{
   margin-bottom:20px;
 }
 
-/* FILTER AREA */
+/* KPI SECTION */
+
+.summary{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+  margin-bottom:20px;
+}
+
+.kpi{
+  flex:1;
+  min-width:200px;
+  padding:20px;
+  border-radius:12px;
+  color:white;
+}
+
+.kpi-blue{
+  background:linear-gradient(135deg,#2563eb,#1e40af);
+}
+
+.kpi-green{
+  background:linear-gradient(135deg,#16a34a,#15803d);
+}
+
+.kpi h2{
+  margin:0;
+  font-size:28px;
+}
+
+/* FILTER */
 
 .filter-box{
   display:flex;
   gap:15px;
   flex-wrap:wrap;
   align-items:end;
-}
-
-.filter-box label{
-  font-size:13px;
-  font-weight:600;
 }
 
 input, select{
@@ -67,8 +92,6 @@ button{
 .btn-success{background:#16a34a;color:white;}
 .btn-danger{background:#dc2626;color:white;}
 
-/* TABLE */
-
 .table-container{
   max-height:500px;
   overflow:auto;
@@ -84,30 +107,23 @@ table{
 th, td{
   border:1px solid #999;
   padding:10px;
-  text-align:left;
 }
 
 th{
   background:#FFD700;
-  font-weight:bold;
-  position:sticky;
-  top:0;
   cursor:pointer;
 }
 
-tbody tr:nth-child(even){
-  background:#f9f9f9;
+canvas{
+  max-width:200px !important;
+  max-height:200px !important;
 }
-
-/* PDF PREVIEW MODAL */
 
 .modal{
   display:none;
   position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
+  top:0;left:0;
+  width:100%;height:100%;
   background:rgba(0,0,0,0.6);
   justify-content:center;
   align-items:center;
@@ -126,10 +142,7 @@ tbody tr:nth-child(even){
 }
 
 @media(max-width:768px){
-  .filter-box{
-    flex-direction:column;
-    align-items:flex-start;
-  }
+  .summary{flex-direction:column;}
 }
 </style>
 </head>
@@ -143,6 +156,18 @@ tbody tr:nth-child(even){
 
 <div class="container">
 
+<!-- KPI SECTION -->
+<div class="summary">
+  <div class="kpi kpi-blue">
+    <h2 id="totalTask">0</h2>
+    <p>Total Task (Filter Result)</p>
+  </div>
+
+  <div class="kpi kpi-green">
+    <canvas id="pieChart"></canvas>
+  </div>
+</div>
+
 <div class="card">
 
 <div class="filter-box">
@@ -153,24 +178,24 @@ tbody tr:nth-child(even){
   </div>
 
   <div>
-    <label>Sampai Tanggal</label><br>
+    <label>Sampai</label><br>
     <input type="date" id="toDate">
   </div>
 
   <div>
-    <label>Users</label><br>
+    <label>User</label><br>
     <select id="userFilter">
-      <option value="">Semua Users</option>
+      <option value="">Semua User</option>
     </select>
   </div>
 
   <div>
-    <label>Find</label><br>
-    <input type="text" id="searchInput" placeholder="Cari task...">
+    <label>Pencarian</label><br>
+    <input type="text" id="searchInput">
   </div>
 
-  <button class="btn-primary" onclick="applyFilter()">Find</button>
-  <button class="btn-success" onclick="exportExcel()">Export Excel</button>
+  <button class="btn-primary" onclick="applyFilter()">Cari</button>
+  <button class="btn-success" onclick="exportExcel()">Excel</button>
   <button class="btn-success" onclick="previewPDF()">Preview PDF</button>
 
 </div>
@@ -186,6 +211,7 @@ tbody tr:nth-child(even){
 <th onclick="sortTable('nama')">Nama</th>
 <th onclick="sortTable('jam')">Jam</th>
 <th>Task</th>
+<th>Keterangan</th>
 </tr>
 </thead>
 <tbody></tbody>
@@ -195,11 +221,17 @@ tbody tr:nth-child(even){
 
 </div>
 
-<!-- PDF PREVIEW -->
+<!-- PDF MODAL -->
 <div class="modal" id="pdfModal">
   <div class="modal-content">
-    <button onclick="downloadPDF()" class="btn-primary">Download PDF</button>
-    <button onclick="closeModal()" class="btn-danger">Tutup</button>
+    <div style="margin-bottom:10px;">
+      <label>Pilih User untuk PDF:</label>
+      <select id="pdfUserOption">
+        <option value="ALL">All User (Sesuai Filter)</option>
+      </select>
+      <button onclick="downloadPDF()" class="btn-primary">Download</button>
+      <button onclick="closeModal()" class="btn-danger">Tutup</button>
+    </div>
     <iframe id="pdfFrame"></iframe>
   </div>
 </div>
@@ -211,6 +243,7 @@ const WEB_APP_URL="https://script.google.com/macros/s/AKfycbzQFe0VZcFiOo-gJvx5WF
 let globalData=[];
 let filteredData=[];
 let sortAsc=true;
+let pieChart;
 let pdfBlob=null;
 
 function loadData(){
@@ -226,25 +259,29 @@ function loadData(){
 function populateUsers(data){
   const users=[...new Set(data.map(d=>d.nama))];
   const select=document.getElementById("userFilter");
+  const pdfSelect=document.getElementById("pdfUserOption");
+
   users.forEach(u=>{
     select.innerHTML+=`<option value="${u}">${u}</option>`;
+    pdfSelect.innerHTML+=`<option value="${u}">${u}</option>`;
   });
 }
 
 function applyFilter(){
-  const from=document.getElementById("fromDate").value;
-  const to=document.getElementById("toDate").value;
-  const user=document.getElementById("userFilter").value;
-  const search=document.getElementById("searchInput").value.toLowerCase();
+  const from=fromDate.value;
+  const to=toDate.value;
+  const user=userFilter.value;
+  const search=searchInput.value.toLowerCase();
 
   filteredData=globalData.filter(d=>{
     return (!from || d.tanggal>=from)
-      && (!to || d.tanggal<=to)
-      && (!user || d.nama===user)
-      && (!search || d.task.toLowerCase().includes(search));
+    && (!to || d.tanggal<=to)
+    && (!user || d.nama===user)
+    && (!search || d.task.toLowerCase().includes(search));
   });
 
   renderTable();
+  updateSummary();
 }
 
 function renderTable(){
@@ -257,8 +294,27 @@ function renderTable(){
         <td>${r.nama}</td>
         <td>${r.jam}</td>
         <td>${r.task}</td>
-      </tr>
-    `;
+        <td>${r.keterangan || "-"}</td>
+      </tr>`;
+  });
+}
+
+function updateSummary(){
+  totalTask.innerText=filteredData.length;
+
+  const count={};
+  filteredData.forEach(d=>{
+    count[d.nama]=(count[d.nama]||0)+1;
+  });
+
+  if(pieChart) pieChart.destroy();
+
+  pieChart=new Chart(pieChart=document.getElementById("pieChart"),{
+    type:"pie",
+    data:{
+      labels:Object.keys(count),
+      datasets:[{data:Object.values(count)}]
+    }
   });
 }
 
@@ -272,18 +328,16 @@ function sortTable(key){
   renderTable();
 }
 
-/* EXCEL EXPORT */
-
 function exportExcel(){
   if(filteredData.length===0) return alert("Tidak ada data");
-
-  let html="<table border='1'><tr><th>Tanggal</th><th>Nama</th><th>Jam</th><th>Task</th></tr>";
+  let html="<table border='1'><tr><th>Tanggal</th><th>Nama</th><th>Jam</th><th>Task</th><th>Keterangan</th></tr>";
   filteredData.forEach(r=>{
     html+=`<tr>
       <td>${r.tanggal}</td>
       <td>${r.nama}</td>
       <td>${r.jam}</td>
       <td>${r.task}</td>
+      <td>${r.keterangan||""}</td>
     </tr>`;
   });
   html+="</table>";
@@ -295,34 +349,39 @@ function exportExcel(){
   link.click();
 }
 
-/* PDF PREVIEW */
-
 function previewPDF(){
   if(filteredData.length===0) return alert("Tidak ada data");
+
+  const selectedUser=document.getElementById("pdfUserOption").value;
+  let dataToPrint=filteredData;
+
+  if(selectedUser!=="ALL"){
+    dataToPrint=filteredData.filter(d=>d.nama===selectedUser);
+  }
 
   const { jsPDF } = window.jspdf;
   const doc=new jsPDF();
 
   doc.text("Laporan Timesheet",14,15);
 
-  const rows=filteredData.map(r=>[
+  const rows=dataToPrint.map(r=>[
     r.tanggal,
     r.nama,
     r.jam,
-    r.task
+    r.task,
+    r.keterangan||""
   ]);
 
   doc.autoTable({
     startY:20,
-    head:[["Tanggal","Nama","Jam","Task"]],
+    head:[["Tanggal","Nama","Jam","Task","Keterangan"]],
     body:rows,
-    styles:{fontSize:8},
     theme:"grid"
   });
 
   pdfBlob=doc.output("blob");
-  document.getElementById("pdfFrame").src=URL.createObjectURL(pdfBlob);
-  document.getElementById("pdfModal").style.display="flex";
+  pdfFrame.src=URL.createObjectURL(pdfBlob);
+  pdfModal.style.display="flex";
 }
 
 function downloadPDF(){
@@ -333,7 +392,7 @@ function downloadPDF(){
 }
 
 function closeModal(){
-  document.getElementById("pdfModal").style.display="none";
+  pdfModal.style.display="none";
 }
 
 function logout(){
