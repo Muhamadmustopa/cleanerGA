@@ -9,7 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-<body class="sticky-header">{
+body{
   font-family:'Segoe UI',sans-serif;
   margin:0;
   background:#f4f6f9;
@@ -37,7 +37,6 @@
 }
 
 /* KPI SECTION */
-
 .summary{
   display:flex;
   gap:20px;
@@ -67,7 +66,6 @@
 }
 
 /* FILTER */
-
 .filter-box{
   display:flex;
   gap:15px;
@@ -103,22 +101,16 @@ table{
   border-collapse:collapse;
   font-size:14px;
 }
-  /* ===== STICKY HEADER ===== */
 
-.table-container{
-  max-height:500px;
-  overflow:auto;
-  border:1px solid #ccc;
-}
-
+/* ===== STICKY HEADER ===== */
 .sticky-header #dataTable thead th{
   position:sticky;
   top:0;
   z-index:2;
   background:#FFD700;
 }
-  /* ===== UPGRADE TABLE LOOK ===== */
 
+/* ===== TABLE LOOK ===== */
 #dataTable tbody tr:nth-child(even){
   background:#f9fafb;
 }
@@ -135,31 +127,14 @@ table{
 
 #dataTable th{
   background:linear-gradient(90deg,#facc15,#fbbf24);
-  font-weight:600;
-}
-
-#dataTable td{
-  transition:0.2s;
-}
-
-/* Scrollbar Modern */
-.table-container::-webkit-scrollbar{
-  height:8px;
-  width:8px;
-}
-.table-container::-webkit-scrollbar-thumb{
-  background:#2563eb;
-  border-radius:10px;
+  font-weight:700;
+  font-size:15px;
 }
 
 th, td{
   border:1px solid #999;
   padding:10px;
-}
-
-th{
-  background:#FFD700;
-  cursor:pointer;
+  text-align:left;
 }
 
 canvas{
@@ -195,7 +170,7 @@ canvas{
 </style>
 </head>
 
-<body>
+<body class="sticky-header">
 
 <div class="navbar">
   <h2>📊 Dashboard Timesheet Task Team General Affairs</h2>
@@ -213,7 +188,6 @@ canvas{
 
 <div class="container">
 
-<!-- KPI SECTION -->
 <div class="summary">
   <div class="kpi kpi-blue">
     <h2 id="totalTask">0</h2>
@@ -226,7 +200,6 @@ canvas{
 </div>
 
 <div class="card">
-
 <div class="filter-box">
 
   <div>
@@ -256,7 +229,6 @@ canvas{
   <button class="btn-success" onclick="previewPDF()">Preview PDF</button>
 
 </div>
-
 </div>
 
 <div class="card">
@@ -278,7 +250,6 @@ canvas{
 
 </div>
 
-<!-- PDF MODAL -->
 <div class="modal" id="pdfModal">
   <div class="modal-content">
     <div style="margin-bottom:10px;">
@@ -310,9 +281,9 @@ function loadData(){
     globalData=data;
     populateUsers(data);
     applyFilter();
+    updateNotification();
   });
 }
-  
 
 function populateUsers(data){
   const users=[...new Set(data.map(d=>d.nama))];
@@ -357,7 +328,7 @@ function renderTable(){
   });
 }
 
-  function updateSummary(){
+function updateSummary(){
   totalTask.innerText=filteredData.length;
 
   const count={};
@@ -373,33 +344,9 @@ function renderTable(){
       labels:Object.keys(count),
       datasets:[{
         data:Object.values(count),
-        backgroundColor:[
-          "#2563eb",
-          "#16a34a",
-          "#f59e0b",
-          "#ef4444",
-          "#8b5cf6",
-          "#14b8a6"
-        ],
         borderWidth:2,
         borderColor:"#fff"
       }]
-    },
-    options:{
-      responsive:true,
-      plugins:{
-        legend:{
-          position:"bottom",
-          labels:{
-            usePointStyle:true,
-            padding:15
-          }
-        }
-      },
-      animation:{
-        animateScale:true,
-        animateRotate:true
-      }
     }
   });
 }
@@ -436,10 +383,9 @@ function exportExcel(){
 }
 
 function previewPDF(){
-
   if(filteredData.length===0) return alert("Tidak ada data");
 
-  document.body.classList.remove("sticky-header"); // ⬅️ MATIKAN STICKY
+  document.body.classList.remove("sticky-header");
 
   const selectedUser=document.getElementById("pdfUserOption").value;
   let dataToPrint=filteredData;
@@ -482,25 +428,18 @@ function downloadPDF(){
 
 function closeModal(){
   pdfModal.style.display="none";
-  document.body.classList.add("sticky-header"); // ⬅️ AKTIFKAN LAGI
+  document.body.classList.add("sticky-header");
 }
 
 function logout(){
   localStorage.removeItem("loginUser");
   window.location.href="login.html";
 }
+
 function checkNotFilled(){
-
   const today=new Date().toISOString().split("T")[0];
-
   const allUsers=[...new Set(globalData.map(d=>d.nama))];
-
-  const filledToday=[...new Set(
-    globalData
-    .filter(d=>d.tanggal===today)
-    .map(d=>d.nama)
-  )];
-
+  const filledToday=[...new Set(globalData.filter(d=>d.tanggal===today).map(d=>d.nama))];
   const notFilled=allUsers.filter(u=>!filledToday.includes(u));
 
   if(notFilled.length===0){
@@ -509,18 +448,11 @@ function checkNotFilled(){
     alert("Belum isi task hari ini:\n\n"+notFilled.join("\n"));
   }
 }
-  function updateNotification(){
 
+function updateNotification(){
   const today=new Date().toISOString().split("T")[0];
-
   const allUsers=[...new Set(globalData.map(d=>d.nama))];
-
-  const filledToday=[...new Set(
-    globalData
-    .filter(d=>d.tanggal===today)
-    .map(d=>d.nama)
-  )];
-
+  const filledToday=[...new Set(globalData.filter(d=>d.tanggal===today).map(d=>d.nama))];
   const notFilled=allUsers.filter(u=>!filledToday.includes(u));
 
   const badge=document.getElementById("notifBadge");
@@ -532,6 +464,7 @@ function checkNotFilled(){
     badge.style.display="none";
   }
 }
+
 loadData();
 
 </script>
