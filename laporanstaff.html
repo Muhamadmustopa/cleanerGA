@@ -167,10 +167,35 @@ canvas{
 @media(max-width:768px){
   .summary{flex-direction:column;}
 }
-  .btn-danger{
-  background:#dc2626;
+  .icon-btn{
+  width:42px;
+  height:42px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:0.2s ease;
+}
+
+.icon-btn:hover{
+  transform:scale(1.08);
+}
+
+/* Excel hijau */
+.excel-btn{
+  background:#2e7d32;
   color:white;
 }
+
+/* PDF merah */
+.pdf-btn{
+  background:#c62828;
+  color:white;
+}
+
 </style>
 </head>
 
@@ -229,13 +254,9 @@ canvas{
   </div>
 
   <button class="btn-primary" onclick="applyFilter()">Cari</button>
-  <button class="btn-success" onclick="exportExcel()">
-  <span style="font-weight:bold;">🟢</span> Excel
-</button>
-
-<button class="btn-danger" onclick="previewPDF()">
-  <span style="font-weight:bold;">🔴</span> PDF
-</button>
+  <button class="icon-btn excel-btn" onclick="exportExcel()" title="Export Excel"></button>
+  <button class="icon-btn pdf-btn" onclick="previewPDF()" title="Preview PDF">📄</button>
+</div>
 
 </div>
 </div>
