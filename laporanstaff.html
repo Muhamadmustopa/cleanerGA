@@ -518,13 +518,13 @@ function previewPDF(){
     r.tanggal,
     r.nama,
     r.jam,
-    r.task,
+    r.kegiatan,
     r.keterangan||""
   ]);
 
   doc.autoTable({
     startY:20,
-    head:[["Tanggal","Nama","Jam","Task","Keterangan"]],
+    head:[["Tanggal","Nama","Jam","Kegiatan","Keterangan"]],
     body:rows,
     theme:"grid"
   });
