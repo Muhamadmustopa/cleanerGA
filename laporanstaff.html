@@ -295,6 +295,11 @@ canvas{
 <tbody></tbody>
 </table>
 </div>
+  <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+  <button class="btn-primary" onclick="prevPage()">Prev</button>
+  <span id="pageInfo">Page 1</span>
+  <button class="btn-primary" onclick="nextPage()">Next </button>
+</div>
 </div>
 
 </div>
@@ -322,6 +327,8 @@ let filteredData=[];
 let sortAsc=true;
 let pieChart;
 let pdfBlob=null;
+let currentPage = 1;
+const rowsPerPage = 60;
 
 function loadData(){
   fetch(WEB_APP_URL+"?action=getReportData")
@@ -350,6 +357,9 @@ function applyFilter(){
   const to=toDate.value;
   const user=userFilter.value;
   const search=searchInput.value.toLowerCase();
+  currentPage = 1;
+  renderTable();
+  updateSummary();
 
   filteredData=globalData.filter(d=>{
     return (!from || d.tanggal>=from)
@@ -361,12 +371,17 @@ function applyFilter(){
   renderTable();
   updateSummary();
 }
-
 function renderTable(){
-  const tbody=document.querySelector("#dataTable tbody");
-  tbody.innerHTML="";
-  filteredData.forEach(r=>{
-    tbody.innerHTML+=`
+
+  const tbody = document.querySelector("#dataTable tbody");
+  tbody.innerHTML = "";
+
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const paginatedData = filteredData.slice(start, end);
+
+  paginatedData.forEach(r=>{
+    tbody.innerHTML += `
       <tr>
         <td>${r.tanggal}</td>
         <td>${r.nama}</td>
@@ -375,6 +390,22 @@ function renderTable(){
         <td>${r.keterangan || "-"}</td>
       </tr>`;
   });
+
+  document.getElementById("pageInfo").innerText =
+    `Page ${currentPage} of ${Math.ceil(filteredData.length / rowsPerPage)}`;
+}
+  function nextPage(){
+  if(currentPage < Math.ceil(filteredData.length / rowsPerPage)){
+    currentPage++;
+    renderTable();
+  }
+}
+
+function prevPage(){
+  if(currentPage > 1){
+    currentPage--;
+    renderTable();
+  }
 }
 
 function updateSummary(){
