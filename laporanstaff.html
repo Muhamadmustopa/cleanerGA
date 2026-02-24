@@ -3,6 +3,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Laporan Task</title>
+<link rel="icon" type="image/png" href="list.png">
 <link rel="icon" href="favicon.ico">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -195,7 +196,18 @@ canvas{
   background:#c62828;
   color:white;
 }
+.icon-img{
+  width:18px;
+  height:18px;
+  vertical-align:middle;
+  margin-right:6px;
+}
 
+.btn-icon{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
 </style>
 </head>
 
@@ -254,8 +266,15 @@ canvas{
   </div>
 
   <button class="btn-primary" onclick="applyFilter()">Cari</button>
-  <button class="icon-btn excel-btn" onclick="exportExcel()" title="Export Excel"></button>
-  <button class="icon-btn pdf-btn" onclick="previewPDF()" title="Preview PDF">📄</button>
+ <button onclick="exportExcel()" class="btn-icon">
+  <img src="excel.png" class="icon-img">
+  Export Excel
+</button>
+
+<button onclick="previewPDF()" class="btn-icon">
+  <img src="pdf.png" class="icon-img">
+  Export PDF
+</button>
 </div>
 
 </div>
