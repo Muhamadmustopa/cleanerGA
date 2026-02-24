@@ -41,7 +41,15 @@ input,select{
   border:1px solid #d1d5db;
   font-size:14px;
 }
-
+.report-btn{
+  background:linear-gradient(90deg,#16a34a,#15803d);
+  color:#fff;
+  border:none;
+  padding:8px 14px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:13px;
+}
 .logout{
   background:#ef4444;
   color:#fff;
@@ -140,19 +148,23 @@ input,select{
 <body>
 
 <div class="card">
-  <h2>🕒 Daily Timesheet Team GA</h2>
+ <h2>🕒 Daily Timesheet Team GA</h2>
 
+<div style="display:flex; justify-content:space-between; margin-bottom:15px;">
   <button class="logout" onclick="logout()">Keluar</button>
+  <button class="report-btn" onclick="openReport()">📊 Menu Laporan</button>
+</div>
 
   <label>Nama</label>
   <select id="staff">
     <option value="">-- Pilih Staff --</option>
-    <option>Muhamad Mustopa - Staff GA</option>
+    <option>Ahmad Yani - Driver</option>
     <option>Abdul Apso - Staff Services</option>
     <option>Anni Sumartiani - Supervisor GA</option>     
-    <option>Ahmad Yani - Driver</option>
+    <option>Muhamad Mustopa - Staff GA</option>
     <option>Evilla Agustin - Cleaner</option>
     <option>Irfan Affandi - Cleaner</option>
+    <option>Sandi Suhendra - Driver</option>
   </select>
 
   <label>Tanggal</label>
@@ -328,6 +340,19 @@ function submitData(){
     loading.style.display="none";
     alert("Error koneksi");
   });
+}
+  function openReport(){
+
+  const password = prompt("Masukkan password untuk akses laporan:");
+
+  if(password === null) return;
+
+  if(password === "ga123"){
+    window.location.href = "laporanstaff.html";
+  }else{
+    alert("Password salah ❌");
+  }
+
 }
 
 </script>
