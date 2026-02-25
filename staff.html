@@ -277,39 +277,48 @@ function isLive(d){
 }
 
 /* LOGIN */
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const loginModal = document.getElementById("loginModal");
-const loginSubmit = document.getElementById("loginSubmit");
-const addBtn = document.getElementById("addBtn");
+document.addEventListener("DOMContentLoaded", function () {
 
-loginBtn.onclick = () => {
-  loginModal.style.display = "flex";
-};
+  const loginBtn     = document.getElementById("loginBtn");
+  const logoutBtn    = document.getElementById("logoutBtn");
+  const loginModal   = document.getElementById("loginModal");
+  const loginSubmit  = document.getElementById("loginSubmit");
+  const pinInput     = document.getElementById("pinInput");
+  const addBtn       = document.getElementById("addBtn");
 
-logoutBtn.onclick = () => {
-  ROLE = "user";
-  localStorage.removeItem("role");
-  updateUI();
-  render();
-};
+  loginBtn.addEventListener("click", function () {
+    loginModal.style.display = "flex";
+  });
 
-loginSubmit.onclick=async()=>{
-  const hashBuffer=await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(pinInput.value)
-  );
-  const pinHash=[...new Uint8Array(hashBuffer)]
-    .map(b=>b.toString(16).padStart(2,"0")).join("");
-  if(pinHash===ADMIN_PIN_HASH){
-    ROLE="admin";
-    localStorage.setItem("role","admin");
-    loginModal.style.display="none";
+  logoutBtn.addEventListener("click", function () {
+    ROLE = "user";
+    localStorage.removeItem("role");
     updateUI();
     render();
-  }else alert("PIN salah!");
-};
+  });
 
+  loginSubmit.addEventListener("click", async function () {
+    const hashBuffer = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(pinInput.value)
+    );
+
+    const pinHash = [...new Uint8Array(hashBuffer)]
+      .map(b => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    if (pinHash === ADMIN_PIN_HASH) {
+      ROLE = "admin";
+      localStorage.setItem("role", "admin");
+      loginModal.style.display = "none";
+      updateUI();
+      render();
+    } else {
+      alert("PIN salah!");
+    }
+  });
+
+});
 function updateUI(){
   loginBtn.style.display=ROLE==="admin"?"none":"inline-block";
   logoutBtn.style.display=ROLE==="admin"?"inline-block":"none";
