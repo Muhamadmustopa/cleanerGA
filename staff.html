@@ -355,6 +355,20 @@
 
   return now >= start && now <= end;
 }
+    document.addEventListener("DOMContentLoaded", function () {
+
+  const loginBtn = document.getElementById("loginBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const loginModal = document.getElementById("loginModal");
+  const editModal = document.getElementById("editModal");
+  const loginSubmit = document.getElementById("loginSubmit");
+  const editSubmit = document.getElementById("editSubmit");
+  const pinInput = document.getElementById("pinInput");
+  const addBtn = document.getElementById("addBtn");
+  const clock = document.getElementById("clock");
+  const loading = document.getElementById("loading");
+
+  // KODE ANDA LANJUT DI SINI
 
     /* ===========================
        LOGIN SYSTEM
@@ -537,6 +551,7 @@
 
     updateUI();
     loadData();
+   });
   </script>
 </body>
 </html>
