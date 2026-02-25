@@ -7,7 +7,7 @@
 
   <style>
     body {   
-      margin: 0;
+      margin: 0; 
       padding: 20px;
       font-family: "Segoe UI", sans-serif;
       background: linear-gradient(
@@ -441,23 +441,21 @@
         if (isLiveBooking(d)) {
           el.classList.add("live");
         }
-
-        el.innerHTML = 
-          <b>${d.agenda}</b><br>
-          📅 ${formatTanggalIndo(d.tanggal)}<br>
-          ⏰ ${d.mulai} - ${d.selesai}<br>
-          👤 ${d.nama}
-
-          ${
-            ROLE === "admin"
-              ? 
-              <br><br>
-              <button class="icon-btn icon-edit">✏️ Edit</button>
-              <button class="icon-btn icon-delete">🗑️ Hapus</button>
-            
-              : ""
-          }
-        ;
+el.innerHTML = `
+  <b>${d.agenda}</b><br>
+  📅 ${formatTanggalIndo(d.tanggal)}<br>
+  ⏰ ${d.mulai} - ${d.selesai}<br>
+  👤 ${d.nama}
+  ${
+    ROLE === "admin"
+      ? `
+      <br><br>
+      <button class="icon-btn icon-edit">✏️ Edit</button>
+      <button class="icon-btn icon-delete">🗑️ Hapus</button>
+      `
+      : ""
+  }
+`;
 
         el.onclick = () => openDetail(d);
 
