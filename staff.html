@@ -373,7 +373,9 @@
     /* ===========================
        LOGIN SYSTEM
     =========================== */
-    loginBtn.onclick = () => (loginModal.style.display = "flex");
+    document.getElementById("loginBtn").onclick = function () {
+  document.getElementById("loginModal").style.display = "flex";
+};
 
     logoutBtn.onclick = () => {
       ROLE = "user";
