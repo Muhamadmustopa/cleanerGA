@@ -1,419 +1,416 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daily Timesheet Team GA</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Jadwal Meeting</title>
 
 <style>
 body{
-  font-family:Segoe UI;
-  background:linear-gradient(135deg,#1e3a8a,#2563eb);
+  margin:0;
   padding:20px;
+  font-family:"Segoe UI",sans-serif;
+  background:
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
+    url("mas.png") no-repeat center/cover;
+  color:#fff;
 }
 
-.card{
-  background:#fff;
-  border-radius:18px;
-  padding:25px;
-  max-width:760px;
-  margin:auto;
-  box-shadow:0 15px 35px rgba(0,0,0,.2);
+.logo{
+  display:block;
+  width:130px;
+  margin:0 auto 10px;
 }
 
-h2{
+h1{
   text-align:center;
-  margin-top:0;
-  color:#1e3a8a;
+  margin-bottom:30px;
 }
 
-label{
-  font-weight:600;
-  margin-top:12px;
-  display:block
-}
-
-input,select{
-  width:100%;
-  padding:10px;
-  margin-top:6px;
-  border-radius:10px;
-  border:1px solid #d1d5db;
-  font-size:14px;
-}
-.report-btn{
-  background:linear-gradient(90deg,#16a34a,#15803d);
-  color:#fff;
-  border:none;
-  padding:8px 14px;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:13px;
-}
-.logout{
-  background:#ef4444;
-  color:#fff;
-  border:none;
-  padding:8px 14px;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:13px;
-  margin-bottom:15px;
-}
-
-.main-btn{
-  background:linear-gradient(90deg,#2563eb,#1e40af);
-  color:white;
-  border:none;
-  margin-top:20px;
-  padding:12px;
-  border-radius:12px;
-  font-weight:600;
-  cursor:pointer;
-}
-
-.timesheet{
-  margin-top:20px;
-}
-
-.row{
+.top-bar{
   display:flex;
   align-items:center;
-  gap:12px;
   margin-bottom:10px;
 }
 
-.row.break-row{
-  background:#fee2e2;
-}
-
-.row.break-row input{
-  background:#fee2e2;
-  cursor:not-allowed;
-}
-
-.time-label{
-  width:75px;
+#clock{
+  margin-right:auto;
   font-weight:600;
-  text-align:center;
-  background:#f1f5f9;
-  padding:8px;
+  background:rgba(255,255,255,.2);
+  padding:6px 12px;
   border-radius:10px;
+  backdrop-filter:blur(6px);
 }
 
-.break{
-  background:#fee2e2 !important;
-  color:#b91c1c;
+.btn{
+  padding:8px 14px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
 }
 
-.row input{
+.btn-login{ background:#00d4ff; color:#000; }
+.btn-logout{ background:#ff4d4d; color:#fff; }
+
+.container{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+.column{
   flex:1;
+  background:rgba(255,255,255,.15);
+  padding:16px;
+  border-radius:18px;
+  min-width:260px;
 }
 
-.toast{
+.column h3{
+  text-align:center;
+  margin:6px 0 14px;
+}
+
+.booking{
+  background:rgba(255,255,255,.25);
+  padding:14px;
+  border-radius:14px;
+  margin-bottom:12px;
+  cursor:pointer;
+  transition:.25s;
+}
+
+.booking:hover{
+  transform:scale(1.02);
+  background:rgba(255,255,255,.35);
+}
+
+.booking.live{
+  background:rgba(0,255,120,.22)!important;
+  border:2px solid rgba(0,255,120,.65);
+  box-shadow:0 0 8px rgba(0,255,120,.35);
+}
+
+.booking.live::before{
+  content:"● ";
+  font-size:11px;
+  font-weight:bold;
+  color:rgba(0,255,120,.9);
+}
+
+.icon-btn{
+  background:transparent;
+  border:none;
+  cursor:pointer;
+  font-size:16px;
+  margin-right:6px;
+}
+
+.icon-delete{ color:#ff4d4d; }
+.icon-edit{ color:#00d4ff; }
+
+.fab{
   position:fixed;
-  bottom:20px;
-  right:20px;
-  background:#111827;
-  color:#fff;
-  padding:15px 20px;
-  border-radius:12px;
-  display:none;
-}
-
-.loading-overlay{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(255,255,255,0.6);
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
-
-.spinner{
-  width:60px;height:60px;
-  border:6px solid #ddd;
-  border-top:6px solid #2563eb;
+  right:24px;
+  bottom:24px;
+  width:64px;
+  height:64px;
   border-radius:50%;
-  animation:spin 1s linear infinite;
+  background:linear-gradient(135deg,#00d4ff,#0090ff);
+  color:#fff;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  font-size:36px;
+  text-decoration:none;
 }
 
-@keyframes spin{
-  to{transform:rotate(360deg);}
-}
-  .modal-password{
-  display:none;
+.modal{
   position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.5);
-  justify-content:center;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
   align-items:center;
+  justify-content:center;
   z-index:999;
+  backdrop-filter:blur(8px);
 }
 
 .modal-box{
-  background:white;
-  padding:25px;
-  border-radius:16px;
-  width:90%;
-  max-width:350px;
+  background:
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
+    url("citylight.png") no-repeat center/cover;
+  padding:26px;
+  width:360px;
+  border-radius:22px;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
+  animation:popup .35s ease;
+}
+
+@keyframes popup{
+  from{ transform:scale(.85); opacity:0; }
+  to{ transform:scale(1); opacity:1; }
+}
+
+.modal-box h3{
   text-align:center;
-  box-shadow:0 10px 30px rgba(0,0,0,.2);
+  margin-bottom:14px;
 }
 
-.modal-box input{
-  margin-top:15px;
-  margin-bottom:15px;
+.modal-box p{
+  margin:10px 0;
+  padding:10px;
+  border-radius:12px;
+  background:rgba(255,255,255,.15);
 }
 
-.modal-actions{
-  display:flex;
-  gap:10px;
-  justify-content:center;
-}
-
-.modal-actions button{
-  padding:8px 16px;
-  border:none;
-  border-radius:8px;
+.close{
+  float:right;
   cursor:pointer;
-  background:#2563eb;
-  color:white;
+  font-weight:bold;
 }
 
-.cancel-btn{
-  background:#ef4444 !important;
+input{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  margin:6px 0;
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
- <h2>🕒 Daily Timesheet Team GA</h2>
-
-<div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-  <button class="logout" onclick="logout()">Keluar</button>
-  <button class="report-btn" onclick="openReport()">📊 Menu Laporan</button>
+<div class="top-bar">
+  <div id="clock">--</div>
+  <button id="loginBtn" class="btn btn-login">@</button>
+  <button id="logoutBtn" class="btn btn-logout" style="display:none">Logout</button>
 </div>
 
-  <label>Nama</label>
-  <select id="staff">
-    <option value="">-- Pilih Staff --</option>
-    <option>Ahmad Yani - Driver</option>
-    <option>Abdul Apso - Staff Services</option>
-    <option>Anni Sumartiani - Supervisor GA</option>     
-    <option>Muhamad Mustopa - Staff GA</option>
-    <option>Evilla Agustin - Cleaner</option>
-    <option>Irfan Affandi - Cleaner</option>
-    <option>Sandi Suhendra - Driver</option>
-  </select>
+<img src="map-log.png" class="logo"/>
 
-  <label>Tanggal</label>
-  <input type="date" id="tanggal">
+<h1>
+Jadwal Penggunaan Ruang Meeting<br>
+PT Mitra Asa Pratama
+</h1>
 
-  <div id="taskSection" style="display:none">
-    <div class="timesheet" id="timesheetContainer"></div>
-    <button class="main-btn" onclick="submitData()">Submit</button>
+<div class="container">
+  <div class="column">
+    <h3>Ruang Arjuna</h3>
+    <div id="arjuna"></div>
+  </div>
+  <div class="column">
+    <h3>Ruang Srikandi</h3>
+    <div id="srikandi"></div>
+  </div>
+  <div class="column">
+    <h3>Ruang Gatot Kaca</h3>
+    <div id="gatot"></div>
   </div>
 </div>
 
-<div class="loading-overlay" id="loading">
-  <div class="spinner"></div>
-</div>
+<a href="daftar.html" class="fab" id="addBtn">+</a>
 
-<div class="toast" id="toast"></div>
-<div class="modal-password" id="passwordModal">
+<!-- DETAIL MODAL -->
+<div class="modal" id="modal">
   <div class="modal-box">
-    <h3>🔒 Akses Laporan</h3>
-    <input type="password" id="reportPassword" placeholder="Masukkan password">
-    <div class="modal-actions">
-      <button onclick="checkPassword()">Masuk</button>
-      <button onclick="closePasswordModal()" class="cancel-btn">Batal</button>
-    </div>
+    <span class="close" id="closeDetail">✖</span>
+    <h3 id="mAgenda"></h3>
+    <p>🏢 <b id="mRuangan"></b></p>
+    <p>📅 <b id="mTanggal"></b></p>
+    <p>⏰ <b id="mJam"></b></p>
+    <p>👤 <b id="mNama"></b></p>
   </div>
 </div>
+
+<!-- LOGIN MODAL -->
+<div class="modal" id="loginModal">
+  <div class="modal-box">
+    <h3>Login Admin</h3>
+    <input type="password" id="pinInput" placeholder="Masukkan PIN"/>
+    <button class="btn btn-login" style="width:100%" id="loginSubmit">Login</button>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal" id="editModal">
+  <div class="modal-box">
+    <h3>Edit Jadwal</h3>
+    <input type="hidden" id="eId"/>
+    <input id="eRuangan" placeholder="Ruangan"/>
+    <input id="eAgenda" placeholder="Agenda"/>
+    <input type="date" id="eTanggal"/>
+    <input type="time" id="eMulai"/>
+    <input type="time" id="eSelesai"/>
+    <input id="eNama" placeholder="Nama"/>
+    <button class="btn btn-login" style="width:100%" id="editSubmit">Simpan</button>
+  </div>
+</div>
+
 <script>
+const API_URL="https://script.google.com/macros/s/AKfycby_Ib2KyhAnT9QuX4LIJ_JvK5WZB5edi4Tb4sy_4sx7MzaPs0wpxnMm7rS5vKFTzUSF/exec";
+const ADMIN_PIN_HASH="8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92";
 
-function logout(){
-  localStorage.removeItem("loginUser");
-  window.location.href="login.html";
+let ROLE=localStorage.getItem("role")||"user";
+let DATA=[];
+
+/* CLOCK */
+setInterval(()=>{
+  document.getElementById("clock").textContent=
+    new Date().toLocaleString("id-ID");
+},1000);
+
+/* FORMAT TANGGAL */
+function formatTanggalIndo(t){
+  return new Date(t+"T00:00:00")
+    .toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"});
 }
 
-const WEB_APP_URL="https://script.google.com/macros/s/AKfycbzQFe0VZcFiOo-gJvx5WF8lCVpvD5EFC3eq6sY4FLIqiWcGT8aziSkGEVZ-VfG0uemE/exec";
-
-const specialUsers=[
-"Evilla Agustin - Cleaner",
-"Irfan Affandi - Cleaner",
-"Abdul Apso - Staff Services"
-];
-
-/* FIX: declare element dulu */
-const staffSelect = document.getElementById("staff");
-const tanggalInput = document.getElementById("tanggal");
-const taskSection = document.getElementById("taskSection");
-const loading = document.getElementById("loading");
-
-function generateTimeSlots(){
-
-  const staff = staffSelect.value;
-  let times=[];
-
-  if(specialUsers.includes(staff)){
-    times=[
-      "07:00","07:30",
-      "08:00","08:30","09:00","09:30",
-      "10:00","10:30","11:00","11:30",
-      "12:00","12:30",
-      "13:00","13:30","14:00","14:30",
-      "15:00","15:30","16:00","16:30",
-      "17:00","17:30"
-    ];
-  }else{
-    times=[
-      "08:00","08:30","09:00","09:30",
-      "10:00","10:30","11:00","11:30",
-      "12:00","12:30",
-      "13:00","13:30","14:00","14:30",
-      "15:00","15:30","16:00","16:30",
-      "17:00"
-    ];
-  }
-
-  return times;
+/* CEK LIVE */
+function isLive(d){
+  const now=new Date();
+  const start=new Date(d.tanggal+"T"+d.mulai);
+  const end=new Date(d.tanggal+"T"+d.selesai);
+  return now>=start && now<=end;
 }
 
-function generateTimesheet(){
+/* LOGIN */
+loginBtn.onclick=()=>loginModal.style.display="flex";
 
-  const container=document.getElementById("timesheetContainer");
-  container.innerHTML="";
+logoutBtn.onclick=()=>{
+  ROLE="user";
+  localStorage.removeItem("role");
+  updateUI();
+  render();
+};
 
-  generateTimeSlots().forEach(time=>{
+loginSubmit.onclick=async()=>{
+  const hashBuffer=await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(pinInput.value)
+  );
+  const pinHash=[...new Uint8Array(hashBuffer)]
+    .map(b=>b.toString(16).padStart(2,"0")).join("");
+  if(pinHash===ADMIN_PIN_HASH){
+    ROLE="admin";
+    localStorage.setItem("role","admin");
+    loginModal.style.display="none";
+    updateUI();
+    render();
+  }else alert("PIN salah!");
+};
 
-    const row=document.createElement("div");
-    row.className="row";
+function updateUI(){
+  loginBtn.style.display=ROLE==="admin"?"none":"inline-block";
+  logoutBtn.style.display=ROLE==="admin"?"inline-block":"none";
+  addBtn.style.display=ROLE==="admin"?"flex":"none";
+}
 
-    const label=document.createElement("div");
-    label.className="time-label";
-    label.innerText=time;
+/* LOAD DATA */
+async function loadData(){
+  const r=await fetch(API_URL+"?_="+Date.now());
+  DATA=await r.json();
+  DATA.sort((a,b)=>new Date(a.tanggal+"T"+a.mulai)-new Date(b.tanggal+"T"+b.mulai));
+  render();
+}
 
-    const input=document.createElement("input");
-    input.type="text";
-    input.placeholder="Tulis task...";
+/* RENDER */
+function render(){
+  arjuna.innerHTML="";
+  srikandi.innerHTML="";
+  gatot.innerHTML="";
 
-    if(time==="12:00" || time==="12:30"){
-      row.classList.add("break-row");
-      label.classList.add("break");
-      input.disabled=true;
-      input.value="";
-      input.placeholder="Istirahat disesuaikan dengan jam kerja bulan puasa";
+  DATA.forEach(d=>{
+    const el=document.createElement("div");
+    el.className="booking";
+    if(isLive(d)) el.classList.add("live");
+
+    el.innerHTML=`
+      <b>${d.agenda}</b><br>
+      📅 ${formatTanggalIndo(d.tanggal)}<br>
+      ⏰ ${d.mulai} - ${d.selesai}<br>
+      👤 ${d.nama}
+      ${
+        ROLE==="admin"
+        ? `<br><br>
+           <button class="icon-btn icon-edit">✏️ Edit</button>
+           <button class="icon-btn icon-delete">🗑️ Hapus</button>`
+        : ""
+      }
+    `;
+
+    el.onclick=()=>openDetail(d);
+
+    if(ROLE==="admin"){
+      el.querySelector(".icon-edit")?.addEventListener("click",e=>{
+        e.stopPropagation();
+        openEdit(d);
+      });
+      el.querySelector(".icon-delete")?.addEventListener("click",e=>{
+        e.stopPropagation();
+        hapus(d.id);
+      });
     }
 
-    row.appendChild(label);
-    row.appendChild(input);
-    container.appendChild(row);
-
+    const r=d.ruangan.toLowerCase();
+    if(r.includes("arjuna")) arjuna.appendChild(el);
+    if(r.includes("srikandi")) srikandi.appendChild(el);
+    if(r.includes("gatot")) gatot.appendChild(el);
   });
 }
 
-/* FIX EVENT */
-staffSelect.addEventListener("change",()=>{
-  if(!staffSelect.value){
-    taskSection.style.display="none";
-    return;
-  }
-  taskSection.style.display="block";
-  generateTimesheet();
-});
+/* DETAIL */
+function openDetail(d){
+  mAgenda.textContent=d.agenda;
+  mRuangan.textContent=d.ruangan;
+  mTanggal.textContent=formatTanggalIndo(d.tanggal);
+  mJam.textContent=d.mulai+" - "+d.selesai;
+  mNama.textContent=d.nama;
+  modal.style.display="flex";
+}
+closeDetail.onclick=()=>modal.style.display="none";
 
-tanggalInput.addEventListener("change",()=>{
-  if(staffSelect.value){
-    generateTimesheet();
-  }
-});
-
-function showToast(msg){
-  const toast=document.getElementById("toast");
-  toast.innerText=msg;
-  toast.style.display="block";
-  setTimeout(()=>toast.style.display="none",4000);
+/* EDIT */
+function openEdit(d){
+  eId.value=d.id;
+  eRuangan.value=d.ruangan;
+  eAgenda.value=d.agenda;
+  eTanggal.value=d.tanggal;
+  eMulai.value=d.mulai;
+  eSelesai.value=d.selesai;
+  eNama.value=d.nama;
+  editModal.style.display="flex";
 }
 
-function submitData(){
+editSubmit.onclick=async()=>{
+  const f=new FormData();
+  f.append("action","edit");
+  f.append("id",eId.value);
+  f.append("ruangan",eRuangan.value);
+  f.append("agenda",eAgenda.value);
+  f.append("tanggal",eTanggal.value);
+  f.append("mulai",eMulai.value);
+  f.append("selesai",eSelesai.value);
+  f.append("nama",eNama.value);
+  await fetch(API_URL,{method:"POST",body:f});
+  editModal.style.display="none";
+  loadData();
+};
 
-  const staff = staffSelect.value;
-  const tanggal = tanggalInput.value;
-
-  if(!staff || !tanggal){
-    alert("Lengkapi data dulu ya 🙂");
-    return;
-  }
-
-  const tasks=[];
-
-  document.querySelectorAll(".row").forEach(row=>{
-    const time=row.querySelector(".time-label").innerText;
-    const input=row.querySelector("input");
-
-    if(input.disabled){
-      tasks.push({time:time,task:"Istirahat"});
-    }
-    else if(input.value.trim()){
-      tasks.push({time:time,task:input.value.trim()});
-    }
-  }); /* FIX penutup forEach */
-
-  if(tasks.length===0){
-    alert("Isi minimal 1 task dulu ya 🙂");
-    return;
-  }
-
-  loading.style.display="flex";
-
-  const formData=new URLSearchParams();
-  formData.append("action","saveTimesheet");
-  formData.append("staff",staff);
-  formData.append("tanggal",tanggal);
-  formData.append("tasks",JSON.stringify(tasks));
-
-  fetch(WEB_APP_URL,{method:"POST",body:formData})
-  .then(res=>res.json())
-  .then(res=>{
-    loading.style.display="none";
-    if(res.status==="success"){
-      generateTimesheet();
-      showToast("✨ Timesheet berhasil dikirim! Terima kasih atas kerja keras anda hari ini");
-    }else{
-      alert("Gagal: "+res.message);
-    }
-  })
-  .catch(()=>{
-    loading.style.display="none";
-    alert("Error koneksi");
-  });
-}
- function openReport(){
-  document.getElementById("passwordModal").style.display="flex";
-  document.getElementById("reportPassword").value="";
-}
-  function closePasswordModal(){
-  document.getElementById("passwordModal").style.display="none";
+/* DELETE */
+async function hapus(id){
+  if(!confirm("Hapus data ini?")) return;
+  const f=new FormData();
+  f.append("action","delete");
+  f.append("id",id);
+  await fetch(API_URL,{method:"POST",body:f});
+  loadData();
 }
 
-function checkPassword(){
-
-  const password = document.getElementById("reportPassword").value;
-
-  if(password === "ga123"){
-    window.location.href = "laporanstaff.html";
-  }else{
-    alert("Password salah ❌");
-  }
-
-}
-
+updateUI();
+loadData();
 </script>
 
 </body>
