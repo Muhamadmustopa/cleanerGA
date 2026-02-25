@@ -277,10 +277,18 @@ function isLive(d){
 }
 
 /* LOGIN */
-loginBtn.onclick=()=>loginModal.style.display="flex";
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const loginModal = document.getElementById("loginModal");
+const loginSubmit = document.getElementById("loginSubmit");
+const addBtn = document.getElementById("addBtn");
 
-logoutBtn.onclick=()=>{
-  ROLE="user";
+loginBtn.onclick = () => {
+  loginModal.style.display = "flex";
+};
+
+logoutBtn.onclick = () => {
+  ROLE = "user";
   localStorage.removeItem("role");
   updateUI();
   render();
