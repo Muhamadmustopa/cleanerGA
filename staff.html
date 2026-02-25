@@ -277,48 +277,47 @@ function isLive(d){
 }
 
 /* LOGIN */
-document.addEventListener("DOMContentLoaded", function () {
+/* === AMBIL ELEMENT GLOBAL === */
+const loginBtn     = document.getElementById("loginBtn");
+const logoutBtn    = document.getElementById("logoutBtn");
+const loginModal   = document.getElementById("loginModal");
+const loginSubmit  = document.getElementById("loginSubmit");
+const pinInput     = document.getElementById("pinInput");
+const addBtn       = document.getElementById("addBtn");
 
-  const loginBtn     = document.getElementById("loginBtn");
-  const logoutBtn    = document.getElementById("logoutBtn");
-  const loginModal   = document.getElementById("loginModal");
-  const loginSubmit  = document.getElementById("loginSubmit");
-  const pinInput     = document.getElementById("pinInput");
-  const addBtn       = document.getElementById("addBtn");
+/* === LOGIN === */
+loginBtn.onclick = function () {
+  loginModal.style.display = "flex";
+};
 
-  loginBtn.addEventListener("click", function () {
-    loginModal.style.display = "flex";
-  });
+logoutBtn.onclick = function () {
+  ROLE = "user";
+  localStorage.removeItem("role");
+  updateUI();
+  render();
+};
 
-  logoutBtn.addEventListener("click", function () {
-    ROLE = "user";
-    localStorage.removeItem("role");
+loginSubmit.onclick = async function () {
+
+  const hashBuffer = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(pinInput.value)
+  );
+
+  const pinHash = [...new Uint8Array(hashBuffer)]
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+
+  if (pinHash === ADMIN_PIN_HASH) {
+    ROLE = "admin";
+    localStorage.setItem("role", "admin");
+    loginModal.style.display = "none";
     updateUI();
     render();
-  });
-
-  loginSubmit.addEventListener("click", async function () {
-    const hashBuffer = await crypto.subtle.digest(
-      "SHA-256",
-      new TextEncoder().encode(pinInput.value)
-    );
-
-    const pinHash = [...new Uint8Array(hashBuffer)]
-      .map(b => b.toString(16).padStart(2, "0"))
-      .join("");
-
-    if (pinHash === ADMIN_PIN_HASH) {
-      ROLE = "admin";
-      localStorage.setItem("role", "admin");
-      loginModal.style.display = "none";
-      updateUI();
-      render();
-    } else {
-      alert("PIN salah!");
-    }
-  });
-
-});
+  } else {
+    alert("PIN salah!");
+  }
+};
 function updateUI(){
   loginBtn.style.display=ROLE==="admin"?"none":"inline-block";
   logoutBtn.style.display=ROLE==="admin"?"inline-block":"none";
