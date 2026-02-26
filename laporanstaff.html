@@ -509,7 +509,7 @@ function sortTable(key){
 
 function exportExcel(){
   if(filteredData.length===0) return alert("Tidak ada data");
-  let html="<table border='1'><tr><th>Tanggal</th><th>Nama</th><th>Jam</th><th>Task</th><th>Keterangan</th></tr>";
+  let html="<table border='1'><tr><th>Tanggal</th><th>Nama</th><th>Jam</th><th>Kegiatan</th><th>Keterangan</th></tr>";
   filteredData.forEach(r=>{
     html+=`<tr>
       <td>${r.tanggal}</td>
@@ -524,7 +524,7 @@ function exportExcel(){
   const blob=new Blob([html],{type:"application/vnd.ms-excel"});
   const link=document.createElement("a");
   link.href=URL.createObjectURL(blob);
-  link.download="Laporan_Timesheet.xls";
+  link.download="Laporan_TimesheetGA.xls";
   link.click();
 }
 
@@ -543,7 +543,7 @@ function previewPDF(){
   const { jsPDF } = window.jspdf;
   const doc=new jsPDF();
 
-  doc.text("Laporan Timesheet",14,15);
+  doc.text("Laporan Timesheet Team GA",14,15);
 
   const rows=dataToPrint.map(r=>[
     r.tanggal,
