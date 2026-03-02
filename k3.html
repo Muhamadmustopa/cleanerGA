@@ -7,11 +7,15 @@
 
 <style>
 *{box-sizing:border-box}
-body{
+  body{
   margin:0;
   padding:14px;
   font-family:Segoe UI,Arial;
-  background:#f4f6f8
+  min-height:100vh;
+  background:
+    linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
+    url('safety.png') no-repeat center center fixed;
+  background-size:cover;
 }
 .card{
   max-width:480px;
@@ -58,13 +62,14 @@ button{
   font-weight:600;
   margin-top:18px
 }
-  
 .small{
   font-size:12px;
   color:#666;
   text-align:center;
   margin-top:8px
 }
+.hidden{display:none}
+
 .top-btn{
   position:fixed;
   top:14px;
@@ -83,14 +88,10 @@ button{
   align-items:center;
   gap:6px;
 }
-
-/* Hover desktop */
 .top-btn:hover{
   background:#0D47A1;
   transform:scale(1.05);
 }
-
-/* HP → icon only */
 @media(max-width:600px){
   .top-btn{
     padding:12px;
@@ -100,14 +101,13 @@ button{
     justify-content:center;
     font-size:20px;
   }
-  .top-btn span{
-    display:none;
-  }
+  .top-btn span{display:none}
 }
 </style>
 </head>
 
 <body>
+
 <a href="index.html" class="top-btn" title="Laporan K3">
   <span>Keluar</span>
 </a>
@@ -134,7 +134,6 @@ button{
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyknd3VCdFnL_Ut9YAKE1giBptIV_KUbt9FcQ71i7vic5UzK4tAxffF8e4A3_lWhnygfw/exec';
 
-/* TASK PER LOKASI */
 const taskByLocation = {
   MTH: [
     'Pengecekan APAR (Tekanan, Handle, Pengunci, Pengait, Label EXP)',
@@ -188,33 +187,37 @@ lokasiSelect.addEventListener('change',()=>{
 
   const tasks = taskByLocation[loc];
 
- tasks.forEach((t,i)=>{
-  taskList.innerHTML+=`
-    <div class="task">
-      <div class="task-title">${i+1}. ${t}</div>
+  tasks.forEach((t,i)=>{
+    taskList.innerHTML+=`
+      <div class="task">
+        <div class="task-title">${i+1}. ${t}</div>
 
-      <div class="task-row">
-        <label>
-          <input type="checkbox" id="check${i}">
-          Aman
-        </label>
+        <div class="task-row">
+          <label>
+            <input type="checkbox" id="check${i}">
+            Aman
+          </label>
+        </div>
+
+        <textarea id="note${i}" rows="2"
+          placeholder="Keterangan (jika ada)"></textarea>
+
+        <input type="file" 
+          accept="image/*" 
+          capture="environment"
+          onchange="previewImage(event, ${i})">
+
+        <img id="preview${i}" 
+          style="display:none;margin-top:10px;width:100%;border-radius:12px;">
       </div>
+    `;
+  });
 
-      <textarea id="note${i}" rows="2"
-        placeholder="Keterangan (jika ada)"></textarea>
-
-      <input type="file" 
-        id="photo${i}" 
-        accept="image/*" 
-        capture="environment"
-        onchange="previewImage(event, ${i})">
-
-      <img id="preview${i}" 
-        style="display:none;margin-top:10px;width:100%;border-radius:12px;">
-    </div>
-  `;
+  taskList.classList.remove('hidden');
 });
-function previewImage(event, index){
+
+/* PREVIEW & COMPRESS */
+function previewImage(event,index){
   const file = event.target.files[0];
   if(!file) return;
 
@@ -226,7 +229,7 @@ function previewImage(event, index){
 
     img.onload = function(){
       const canvas = document.createElement("canvas");
-      const maxWidth = 1200; // maksimal lebar
+      const maxWidth = 1200;
       const scale = maxWidth / img.width;
 
       canvas.width = maxWidth;
@@ -237,17 +240,19 @@ function previewImage(event, index){
 
       const compressed = canvas.toDataURL("image/jpeg", 0.7);
 
-      document.getElementById("preview"+index).src = compressed;
-      document.getElementById("preview"+index).style.display = "block";
-      document.getElementById("preview"+index).dataset.image = compressed;
+      const preview = document.getElementById("preview"+index);
+      preview.src = compressed;
+      preview.style.display = "block";
+      preview.dataset.image = compressed;
     };
   };
 
   reader.readAsDataURL(file);
 }
+
 /* SIMPAN */
 function simpan(){
-  const lokasi = lokasiSelect.options[lokasiSelect.selectedIndex].text;
+  const lokasiText = lokasiSelect.options[lokasiSelect.selectedIndex].text;
   const tanggal = document.getElementById('tanggal').value;
   const locKey = lokasiSelect.value;
 
@@ -257,18 +262,17 @@ function simpan(){
   }
 
   const tasks = taskByLocation[locKey];
+
   const detail = tasks.map((t,i)=>({
-  task: t,
-  status: document.getElementById('check'+i).checked
-    ? 'AMAN'
-    : 'TIDAK AMAN',
-  catatan: document.getElementById('note'+i).value,
-  foto: document.getElementById('preview'+i).dataset.image || ''
-}));
+    task: t,
+    status: document.getElementById('check'+i).checked ? 'AMAN' : 'TIDAK AMAN',
+    catatan: document.getElementById('note'+i).value,
+    foto: document.getElementById('preview'+i)?.dataset.image || ''
+  }));
 
   fetch(SCRIPT_URL,{
     method:'POST',
-    body: JSON.stringify({ lokasi, tanggal, detail })
+    body: JSON.stringify({ lokasi: lokasiText, tanggal, detail })
   })
   .then(r=>r.text())
   .then(()=>{
