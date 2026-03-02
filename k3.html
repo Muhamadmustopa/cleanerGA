@@ -188,25 +188,63 @@ lokasiSelect.addEventListener('change',()=>{
 
   const tasks = taskByLocation[loc];
 
-  tasks.forEach((t,i)=>{
-    taskList.innerHTML+=`
-      <div class="task">
-        <div class="task-title">${i+1}. ${t}</div>
-        <div class="task-row">
-          <label>
-            <input type="checkbox" id="check${i}">
-            Aman
-          </label>
-        </div>
-        <textarea id="note${i}" rows="2"
-          placeholder="Keterangan (jika ada)"></textarea>
+ tasks.forEach((t,i)=>{
+  taskList.innerHTML+=`
+    <div class="task">
+      <div class="task-title">${i+1}. ${t}</div>
+
+      <div class="task-row">
+        <label>
+          <input type="checkbox" id="check${i}">
+          Aman
+        </label>
       </div>
-    `;
-  });
 
-  taskList.classList.remove('hidden');
+      <textarea id="note${i}" rows="2"
+        placeholder="Keterangan (jika ada)"></textarea>
+
+      <input type="file" 
+        id="photo${i}" 
+        accept="image/*" 
+        capture="environment"
+        onchange="previewImage(event, ${i})">
+
+      <img id="preview${i}" 
+        style="display:none;margin-top:10px;width:100%;border-radius:12px;">
+    </div>
+  `;
 });
+function previewImage(event, index){
+  const file = event.target.files[0];
+  if(!file) return;
 
+  const reader = new FileReader();
+
+  reader.onload = function(e){
+    const img = new Image();
+    img.src = e.target.result;
+
+    img.onload = function(){
+      const canvas = document.createElement("canvas");
+      const maxWidth = 1200; // maksimal lebar
+      const scale = maxWidth / img.width;
+
+      canvas.width = maxWidth;
+      canvas.height = img.height * scale;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      const compressed = canvas.toDataURL("image/jpeg", 0.7);
+
+      document.getElementById("preview"+index).src = compressed;
+      document.getElementById("preview"+index).style.display = "block";
+      document.getElementById("preview"+index).dataset.image = compressed;
+    };
+  };
+
+  reader.readAsDataURL(file);
+}
 /* SIMPAN */
 function simpan(){
   const lokasi = lokasiSelect.options[lokasiSelect.selectedIndex].text;
@@ -220,12 +258,13 @@ function simpan(){
 
   const tasks = taskByLocation[locKey];
   const detail = tasks.map((t,i)=>({
-    task: t,
-    status: document.getElementById('check'+i).checked
-      ? 'AMAN'
-      : 'TIDAK AMAN',
-    catatan: document.getElementById('note'+i).value
-  }));
+  task: t,
+  status: document.getElementById('check'+i).checked
+    ? 'AMAN'
+    : 'TIDAK AMAN',
+  catatan: document.getElementById('note'+i).value,
+  foto: document.getElementById('preview'+i).dataset.image || ''
+}));
 
   fetch(SCRIPT_URL,{
     method:'POST',
