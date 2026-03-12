@@ -6,32 +6,52 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Log Dokumen Receptionist</title>
+<title>Sistem Log Dokumen</title>
 
 <style>
 
+*{box-sizing:border-box}
+
 body{
 font-family:Segoe UI;
-background:#f1f5f9;
 margin:0;
-padding:20px;
+background:#f1f5f9;
+}
+
+header{
+background:#1e3a8a;
+color:white;
+padding:15px;
+font-weight:bold;
+}
+
+.nav{
+display:flex;
+gap:15px;
+margin-top:10px;
+}
+
+.nav button{
+background:white;
+color:#1e3a8a;
+border:none;
+padding:8px 12px;
+border-radius:6px;
+cursor:pointer;
 }
 
 .container{
-max-width:900px;
+max-width:1000px;
 margin:auto;
+padding:15px;
 }
 
 .card{
 background:white;
-padding:25px;
-border-radius:15px;
-box-shadow:0 10px 25px rgba(0,0,0,.1);
-}
-
-h2{
-text-align:center;
-color:#1e3a8a;
+padding:20px;
+border-radius:12px;
+box-shadow:0 6px 15px rgba(0,0,0,.08);
+margin-bottom:20px;
 }
 
 input,select{
@@ -39,23 +59,39 @@ width:100%;
 padding:10px;
 border-radius:8px;
 border:1px solid #ccc;
-margin-top:5px;
+margin-bottom:10px;
 }
 
-button{
-margin-top:10px;
-padding:10px;
-border:none;
-border-radius:8px;
+button.primary{
 background:#2563eb;
 color:white;
+border:none;
+padding:10px;
+border-radius:8px;
 cursor:pointer;
+}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+gap:15px;
+}
+
+.stat{
+background:#e2e8f0;
+padding:20px;
+border-radius:10px;
+text-align:center;
+}
+
+.stat h3{
+margin:0;
+font-size:28px;
 }
 
 table{
 width:100%;
 border-collapse:collapse;
-margin-top:20px;
 }
 
 th,td{
@@ -64,7 +100,7 @@ border-bottom:1px solid #eee;
 }
 
 th{
-background:#e2e8f0;
+background:#f1f5f9;
 }
 
 .status-pending{
@@ -77,64 +113,169 @@ color:#16a34a;
 font-weight:bold;
 }
 
+.actions{
+display:flex;
+gap:5px;
+}
+
+.btn-green{
+background:#16a34a;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.btn-red{
+background:#dc2626;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+@media(max-width:768px){
+
+table thead{display:none}
+
+table,tr,td{
+display:block;
+width:100%;
+}
+
+tr{
+background:white;
+margin-bottom:10px;
+padding:10px;
+border-radius:10px;
+}
+
+td{
+padding-left:50%;
+position:relative;
+}
+
+td:before{
+position:absolute;
+left:10px;
+font-weight:bold;
+}
+
+td:nth-of-type(1):before{content:"Tanggal"}
+td:nth-of-type(2):before{content:"Pengirim"}
+td:nth-of-type(3):before{content:"Jenis"}
+td:nth-of-type(4):before{content:"Penerima"}
+td:nth-of-type(5):before{content:"PIC"}
+td:nth-of-type(6):before{content:"Jam"}
+td:nth-of-type(7):before{content:"Status"}
+td:nth-of-type(8):before{content:"Aksi"}
+
+}
+
 </style>
 
 </head>
 
 <body>
 
-<div class="container">
+<div id="loginPage" class="container">
 
-<!-- LOGIN -->
-
-<div class="card" id="loginPage">
+<div class="card">
 
 <h2>Login PIC</h2>
 
 <select id="user">
-
 <option>Abdul Apso</option>
 <option>Irfan Affandi</option>
 <option>Evilia Agustin</option>
 <option>Ahmad Yani</option>
 <option>Topa</option>
-
 </select>
 
 <input type="password" id="password" placeholder="Password">
 
-<button onclick="login()">Masuk</button>
+<button class="primary" onclick="login()">Masuk</button>
 
 </div>
 
-<!-- SYSTEM -->
+</div>
 
-<div class="card" id="systemPage" style="display:none">
+<div id="app" style="display:none">
 
-<h2>Log Dokumen</h2>
+<header>
 
-<label>Pengirim</label>
-<input id="pengirim">
+Sistem Log Dokumen
 
-<label>Jenis</label>
+<div class="nav">
+<button onclick="showPage('dashboard')">Dashboard</button>
+<button onclick="showPage('input')">Input Paket</button>
+<button onclick="showPage('log')">Log Dokumen</button>
+</div>
+
+</header>
+
+<div class="container">
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="card">
+
+<h2>Dashboard</h2>
+
+<div class="stats">
+
+<div class="stat">
+Total
+<h3 id="total">0</h3>
+</div>
+
+<div class="stat">
+Pending
+<h3 id="pending">0</h3>
+</div>
+
+<div class="stat">
+Selesai
+<h3 id="done">0</h3>
+</div>
+
+</div>
+
+</div>
+
+<!-- INPUT -->
+
+<div id="input" class="card" style="display:none">
+
+<h2>Input Paket</h2>
+
+<input id="pengirim" placeholder="Pengirim">
+
 <select id="jenis">
 <option>Surat</option>
 <option>Barang</option>
 <option>Makanan</option>
 </select>
 
-<label>Penerima</label>
-<input id="penerima">
+<input id="penerima" placeholder="Penerima">
 
-<label>PIC Pengantar</label>
 <input id="pic" readonly>
 
-<button onclick="tambah()">Tambah</button>
+<button class="primary" onclick="tambah()">Tambah</button>
+
+</div>
+
+<!-- LOG -->
+
+<div id="log" class="card" style="display:none">
+
+<input id="search" placeholder="Cari dokumen..." onkeyup="render()">
 
 <table>
 
 <thead>
-
 <tr>
 <th>Tanggal</th>
 <th>Pengirim</th>
@@ -143,8 +284,8 @@ font-weight:bold;
 <th>PIC</th>
 <th>Jam</th>
 <th>Status</th>
+<th>Aksi</th>
 </tr>
-
 </thead>
 
 <tbody id="tableBody"></tbody>
@@ -155,23 +296,25 @@ font-weight:bold;
 
 </div>
 
+</div>
+
 <script>
 
 const scriptURL="https://script.google.com/macros/s/AKfycbzDZSLNVKsWxMVLBjI2lREtfcd1MrLVGLw_VC2rfaM-_Hb1Zx7ndmomQmFtjJKaP31uoQ/exec"
 
 let currentUser=""
+let data=[]
 
 function login(){
 
-const user=document.getElementById("user").value
 const pass=document.getElementById("password").value
 
 if(pass==="1"){
 
-currentUser=user
+currentUser=document.getElementById("user").value
 
 document.getElementById("loginPage").style.display="none"
-document.getElementById("systemPage").style.display="block"
+document.getElementById("app").style.display="block"
 
 document.getElementById("pic").value=currentUser
 
@@ -179,27 +322,44 @@ loadData()
 
 }
 
-else{
-
-alert("Password salah")
-
 }
 
+function showPage(p){
+
+["dashboard","input","log"].forEach(id=>{
+document.getElementById(id).style.display="none"
+})
+
+document.getElementById(p).style.display="block"
+
 }
-
-
 
 async function loadData(){
 
 const res=await fetch(scriptURL)
+data=await res.json()
 
-const data=await res.json()
+render()
+
+}
+
+function render(){
+
+const search=document.getElementById("search").value.toLowerCase()
 
 const tbody=document.getElementById("tableBody")
 
 tbody.innerHTML=""
 
-data.forEach(d=>{
+let pending=0
+let done=0
+
+data
+.filter(d=>d.pengirim.toLowerCase().includes(search)||d.penerima.toLowerCase().includes(search))
+.forEach((d,i)=>{
+
+if(d.status==="Pending")pending++
+if(d.status==="Selesai")done++
 
 tbody.innerHTML+=`
 
@@ -210,8 +370,25 @@ tbody.innerHTML+=`
 <td>${d.jenis}</td>
 <td>${d.penerima}</td>
 <td>${d.pic}</td>
-<td>${d.jam}</td>
-<td class="${d.status=="Pending"?"status-pending":"status-done"}">${d.status}</td>
+<td>${d.jam||"-"}</td>
+
+<td class="${d.status=="Pending"?"status-pending":"status-done"}">
+${d.status}
+</td>
+
+<td>
+
+<div class="actions">
+
+${d.status=="Pending"
+?`<button class="btn-green" onclick="terima(${i})">Diterima</button>`
+:""}
+
+<button class="btn-red" onclick="hapus(${i})">Delete</button>
+
+</div>
+
+</td>
 
 </tr>
 
@@ -219,36 +396,47 @@ tbody.innerHTML+=`
 
 })
 
+document.getElementById("total").innerText=data.length
+document.getElementById("pending").innerText=pending
+document.getElementById("done").innerText=done
+
 }
 
+function terima(i){
 
+data[i].status="Selesai"
+data[i].jam=new Date().toLocaleTimeString()
+
+render()
+
+}
+
+function hapus(i){
+
+if(confirm("Hapus data?")){
+data.splice(i,1)
+render()
+}
+
+}
 
 async function tambah(){
 
-const data={
+const payload={
 
 tanggal:new Date().toLocaleDateString(),
-
 pengirim:document.getElementById("pengirim").value,
-
 jenis:document.getElementById("jenis").value,
-
 penerima:document.getElementById("penerima").value,
-
 pic:currentUser,
-
 jam:"",
-
 status:"Pending"
 
 }
 
 await fetch(scriptURL,{
-
 method:"POST",
-
-body:JSON.stringify(data)
-
+body:JSON.stringify(payload)
 })
 
 loadData()
