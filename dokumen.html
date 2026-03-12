@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Admin Log Dokumen</title>
+
+<style>
+
+body{
+font-family:Segoe UI;
+background:#f1f5f9;
+padding:30px;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:12px;
+max-width:1100px;
+margin:auto;
+box-shadow:0 10px 20px rgba(0,0,0,.1);
+}
+
+h2{
+margin-top:0;
+}
+
+input,select{
+padding:8px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+padding:8px 12px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.add-btn{
+background:#2563eb;
+color:white;
+}
+
+.edit-btn{
+background:#f59e0b;
+color:white;
+}
+
+.delete-btn{
+background:#ef4444;
+color:white;
+}
+
+.receive-btn{
+background:#16a34a;
+color:white;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #ddd;
+text-align:left;
+}
+
+th{
+background:#f1f5f9;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>📦 Log Dokumen Receptionist</h2>
+
+<h3>Input Dokumen</h3>
+
+<label>Pengirim</label>
+<input type="text" id="pengirim">
+
+<label>Jenis Dokumen</label>
+<select id="jenis">
+<option value="">Pilih</option>
+<option>Surat/Berkas</option>
+<option>Barang</option>
+<option>Makanan</option>
+</select>
+
+<br><br>
+
+<button class="add-btn" onclick="tambahData()">Tambah</button>
+
+<table id="tableDokumen">
+
+<thead>
+<tr>
+<th>Tanggal</th>
+<th>Pengirim</th>
+<th>Jenis</th>
+<th>Jam Terima</th>
+<th>Status</th>
+<th>Aksi</th>
+</tr>
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+let dataDokumen=[]
+
+function tambahData(){
+
+const pengirim=document.getElementById("pengirim").value
+const jenis=document.getElementById("jenis").value
+
+if(!pengirim || !jenis){
+alert("Isi data dulu")
+return
+}
+
+const tanggal=new Date().toLocaleDateString()
+
+dataDokumen.push({
+tanggal:tanggal,
+pengirim:pengirim,
+jenis:jenis,
+jam:"",
+status:"Pending"
+})
+
+renderTable()
+
+document.getElementById("pengirim").value=""
+document.getElementById("jenis").value=""
+
+}
+
+function renderTable(){
+
+const tbody=document.querySelector("#tableDokumen tbody")
+tbody.innerHTML=""
+
+dataDokumen.forEach((item,index)=>{
+
+const row=`
+<tr>
+
+<td>${item.tanggal}</td>
+
+<td>${item.pengirim}</td>
+
+<td>${item.jenis}</td>
+
+<td>${item.jam || "-"}</td>
+
+<td>${item.status}</td>
+
+<td>
+
+<button class="receive-btn" onclick="terimaDokumen(${index})">Diterima</button>
+
+<button class="edit-btn" onclick="editData(${index})">Edit</button>
+
+<button class="delete-btn" onclick="hapusData(${index})">Delete</button>
+
+</td>
+
+</tr>
+`
+
+tbody.innerHTML+=row
+
+})
+
+}
+
+function terimaDokumen(index){
+
+const jam=new Date().toLocaleTimeString()
+
+dataDokumen[index].jam=jam
+dataDokumen[index].status="Selesai"
+
+alert("Silahkan tanda tangan digital (simulasi)")
+
+renderTable()
+
+}
+
+function editData(index){
+
+const pengirim=prompt("Edit Pengirim",dataDokumen[index].pengirim)
+
+if(pengirim){
+dataDokumen[index].pengirim=pengirim
+}
+
+renderTable()
+
+}
+
+function hapusData(index){
+
+if(confirm("Hapus data ini?")){
+
+dataDokumen.splice(index,1)
+
+renderTable()
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
