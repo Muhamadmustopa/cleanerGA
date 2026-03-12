@@ -365,7 +365,7 @@ tbody.innerHTML+=`
 
 <tr>
 
-<td>${d.tanggal}</td>
+<td>${formatTanggal(d.tanggal)}</td>
 <td>${d.pengirim}</td>
 <td>${d.jenis}</td>
 <td>${d.penerima}</td>
@@ -377,7 +377,17 @@ ${d.status}
 </td>
 
 <td>
+function formatTanggal(t){
 
+const date = new Date(t)
+
+return date.toLocaleDateString("id-ID",{
+day:"2-digit",
+month:"2-digit",
+year:"numeric"
+})
+
+}
 <div class="actions">
 
 ${d.status=="Pending"
