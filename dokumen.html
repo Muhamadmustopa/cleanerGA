@@ -1,154 +1,135 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>Log Dokumen Receptionist</title>
 
 <style>
 
 body{
 font-family:Segoe UI;
-background:linear-gradient(135deg,#1e3a8a,#2563eb);
+background:#f1f5f9;
 margin:0;
 padding:20px;
 }
 
+.container{
+max-width:900px;
+margin:auto;
+}
+
 .card{
 background:white;
-border-radius:18px;
-padding:20px;
-max-width:1000px;
-margin:auto;
-box-shadow:0 15px 35px rgba(0,0,0,.2);
+padding:25px;
+border-radius:15px;
+box-shadow:0 10px 25px rgba(0,0,0,.1);
 }
 
 h2{
 text-align:center;
-margin-top:0;
 color:#1e3a8a;
 }
 
 input,select{
 width:100%;
 padding:10px;
-border-radius:10px;
-border:1px solid #d1d5db;
-margin-top:6px;
-font-size:14px;
+border-radius:8px;
+border:1px solid #ccc;
+margin-top:5px;
 }
 
 button{
-border:none;
+margin-top:10px;
 padding:10px;
-border-radius:10px;
-cursor:pointer;
-font-weight:600;
-}
-
-.add-btn{
+border:none;
+border-radius:8px;
 background:#2563eb;
 color:white;
-margin-top:10px;
-width:100%;
-}
-
-.receive-btn{
-background:#16a34a;
-color:white;
-}
-
-.delete-btn{
-background:#ef4444;
-color:white;
-}
-
-.status-pending{
-color:#dc2626;
-font-weight:600;
-}
-
-.status-done{
-color:#16a34a;
-font-weight:600;
-}
-
-.table-container{
-overflow-x:auto;
-margin-top:20px;
+cursor:pointer;
 }
 
 table{
 width:100%;
 border-collapse:collapse;
+margin-top:20px;
 }
 
 th,td{
 padding:10px;
 border-bottom:1px solid #eee;
-text-align:left;
-font-size:14px;
 }
 
 th{
-background:#f1f5f9;
+background:#e2e8f0;
 }
 
-.search{
-margin-top:10px;
+.status-pending{
+color:#dc2626;
+font-weight:bold;
 }
 
-.toast{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#111827;
-color:#fff;
-padding:12px 16px;
-border-radius:10px;
-display:none;
-}
-
-@media(max-width:600px){
-
-h2{
-font-size:18px;
-}
-
-th,td{
-font-size:12px;
-}
-
+.status-done{
+color:#16a34a;
+font-weight:bold;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<div class="card">
+<div class="container">
 
-<h2>📦 Log Dokumen Receptionist</h2>
+<!-- LOGIN -->
+
+<div class="card" id="loginPage">
+
+<h2>Login PIC</h2>
+
+<select id="user">
+
+<option>Abdul Apso</option>
+<option>Irfan Affandi</option>
+<option>Evilia Agustin</option>
+<option>Ahmad Yani</option>
+<option>Topa</option>
+
+</select>
+
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="login()">Masuk</button>
+
+</div>
+
+<!-- SYSTEM -->
+
+<div class="card" id="systemPage" style="display:none">
+
+<h2>Log Dokumen</h2>
 
 <label>Pengirim</label>
-<input id="pengirim" placeholder="Nama pengirim / kurir">
+<input id="pengirim">
 
-<label>Jenis Dokumen</label>
+<label>Jenis</label>
 <select id="jenis">
-<option value="">Pilih</option>
-<option>Surat/Berkas</option>
+<option>Surat</option>
 <option>Barang</option>
 <option>Makanan</option>
 </select>
 
 <label>Penerima</label>
-<input id="penerima" placeholder="Nama penerima">
+<input id="penerima">
 
-<button class="add-btn" onclick="tambah()">Tambah Dokumen</button>
+<label>PIC Pengantar</label>
+<input id="pic" readonly>
 
-<input class="search" id="search" placeholder="🔍 Cari dokumen..." onkeyup="render()">
-
-<div class="table-container">
+<button onclick="tambah()">Tambah</button>
 
 <table>
 
@@ -159,9 +140,9 @@ font-size:12px;
 <th>Pengirim</th>
 <th>Jenis</th>
 <th>Penerima</th>
-<th>Jam Terima</th>
+<th>PIC</th>
+<th>Jam</th>
 <th>Status</th>
-<th>Aksi</th>
 </tr>
 
 </thead>
@@ -174,73 +155,51 @@ font-size:12px;
 
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
 
-let data = JSON.parse(localStorage.getItem("dokumen")) || []
+const scriptURL="PASTE_LINK_GOOGLE_SCRIPT_DISINI"
 
-function simpan(){
-localStorage.setItem("dokumen",JSON.stringify(data))
-}
+let currentUser=""
 
-function showToast(msg){
-const toast=document.getElementById("toast")
-toast.innerText=msg
-toast.style.display="block"
+function login(){
 
-setTimeout(()=>{
-toast.style.display="none"
-},3000)
-}
+const user=document.getElementById("user").value
+const pass=document.getElementById("password").value
 
-function tambah(){
+if(pass==="1"){
 
-const pengirim=document.getElementById("pengirim").value
-const jenis=document.getElementById("jenis").value
-const penerima=document.getElementById("penerima").value
+currentUser=user
 
-if(!pengirim || !jenis || !penerima){
-alert("Lengkapi data dulu")
-return
-}
+document.getElementById("loginPage").style.display="none"
+document.getElementById("systemPage").style.display="block"
 
-const tanggal=new Date().toLocaleDateString()
+document.getElementById("pic").value=currentUser
 
-data.push({
-tanggal,
-pengirim,
-jenis,
-penerima,
-jam:"",
-status:"Pending"
-})
-
-simpan()
-render()
-
-document.getElementById("pengirim").value=""
-document.getElementById("penerima").value=""
-
-showToast("Dokumen berhasil ditambahkan")
+loadData()
 
 }
 
-function render(){
+else{
 
-const search=document.getElementById("search").value.toLowerCase()
+alert("Password salah")
+
+}
+
+}
+
+
+
+async function loadData(){
+
+const res=await fetch(scriptURL)
+
+const data=await res.json()
 
 const tbody=document.getElementById("tableBody")
+
 tbody.innerHTML=""
 
-data
-.filter(d=>
-d.pengirim.toLowerCase().includes(search) ||
-d.penerima.toLowerCase().includes(search)
-)
-.forEach((d,i)=>{
-
-const statusClass=d.status=="Pending"?"status-pending":"status-done"
+data.forEach(d=>{
 
 tbody.innerHTML+=`
 
@@ -250,21 +209,9 @@ tbody.innerHTML+=`
 <td>${d.pengirim}</td>
 <td>${d.jenis}</td>
 <td>${d.penerima}</td>
-<td>${d.jam || "-"}</td>
-
-<td class="${statusClass}">
-${d.status}
-</td>
-
-<td>
-
-${d.status=="Pending"
-?`<button class="receive-btn" onclick="terima(${i})">Diterima</button>`
-:""}
-
-<button class="delete-btn" onclick="hapus(${i})">Delete</button>
-
-</td>
+<td>${d.pic}</td>
+<td>${d.jam}</td>
+<td class="${d.status=="Pending"?"status-pending":"status-done"}">${d.status}</td>
 
 </tr>
 
@@ -274,29 +221,39 @@ ${d.status=="Pending"
 
 }
 
-function terima(i){
 
-data[i].jam=new Date().toLocaleTimeString()
-data[i].status="Selesai"
 
-simpan()
-render()
+async function tambah(){
 
-showToast("Dokumen sudah diterima")
+const data={
+
+tanggal:new Date().toLocaleDateString(),
+
+pengirim:document.getElementById("pengirim").value,
+
+jenis:document.getElementById("jenis").value,
+
+penerima:document.getElementById("penerima").value,
+
+pic:currentUser,
+
+jam:"",
+
+status:"Pending"
 
 }
 
-function hapus(i){
+await fetch(scriptURL,{
 
-if(confirm("Hapus data?")){
-data.splice(i,1)
-simpan()
-render()
+method:"POST",
+
+body:JSON.stringify(data)
+
+})
+
+loadData()
+
 }
-
-}
-
-render()
 
 </script>
 
