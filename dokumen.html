@@ -273,6 +273,8 @@ Selesai
 
 <input id="search" placeholder="Cari dokumen..." onkeyup="render()">
 
+<input type="file" id="foto" accept="image/*" capture="environment">
+
 <table>
 
 <thead>
@@ -320,6 +322,10 @@ document.getElementById("pic").value=currentUser
 
 loadData()
 
+}else{
+
+alert("Password salah")
+
 }
 
 }
@@ -355,7 +361,13 @@ let pending=0
 let done=0
 
 data
-.filter(d=>d.pengirim.toLowerCase().includes(search)||d.penerima.toLowerCase().includes(search))
+.filter(d=>
+
+(d.pengirim||"").toLowerCase().includes(search) ||
+(d.penerima||"").toLowerCase().includes(search)
+
+)
+
 .forEach((d,i)=>{
 
 if(d.status==="Pending")pending++
@@ -366,28 +378,18 @@ tbody.innerHTML+=`
 <tr>
 
 <td>${formatTanggal(d.tanggal)}</td>
-<td>${d.pengirim}</td>
-<td>${d.jenis}</td>
-<td>${d.penerima}</td>
-<td>${d.pic}</td>
+<td>${d.pengirim||""}</td>
+<td>${d.jenis||""}</td>
+<td>${d.penerima||""}</td>
+<td>${d.pic||""}</td>
 <td>${d.jam||"-"}</td>
 
 <td class="${d.status=="Pending"?"status-pending":"status-done"}">
-${d.status}
+${d.status||""}
 </td>
 
 <td>
-function formatTanggal(t){
 
-const date = new Date(t)
-
-return date.toLocaleDateString("id-ID",{
-day:"2-digit",
-month:"2-digit",
-year:"numeric"
-})
-
-}
 <div class="actions">
 
 ${d.status=="Pending"
@@ -412,20 +414,69 @@ document.getElementById("done").innerText=done
 
 }
 
-function terima(i){
+function formatTanggal(t){
 
-data[i].status="Selesai"
-data[i].jam=new Date().toLocaleTimeString()
+if(!t) return ""
 
-render()
+const date=new Date(t)
+
+return date.toLocaleDateString("id-ID",{
+day:"2-digit",
+month:"2-digit",
+year:"numeric"
+})
 
 }
 
-function hapus(i){
+async function terima(i){
+
+const file=document.getElementById("foto").files[0]
+
+if(!file){
+
+alert("Ambil foto bukti dulu")
+
+return
+
+}
+
+const reader=new FileReader()
+
+reader.onloadend=async function(){
+
+const base64=reader.result.split(",")[1]
+
+await fetch(scriptURL,{
+method:"POST",
+body:JSON.stringify({
+action:"terima",
+row:i+2,
+foto:base64
+})
+})
+
+loadData()
+
+}
+
+reader.readAsDataURL(file)
+
+}
+
+async function hapus(i){
 
 if(confirm("Hapus data?")){
-data.splice(i,1)
-render()
+
+await fetch(scriptURL,{
+method:"POST",
+body:JSON.stringify({
+action:"delete",
+row:i+2
+})
+})
+
+loadData()
+
 }
 
 }
@@ -434,13 +485,12 @@ async function tambah(){
 
 const payload={
 
+action:"add",
 tanggal:new Date().toLocaleDateString(),
 pengirim:document.getElementById("pengirim").value,
 jenis:document.getElementById("jenis").value,
 penerima:document.getElementById("penerima").value,
-pic:currentUser,
-jam:"",
-status:"Pending"
+pic:currentUser
 
 }
 
@@ -448,6 +498,9 @@ await fetch(scriptURL,{
 method:"POST",
 body:JSON.stringify(payload)
 })
+
+document.getElementById("pengirim").value=""
+document.getElementById("penerima").value=""
 
 loadData()
 
