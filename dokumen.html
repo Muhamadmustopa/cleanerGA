@@ -620,6 +620,17 @@ setTimeout(loadData,1500)
 reader.readAsDataURL(file)
 
 })
+  function logout(){
+
+if(confirm("Keluar dari sistem?")){
+
+localStorage.removeItem("loginUser")
+
+location.reload()
+
+}
+
+}
 </script>
 <div id="toast" class="toast">
 Data berhasil ditambahkan
