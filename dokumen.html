@@ -271,9 +271,8 @@ Selesai
 <div id="log" class="card" style="display:none">
 
 <input id="search" placeholder="Cari dokumen..." onkeyup="render()">
-
 <input type="file" id="foto" accept="image/*" capture="environment">
-
+<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
 <table>
 
 <thead>
@@ -405,7 +404,7 @@ ${d.foto?`<a href="${d.foto}" target="_blank">
 <div class="actions">
 
 ${d.status=="Pending"
-?`<button class="btn-green" onclick="terima(${d._row})">Diterima</button>`
+?`<button class="btn-green" onclick="openCamera(${d._row})">Diterima</button>`
 :""}
 
 <button class="btn-red" onclick="hapus(${d._row})">Delete</button>
@@ -524,7 +523,47 @@ document.getElementById("penerima").value=""
 setTimeout(loadData,1000)
 
 }
+let selectedRow=null
 
+function openCamera(row){
+
+selectedRow=row
+
+document.getElementById("cameraInput").click()
+
+}
+
+document.getElementById("cameraInput").addEventListener("change",function(){
+
+const file=this.files[0]
+
+if(!file)return
+
+const reader=new FileReader()
+
+reader.onloadend=async function(){
+
+const base64=reader.result.split(",")[1]
+
+await fetch(scriptURL,{
+method:"POST",
+mode:"no-cors",
+body:JSON.stringify({
+action:"terima",
+row:selectedRow,
+foto:base64
+})
+})
+
+alert("Dokumen diterima")
+
+setTimeout(loadData,1500)
+
+}
+
+reader.readAsDataURL(file)
+
+})
 </script>
 
 </body>
