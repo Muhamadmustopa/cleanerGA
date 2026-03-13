@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
 
 <meta charset="UTF-8">
@@ -27,7 +26,7 @@ font-weight:bold;
 
 .nav{
 display:flex;
-gap:15px;
+gap:10px;
 margin-top:10px;
 }
 
@@ -97,6 +96,7 @@ border-collapse:collapse;
 th,td{
 padding:10px;
 border-bottom:1px solid #eee;
+text-align:left;
 }
 
 th{
@@ -136,6 +136,12 @@ border-radius:6px;
 cursor:pointer;
 }
 
+.preview-img{
+width:60px;
+border-radius:6px;
+cursor:pointer;
+}
+
 @media(max-width:768px){
 
 table thead{display:none}
@@ -170,7 +176,8 @@ td:nth-of-type(4):before{content:"Penerima"}
 td:nth-of-type(5):before{content:"PIC"}
 td:nth-of-type(6):before{content:"Jam"}
 td:nth-of-type(7):before{content:"Status"}
-td:nth-of-type(8):before{content:"Aksi"}
+td:nth-of-type(8):before{content:"Foto"}
+td:nth-of-type(9):before{content:"Aksi"}
 
 }
 
@@ -286,6 +293,7 @@ Selesai
 <th>PIC</th>
 <th>Jam</th>
 <th>Status</th>
+<th>Foto</th>
 <th>Aksi</th>
 </tr>
 </thead>
@@ -343,7 +351,13 @@ document.getElementById(p).style.display="block"
 async function loadData(){
 
 const res=await fetch(scriptURL)
-data=await res.json()
+
+const raw=await res.json()
+
+data=raw.map((d,i)=>({
+...d,
+_row:i+2
+}))
 
 render()
 
@@ -368,7 +382,7 @@ data
 
 )
 
-.forEach((d,i)=>{
+.forEach(d=>{
 
 if(d.status==="Pending")pending++
 if(d.status==="Selesai")done++
@@ -389,14 +403,20 @@ ${d.status||""}
 </td>
 
 <td>
+${d.foto?`<a href="${d.foto}" target="_blank">
+<img src="${d.foto}" class="preview-img">
+</a>`:"-"}
+</td>
+
+<td>
 
 <div class="actions">
 
 ${d.status=="Pending"
-?`<button class="btn-green" onclick="terima(${i})">Diterima</button>`
+?`<button class="btn-green" onclick="terima(${d._row})">Diterima</button>`
 :""}
 
-<button class="btn-red" onclick="hapus(${i})">Delete</button>
+<button class="btn-red" onclick="hapus(${d._row})">Delete</button>
 
 </div>
 
@@ -428,16 +448,13 @@ year:"numeric"
 
 }
 
-async function terima(i){
+async function terima(row){
 
 const file=document.getElementById("foto").files[0]
 
 if(!file){
-
 alert("Ambil foto bukti dulu")
-
 return
-
 }
 
 const reader=new FileReader()
@@ -450,7 +467,7 @@ await fetch(scriptURL,{
 method:"POST",
 body:JSON.stringify({
 action:"terima",
-row:i+2,
+row:row,
 foto:base64
 })
 })
@@ -463,7 +480,7 @@ reader.readAsDataURL(file)
 
 }
 
-async function hapus(i){
+async function hapus(row){
 
 if(confirm("Hapus data?")){
 
@@ -471,7 +488,7 @@ await fetch(scriptURL,{
 method:"POST",
 body:JSON.stringify({
 action:"delete",
-row:i+2
+row:row
 })
 })
 
