@@ -206,6 +206,18 @@ border-radius:8px;
 box-shadow:0 4px 10px rgba(0,0,0,0.2);
 display:none;
 }
+  .logout-btn{
+position:absolute;
+right:15px;
+top:15px;
+background:#dc2626;
+color:white;
+border:none;
+padding:8px 12px;
+border-radius:6px;
+cursor:pointer;
+font-size:13px;
+}
 </style>
 
 </head>
@@ -236,12 +248,14 @@ display:none;
 
 <div id="app" style="display:none">
 
-<header>
+<header style="position:relative">
 
-Sistem Log sheet  Dokumen
+Sistem Log Dokumen - <span id="userDisplay"></span>
+
+<button class="logout-btn" onclick="logout()">Keluar</button>
 
 <div class="nav">
-<button onclick="showPage('dashboard')">Dashboard</button>
+<button onclick="showPage('dashboard')">Dashboard Pencatatan</button>
 <button onclick="showPage('input')">Input Paket</button>
 <button onclick="showPage('log')">Log Dokumen</button>
 </div>
@@ -347,6 +361,8 @@ document.getElementById("loginPage").style.display="none"
 document.getElementById("app").style.display="block"
 
 document.getElementById("pic").value=currentUser
+
+document.getElementById("userDisplay").innerText=currentUser
 
 loadData()
 
