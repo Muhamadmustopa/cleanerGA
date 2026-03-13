@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -28,6 +29,7 @@ font-weight:bold;
 display:flex;
 gap:10px;
 margin-top:10px;
+flex-wrap:wrap;
 }
 
 .nav button{
@@ -116,6 +118,7 @@ font-weight:bold;
 .actions{
 display:flex;
 gap:5px;
+flex-wrap:wrap;
 }
 
 .btn-green{
@@ -142,42 +145,52 @@ border-radius:6px;
 cursor:pointer;
 }
 
+/* MOBILE CARD MODE */
+
 @media(max-width:768px){
 
-table thead{display:none}
+table{
+border:0;
+}
 
-table,tr,td{
+table thead{
+display:none;
+}
+
+table tr{
 display:block;
-width:100%;
-}
-
-tr{
 background:white;
-margin-bottom:10px;
-padding:10px;
-border-radius:10px;
+margin-bottom:15px;
+border-radius:12px;
+padding:15px;
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
 }
 
-td{
-padding-left:50%;
-position:relative;
+table td{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:8px 0;
+border:none;
+font-size:14px;
 }
 
-td:before{
-position:absolute;
-left:10px;
-font-weight:bold;
+table td:before{
+content:attr(data-label);
+font-weight:600;
+color:#475569;
 }
 
-td:nth-of-type(1):before{content:"Tanggal"}
-td:nth-of-type(2):before{content:"Pengirim"}
-td:nth-of-type(3):before{content:"Jenis"}
-td:nth-of-type(4):before{content:"Penerima"}
-td:nth-of-type(5):before{content:"PIC"}
-td:nth-of-type(6):before{content:"Jam"}
-td:nth-of-type(7):before{content:"Status"}
-td:nth-of-type(8):before{content:"Foto"}
-td:nth-of-type(9):before{content:"Aksi"}
+.actions{
+margin-top:10px;
+display:flex;
+gap:10px;
+}
+
+.preview-img{
+width:70px;
+border-radius:8px;
+}
 
 }
 
@@ -225,8 +238,6 @@ Sistem Log Dokumen
 
 <div class="container">
 
-<!-- DASHBOARD -->
-
 <div id="dashboard" class="card">
 
 <h2>Dashboard</h2>
@@ -252,8 +263,6 @@ Selesai
 
 </div>
 
-<!-- INPUT -->
-
 <div id="input" class="card" style="display:none">
 
 <h2>Input Paket</h2>
@@ -273,8 +282,6 @@ Selesai
 <button class="primary" onclick="tambah()">Tambah</button>
 
 </div>
-
-<!-- LOG -->
 
 <div id="log" class="card" style="display:none">
 
@@ -391,24 +398,24 @@ tbody.innerHTML+=`
 
 <tr>
 
-<td>${formatTanggal(d.tanggal)}</td>
-<td>${d.pengirim||""}</td>
-<td>${d.jenis||""}</td>
-<td>${d.penerima||""}</td>
-<td>${d.pic||""}</td>
-<td>${d.jam||"-"}</td>
+<td data-label="Tanggal">${formatTanggal(d.tanggal)}</td>
+<td data-label="Pengirim">${d.pengirim||""}</td>
+<td data-label="Jenis">${d.jenis||""}</td>
+<td data-label="Penerima">${d.penerima||""}</td>
+<td data-label="PIC">${d.pic||""}</td>
+<td data-label="Jam">${d.jam||"-"}</td>
 
-<td class="${d.status=="Pending"?"status-pending":"status-done"}">
+<td data-label="Status" class="${d.status=="Pending"?"status-pending":"status-done"}">
 ${d.status||""}
 </td>
 
-<td>
+<td data-label="Foto">
 ${d.foto?`<a href="${d.foto}" target="_blank">
 <img src="${d.foto}" class="preview-img">
 </a>`:"-"}
 </td>
 
-<td>
+<td data-label="Aksi">
 
 <div class="actions">
 
@@ -527,3 +534,4 @@ loadData()
 
 </body>
 </html>
+```
