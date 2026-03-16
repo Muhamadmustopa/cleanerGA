@@ -16,6 +16,12 @@ body{
 font-family:Segoe UI;
 margin:0;
 background:#f1f5f9;
+padding-bottom:60px;
+}
+  
+button{
+min-height:40px;
+font-size:14px;
 }
 
 /* HEADER */
@@ -57,8 +63,13 @@ font-size:13px;
 
 .nav{
 display:flex;
-gap:10px;
+gap:8px;
 flex-wrap:wrap;
+}
+
+.nav button{
+flex:1;
+min-width:90px;
 }
 
 .nav button{
@@ -71,6 +82,9 @@ cursor:pointer;
 font-weight:500;
 }
 
+  button:active{
+transform:scale(0.96);
+}
 /* CONTAINER */
 
 .container{
@@ -254,6 +268,20 @@ padding:12px 20px;
 border-radius:8px;
 box-shadow:0 4px 10px rgba(0,0,0,0.2);
 display:none;
+}
+  /* FOOTER MOBILE FRIENDLY */
+
+.footer{
+background:#6b7280;
+color:white;
+text-align:center;
+padding:14px;
+font-size:13px;
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+z-index:10;
 }
 
 </style>
@@ -727,7 +755,9 @@ window.location.href="dokumen.html"
 }
 
 </script>
-
+<footer class="footer">
+© 2026 - trackingdocmap
+</footer>
 </body>
 </html>
 
