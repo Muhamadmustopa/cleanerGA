@@ -505,10 +505,12 @@ const base64=reader.result.split(",")[1]
 
 await fetch(scriptURL,{
 method:"POST",
-mode:"no-cors",
+headers:{
+"Content-Type":"application/json"
+},
 body:JSON.stringify({
 action:"terima",
-row:row,
+row:selectedRow,
 foto:base64
 })
 })
