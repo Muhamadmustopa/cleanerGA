@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Login PIC</title>
+<title>Document Tracking System</title>
 
 <style>
 
@@ -19,8 +19,8 @@ margin:0;
 height:100vh;
 display:flex;
 justify-content:center;
-position:relative;
 align-items:center;
+position:relative;
 background:linear-gradient(rgba(30,58,138,0.75),rgba(30,58,138,0.75)),
 url("https://images.unsplash.com/photo-1586281380349-632531db7ed4");
 background-size:cover;
@@ -38,8 +38,20 @@ width:100%;
 height:100%;
 background:url("https://www.transparenttextures.com/patterns/cubes.png");
 opacity:0.15;
-pointer-events:none;   /* ini yang penting */
+pointer-events:none;
 z-index:0;
+}
+
+/* title system */
+
+.system-title{
+position:absolute;
+top:60px;
+font-size:32px;
+font-weight:700;
+color:white;
+z-index:1;
+text-align:center;
 }
 
 /* login card */
@@ -78,17 +90,43 @@ font-weight:600;
 /* form */
 
 .form-group{
-position:relative;
 margin-bottom:15px;
 }
 
-select,input{
+select{
 width:100%;
 padding:12px;
 border:none;
 border-radius:10px;
 font-size:14px;
 outline:none;
+}
+
+/* PIN dots */
+
+.pin-container{
+display:flex;
+justify-content:center;
+gap:10px;
+margin-bottom:15px;
+}
+
+.pin-dot{
+width:18px;
+height:18px;
+border-radius:50%;
+border:2px solid white;
+}
+
+.pin-dot.filled{
+background:white;
+}
+
+/* hidden input */
+
+#password{
+opacity:0;
+position:absolute;
 }
 
 /* button */
@@ -129,6 +167,11 @@ width:90%;
 padding:25px;
 }
 
+.system-title{
+font-size:24px;
+top:40px;
+}
+
 }
 
 </style>
@@ -136,6 +179,10 @@ padding:25px;
 </head>
 
 <body>
+
+<div class="system-title">
+Document Tracking System
+</div>
 
 <div class="card">
 
@@ -151,9 +198,16 @@ padding:25px;
 </select>
 </div>
 
-<div class="form-group">
-<input type="password" id="password" placeholder="Password">
+<!-- PIN DOTS -->
+
+<div class="pin-container">
+<div class="pin-dot" id="d1"></div>
+<div class="pin-dot" id="d2"></div>
+<div class="pin-dot" id="d3"></div>
+<div class="pin-dot" id="d4"></div>
 </div>
+
+<input type="password" id="password" maxlength="4">
 
 <button onclick="login()">Masuk</button>
 
@@ -163,15 +217,36 @@ Sistem Log Dokumen Receptionist
 
 </div>
 
-
 <script>
+
+const input=document.getElementById("password")
+
+document.body.addEventListener("click",()=>{
+input.focus()
+})
+
+input.addEventListener("input",function(){
+
+const val=input.value
+
+for(let i=1;i<=4;i++){
+document.getElementById("d"+i).classList.remove("filled")
+}
+
+for(let i=0;i<val.length;i++){
+document.getElementById("d"+(i+1)).classList.add("filled")
+}
+
+})
 
 function login(){
 
 const user=document.getElementById("user").value
 const pass=document.getElementById("password").value
 
-if(pass==="1"){
+/* PASSWORD */
+
+if(pass==="1111"){
 
 localStorage.setItem("pic_user",user)
 
@@ -181,6 +256,9 @@ window.location.href="app.html"
 
 alert("Password salah")
 
+input.value=""
+document.querySelectorAll(".pin-dot").forEach(d=>d.classList.remove("filled"))
+
 }
 
 }
@@ -189,4 +267,3 @@ alert("Password salah")
 
 </body>
 </html>
-```
