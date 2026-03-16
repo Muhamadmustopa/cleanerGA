@@ -250,7 +250,7 @@ font-size:13px;
 
 <header style="position:relative">
 
-Sistem Log Dokumen - <span id="userDisplay"></span>
+Sistem Log Dokumen in Receptionist - <span id="userDisplay"></span>
 
 <button class="logout-btn" onclick="logout()">Keluar</button>
 
@@ -348,6 +348,7 @@ const scriptURL="https://script.google.com/macros/s/AKfycbzDZSLNVKsWxMVLBjI2lREt
 
 let currentUser=""
 let data=[]
+let selectedRow=null
 
 function login(){
 
@@ -361,15 +362,12 @@ document.getElementById("loginPage").style.display="none"
 document.getElementById("app").style.display="block"
 
 document.getElementById("pic").value=currentUser
-
 document.getElementById("userDisplay").innerText=currentUser
 
 loadData()
 
 }else{
-
 alert("Password salah")
-
 }
 
 }
@@ -387,7 +385,6 @@ document.getElementById(p).style.display="block"
 async function loadData(){
 
 const res=await fetch(scriptURL)
-
 const raw=await res.json()
 
 data=raw.map((d,i)=>({
@@ -402,7 +399,6 @@ render()
 function render(){
 
 const search=document.getElementById("search").value.toLowerCase()
-
 const tbody=document.getElementById("tableBody")
 
 tbody.innerHTML=""
@@ -417,7 +413,6 @@ data
 (d.penerima||"").toLowerCase().includes(search)
 
 )
-
 .forEach(d=>{
 
 if(d.status==="Pending")pending++
@@ -452,9 +447,9 @@ ${d.status=="Pending"
 ?`<button class="btn-green" onclick="openCamera(${d._row})">Diterima</button>`
 :""}
 
-${d.pic === currentUser 
-? `<button class="btn-red" onclick="hapus(${d._row})">Delete</button>` 
-: ""}
+${d.pic===currentUser
+?`<button class="btn-red" onclick="hapus(${d._row})">Delete</button>`
+:""}
 
 </div>
 
@@ -488,107 +483,9 @@ year:"numeric"
 
 }
 
-async function terima(row){
-
-const file=document.getElementById("foto").files[0]
-
-if(!file){
-alert("Ambil foto bukti dulu")
-return
-}
-
-const reader=new FileReader()
-
-reader.onloadend=async function(){
-
-const base64=reader.result.split(",")[1]
-
-await fetch(scriptURL,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-action:"terima",
-row:selectedRow,
-foto:base64
-})
-})
-
-setTimeout(loadData,1500)
-
-}
-
-reader.readAsDataURL(file)
-
-}
-
-async function hapus(row){
-
-if(confirm("Hapus data?")){
-
-await fetch(scriptURL,{
-method:"POST",
-mode:"no-cors",
-body:JSON.stringify({
-action:"delete",
-row:row
-})
-})
-
-setTimeout(loadData,1000)
-
-}
-
-}
-  async function tambah(){
-
-const spinner=document.getElementById("spinner")
-const toast=document.getElementById("toast")
-
-spinner.style.display="block"
-
-const payload={
-
-action:"add",
-
-tanggal:new Date().toISOString(),
-
-pengirim:document.getElementById("pengirim").value,
-
-jenis:document.getElementById("jenis").value,
-
-penerima:document.getElementById("penerima").value,
-
-pic:currentUser
-
-}
-
-await fetch(scriptURL,{
-method:"POST",
-mode:"no-cors",
-body:JSON.stringify(payload)
-})
-
-document.getElementById("pengirim").value=""
-document.getElementById("penerima").value=""
-
-spinner.style.display="none"
-
-toast.style.display="block"
-
-setTimeout(()=>{
-toast.style.display="none"
-},3000)
-
-setTimeout(loadData,1000)
-
-}
-
 function openCamera(row){
 
 selectedRow=row
-
 document.getElementById("cameraInput").click()
 
 }
@@ -624,19 +521,77 @@ setTimeout(loadData,1500)
 reader.readAsDataURL(file)
 
 })
-  function logout(){
+
+async function hapus(row){
+
+if(confirm("Hapus data?")){
+
+await fetch(scriptURL,{
+method:"POST",
+mode:"no-cors",
+body:JSON.stringify({
+action:"delete",
+row:row
+})
+})
+
+setTimeout(loadData,1000)
+
+}
+
+}
+
+async function tambah(){
+
+const spinner=document.getElementById("spinner")
+const toast=document.getElementById("toast")
+
+spinner.style.display="block"
+
+const payload={
+
+action:"add",
+tanggal:new Date().toISOString(),
+pengirim:document.getElementById("pengirim").value,
+jenis:document.getElementById("jenis").value,
+penerima:document.getElementById("penerima").value,
+pic:currentUser
+
+}
+
+await fetch(scriptURL,{
+method:"POST",
+mode:"no-cors",
+body:JSON.stringify(payload)
+})
+
+document.getElementById("pengirim").value=""
+document.getElementById("penerima").value=""
+
+spinner.style.display="none"
+
+toast.style.display="block"
+
+setTimeout(()=>{
+toast.style.display="none"
+},3000)
+
+setTimeout(loadData,1000)
+
+}
+
+function logout(){
 
 if(confirm("Keluar dari sistem?")){
-
-localStorage.removeItem("loginUser")
 
 location.reload()
 
 }
 
 }
+
 </script>
-<div id="toast" class="toast">
+  <div id="toast" class="toast">
 Data berhasil ditambahkan
 </div>
 </body>
