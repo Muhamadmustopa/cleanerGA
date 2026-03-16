@@ -386,9 +386,9 @@ style="display:none"
 </thead>
 
 <tbody id="tableBody"></tbody>
-<div id="mobileList" class="mobile-list"></div>
 </table>
-
+  
+<div id="mobileList" class="mobile-list"></div>
 </div>
 
 </div>
@@ -445,23 +445,26 @@ function render(){
 
 const search=document.getElementById("search").value.toLowerCase()
 const tbody=document.getElementById("tableBody")
+const mobile=document.getElementById("mobileList")
 
 tbody.innerHTML=""
+mobile.innerHTML=""
 
 let pending=0
 let done=0
 
 data
 .filter(d=>
-(d.pengirim||"").toLowerCase().includes(search)
-||
+(d.pengirim||"").toLowerCase().includes(search) ||
 (d.penerima||"").toLowerCase().includes(search)
 )
 
 .forEach(d=>{
 
-if(d.status==="Pending")pending++
-if(d.status==="Selesai")done++
+if(d.status==="Pending") pending++
+if(d.status==="Selesai") done++
+
+/* TABLE */
 
 tbody.innerHTML+=`
 
@@ -474,15 +477,15 @@ tbody.innerHTML+=`
 <td data-label="PIC">${d.pic||""}</td>
 <td data-label="Jam">${d.jam||"-"}</td>
 
-<td data-label="Status" class="${d.status=="Pending"?"status-pending":"status-done"}">
+<td class="${d.status=="Pending"?"status-pending":"status-done"}">
 ${d.status||""}
 </td>
 
-<td data-label="Foto">
+<td>
 ${d.foto?`<a href="${d.foto}" target="_blank"><img src="${d.foto}" class="preview-img"></a>`:"-"}
 </td>
 
-<td data-label="Aksi">
+<td>
 
 <div class="actions">
 
@@ -493,10 +496,15 @@ ${d.status=="Pending"
 ${d.pic===currentUser
 ?`<button class="btn-red" onclick="hapus(${d._row})">Delete</button>`
 :""}
-const mobile=document.getElementById("mobileList")
-mobile.innerHTML=""
 
-data.forEach(d=>{
+</div>
+
+</td>
+
+</tr>
+`
+
+/* MOBILE CARD */
 
 mobile.innerHTML+=`
 
@@ -535,15 +543,6 @@ ${d.pic===currentUser
 </div>
 
 </div>
-
-`
-
-})
-</div>
-
-</td>
-
-</tr>
 
 `
 
