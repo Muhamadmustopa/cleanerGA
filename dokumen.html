@@ -71,24 +71,6 @@ border-radius:8px;
 cursor:pointer;
 }
 
-.stats{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-gap:15px;
-}
-
-.stat{
-background:#e2e8f0;
-padding:20px;
-border-radius:10px;
-text-align:center;
-}
-
-.stat h3{
-margin:0;
-font-size:28px;
-}
-
 table{
 width:100%;
 border-collapse:collapse;
@@ -100,25 +82,10 @@ border-bottom:1px solid #eee;
 text-align:left;
 }
 
-th{
-background:#f1f5f9;
-}
+.status-pending{color:#dc2626;font-weight:bold;}
+.status-done{color:#16a34a;font-weight:bold;}
 
-.status-pending{
-color:#dc2626;
-font-weight:bold;
-}
-
-.status-done{
-color:#16a34a;
-font-weight:bold;
-}
-
-.actions{
-display:flex;
-gap:5px;
-flex-wrap:wrap;
-}
+.actions{display:flex;gap:5px}
 
 .btn-green{
 background:#16a34a;
@@ -141,43 +108,8 @@ cursor:pointer;
 .preview-img{
 width:60px;
 border-radius:6px;
-cursor:pointer;
 }
 
-@media(max-width:768px){
-
-table{border:0}
-table thead{display:none}
-
-table tr{
-display:block;
-background:white;
-margin-bottom:15px;
-border-radius:12px;
-padding:15px;
-box-shadow:0 4px 10px rgba(0,0,0,0.08);
-}
-
-table td{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:8px 0;
-border:none;
-font-size:14px;
-}
-
-table td:before{
-content:attr(data-label);
-font-weight:600;
-color:#475569;
-}
-
-.preview-img{
-width:70px;
-}
-
-}
 .spinner{
 display:none;
 width:30px;
@@ -203,10 +135,10 @@ background:#16a34a;
 color:white;
 padding:12px 20px;
 border-radius:8px;
-box-shadow:0 4px 10px rgba(0,0,0,0.2);
 display:none;
 }
-  .logout-btn{
+
+.logout-btn{
 position:absolute;
 right:15px;
 top:15px;
@@ -216,8 +148,8 @@ border:none;
 padding:8px 12px;
 border-radius:6px;
 cursor:pointer;
-font-size:13px;
 }
+
 </style>
 
 </head>
@@ -255,7 +187,7 @@ Sistem Log Dokumen in Receptionist - <span id="userDisplay"></span>
 <button class="logout-btn" onclick="logout()">Keluar</button>
 
 <div class="nav">
-<button onclick="showPage('dashboard')">Dashboard Pencatatan</button>
+<button onclick="showPage('dashboard')">Dashboard</button>
 <button onclick="showPage('input')">Input Paket</button>
 <button onclick="showPage('log')">Log Dokumen</button>
 </div>
@@ -268,24 +200,9 @@ Sistem Log Dokumen in Receptionist - <span id="userDisplay"></span>
 
 <h2>Dashboard</h2>
 
-<div class="stats">
-
-<div class="stat">
-Total
-<h3 id="total">0</h3>
-</div>
-
-<div class="stat">
-Pending
-<h3 id="pending">0</h3>
-</div>
-
-<div class="stat">
-Selesai
-<h3 id="done">0</h3>
-</div>
-
-</div>
+Total : <b id="total">0</b> |
+Pending : <b id="pending">0</b> |
+Selesai : <b id="done">0</b>
 
 </div>
 
@@ -314,8 +231,9 @@ Selesai
 <div id="log" class="card" style="display:none">
 
 <input id="search" placeholder="Cari dokumen..." onkeyup="render()">
-<input type="file" id="foto" accept="image/*" capture="environment">
+
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+
 <table>
 
 <thead>
@@ -398,22 +316,13 @@ render()
 
 function render(){
 
-const search=document.getElementById("search").value.toLowerCase()
 const tbody=document.getElementById("tableBody")
-
 tbody.innerHTML=""
 
 let pending=0
 let done=0
 
-data
-.filter(d=>
-
-(d.pengirim||"").toLowerCase().includes(search) ||
-(d.penerima||"").toLowerCase().includes(search)
-
-)
-.forEach(d=>{
+data.forEach(d=>{
 
 if(d.status==="Pending")pending++
 if(d.status==="Selesai")done++
@@ -422,26 +331,22 @@ tbody.innerHTML+=`
 
 <tr>
 
-<td data-label="Tanggal">${formatTanggal(d.tanggal)}</td>
-<td data-label="Pengirim">${d.pengirim||""}</td>
-<td data-label="Jenis">${d.jenis||""}</td>
-<td data-label="Penerima">${d.penerima||""}</td>
-<td data-label="PIC">${d.pic||""}</td>
-<td data-label="Jam">${d.jam||"-"}</td>
+<td>${formatTanggal(d.tanggal)}</td>
+<td>${d.pengirim||""}</td>
+<td>${d.jenis||""}</td>
+<td>${d.penerima||""}</td>
+<td>${d.pic||""}</td>
+<td>${d.jam||"-"}</td>
 
-<td data-label="Status" class="${d.status=="Pending"?"status-pending":"status-done"}">
+<td class="${d.status=="Pending"?"status-pending":"status-done"}">
 ${d.status||""}
 </td>
 
-<td data-label="Foto">
-${d.foto?`<a href="${d.foto}" target="_blank">
-<img src="${d.foto}" class="preview-img">
-</a>`:"-"}
+<td>
+${d.foto?`<img src="${d.foto}" class="preview-img">`:"-"}
 </td>
 
-<td data-label="Aksi">
-
-<div class="actions">
+<td>
 
 ${d.status=="Pending"
 ?`<button class="btn-green" onclick="openCamera(${d._row})">Diterima</button>`
@@ -450,8 +355,6 @@ ${d.status=="Pending"
 ${d.pic===currentUser
 ?`<button class="btn-red" onclick="hapus(${d._row})">Delete</button>`
 :""}
-
-</div>
 
 </td>
 
@@ -468,39 +371,50 @@ document.getElementById("done").innerText=done
 }
 
 function formatTanggal(t){
-
-if(!t) return ""
-
 const date=new Date(t)
-
-if(isNaN(date)) return t
-
-return date.toLocaleDateString("id-ID",{
-day:"2-digit",
-month:"2-digit",
-year:"numeric"
-})
-
+return date.toLocaleDateString("id-ID")
 }
 
 function openCamera(row){
-
 selectedRow=row
 document.getElementById("cameraInput").click()
-
 }
+
+/* FOTO COMPRESS */
 
 document.getElementById("cameraInput").addEventListener("change",function(){
 
 const file=this.files[0]
-
 if(!file)return
 
+const img=new Image()
 const reader=new FileReader()
 
-reader.onloadend=async function(){
+reader.onload=e=>{
+img.src=e.target.result
+}
 
-const base64=reader.result.split(",")[1]
+img.onload=async ()=>{
+
+const canvas=document.createElement("canvas")
+const ctx=canvas.getContext("2d")
+
+const max=800
+let w=img.width
+let h=img.height
+
+if(w>max){
+h*=max/w
+w=max
+}
+
+canvas.width=w
+canvas.height=h
+
+ctx.drawImage(img,0,0,w,h)
+
+/* compress quality */
+const base64=canvas.toDataURL("image/jpeg",0.5).split(",")[1]
 
 await fetch(scriptURL,{
 method:"POST",
@@ -522,9 +436,28 @@ reader.readAsDataURL(file)
 
 })
 
-async function hapus(row){
+async function tambah(){
 
-if(confirm("Hapus data?")){
+await fetch(scriptURL,{
+method:"POST",
+mode:"no-cors",
+body:JSON.stringify({
+
+action:"add",
+tanggal:new Date().toISOString(),
+pengirim:document.getElementById("pengirim").value,
+jenis:document.getElementById("jenis").value,
+penerima:document.getElementById("penerima").value,
+pic:currentUser
+
+})
+})
+
+loadData()
+
+}
+
+async function hapus(row){
 
 await fetch(scriptURL,{
 method:"POST",
@@ -539,60 +472,15 @@ setTimeout(loadData,1000)
 
 }
 
-}
-
-async function tambah(){
-
-const spinner=document.getElementById("spinner")
-const toast=document.getElementById("toast")
-
-spinner.style.display="block"
-
-const payload={
-
-action:"add",
-tanggal:new Date().toISOString(),
-pengirim:document.getElementById("pengirim").value,
-jenis:document.getElementById("jenis").value,
-penerima:document.getElementById("penerima").value,
-pic:currentUser
-
-}
-
-await fetch(scriptURL,{
-method:"POST",
-mode:"no-cors",
-body:JSON.stringify(payload)
-})
-
-document.getElementById("pengirim").value=""
-document.getElementById("penerima").value=""
-
-spinner.style.display="none"
-
-toast.style.display="block"
-
-setTimeout(()=>{
-toast.style.display="none"
-},3000)
-
-setTimeout(loadData,1000)
-
-}
-
 function logout(){
-
-if(confirm("Keluar dari sistem?")){
-
 location.reload()
-
-}
-
 }
 
 </script>
-  <div id="toast" class="toast">
+
+<div id="toast" class="toast">
 Data berhasil ditambahkan
 </div>
+
 </body>
 </html>
