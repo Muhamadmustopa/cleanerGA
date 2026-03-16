@@ -9,9 +9,7 @@
 
 <style>
 
-*{
-box-sizing:border-box;
-}
+*{box-sizing:border-box;}
 
 body{
 font-family:Segoe UI;
@@ -27,7 +25,7 @@ background-size:cover;
 background-position:center;
 }
 
-/* overlay pattern */
+/* pattern */
 
 body::after{
 content:"";
@@ -39,26 +37,21 @@ height:100%;
 background:url("https://www.transparenttextures.com/patterns/cubes.png");
 opacity:0.15;
 pointer-events:none;
-z-index:0;
 }
 
-/* title system */
+/* title */
 
 .system-title{
 position:absolute;
 top:60px;
-font-size:32px;
+font-size:30px;
 font-weight:700;
 color:white;
-z-index:1;
-text-align:center;
 }
 
-/* login card */
+/* card */
 
 .card{
-position:relative;
-z-index:1;
 background:rgba(255,255,255,0.15);
 backdrop-filter:blur(12px);
 padding:35px;
@@ -66,49 +59,31 @@ border-radius:16px;
 box-shadow:0 10px 25px rgba(0,0,0,.2);
 width:320px;
 color:white;
-animation:fadeIn 0.7s ease;
-}
-
-@keyframes fadeIn{
-from{
-opacity:0;
-transform:translateY(20px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
 }
 
 .card h2{
-margin-top:0;
 text-align:center;
 margin-bottom:20px;
-font-weight:600;
 }
 
 /* form */
-
-.form-group{
-margin-bottom:15px;
-}
 
 select{
 width:100%;
 padding:12px;
 border:none;
 border-radius:10px;
-font-size:14px;
-outline:none;
+margin-bottom:15px;
 }
 
-/* PIN dots */
+/* PIN */
 
 .pin-container{
 display:flex;
 justify-content:center;
 gap:10px;
 margin-bottom:15px;
+cursor:text;
 }
 
 .pin-dot{
@@ -125,8 +100,9 @@ background:white;
 /* hidden input */
 
 #password{
-opacity:0;
 position:absolute;
+opacity:0;
+pointer-events:none;
 }
 
 /* button */
@@ -141,37 +117,17 @@ border-radius:10px;
 font-size:15px;
 font-weight:600;
 cursor:pointer;
-transition:0.3s;
 }
 
 button:hover{
 background:#1d4ed8;
-transform:translateY(-1px);
 }
-
-/* footer */
 
 .footer{
 margin-top:15px;
 font-size:12px;
 text-align:center;
 opacity:0.8;
-}
-
-/* mobile */
-
-@media(max-width:480px){
-
-.card{
-width:90%;
-padding:25px;
-}
-
-.system-title{
-font-size:24px;
-top:40px;
-}
-
 }
 
 </style>
@@ -188,7 +144,6 @@ Document Tracking System
 
 <h2>📄 Login PIC</h2>
 
-<div class="form-group">
 <select id="user">
 <option>Abdul Apso</option>
 <option>Irfan Affandi</option>
@@ -196,11 +151,10 @@ Document Tracking System
 <option>Ahmad Yani</option>
 <option>Topa</option>
 </select>
-</div>
 
-<!-- PIN DOTS -->
+<!-- PIN -->
 
-<div class="pin-container">
+<div class="pin-container" onclick="focusPin()">
 <div class="pin-dot" id="d1"></div>
 <div class="pin-dot" id="d2"></div>
 <div class="pin-dot" id="d3"></div>
@@ -221,9 +175,9 @@ Sistem Log Dokumen Receptionist
 
 const input=document.getElementById("password")
 
-document.body.addEventListener("click",()=>{
+function focusPin(){
 input.focus()
-})
+}
 
 input.addEventListener("input",function(){
 
@@ -242,14 +196,11 @@ document.getElementById("d"+(i+1)).classList.add("filled")
 function login(){
 
 const user=document.getElementById("user").value
-const pass=document.getElementById("password").value
-
-/* PASSWORD */
+const pass=input.value
 
 if(pass==="1111"){
 
 localStorage.setItem("pic_user",user)
-
 window.location.href="app.html"
 
 }else{
