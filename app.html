@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="id">
 
@@ -17,6 +18,8 @@ font-family:Segoe UI;
 margin:0;
 background:#f1f5f9;
 }
+
+/* HEADER */
 
 .header{
 background:#1e3a8a;
@@ -62,6 +65,8 @@ cursor:pointer;
 font-weight:500;
 }
 
+/* CONTAINER */
+
 .container{
 max-width:1000px;
 margin:auto;
@@ -93,6 +98,8 @@ border-radius:8px;
 cursor:pointer;
 }
 
+/* DASHBOARD */
+
 .stats{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
@@ -110,6 +117,8 @@ text-align:center;
 margin:0;
 font-size:28px;
 }
+
+/* TABLE */
 
 table{
 width:100%;
@@ -166,78 +175,10 @@ border-radius:6px;
 cursor:pointer;
 }
 
-@media(max-width:768px){
-
-table{border:0}
-table thead{display:none}
-
-table tr{
-display:block;
-background:white;
-margin-bottom:15px;
-border-radius:12px;
-padding:15px;
-box-shadow:0 4px 10px rgba(0,0,0,0.08);
-}
-
-table td{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:8px 0;
-border:none;
-font-size:14px;
-}
-
-table td:before{
-content:attr(data-label);
-font-weight:600;
-color:#475569;
-}
-
-.preview-img{width:70px}
-
-}
-
-.spinner{
-display:none;
-width:30px;
-height:30px;
-border:4px solid #e5e7eb;
-border-top:4px solid #2563eb;
-border-radius:50%;
-animation:spin 1s linear infinite;
-margin:auto;
-margin-top:10px;
-}
-
-@keyframes spin{
-0%{transform:rotate(0deg)}
-100%{transform:rotate(360deg)}
-}
-
-.toast{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#16a34a;
-color:white;
-padding:12px 20px;
-border-radius:8px;
-box-shadow:0 4px 10px rgba(0,0,0,0.2);
-display:none;
-}
-
-@media(max-width:768px){
-
-table{
-display:none;
-}
+/* MOBILE CARD */
 
 .mobile-list{
-display:flex;
-flex-direction:column;
-gap:12px;
+display:none;
 }
 
 .mobile-card{
@@ -260,7 +201,55 @@ gap:8px;
 margin-top:10px;
 }
 
+/* MOBILE MODE */
+
+@media(max-width:768px){
+
+table{
+display:none;
 }
+
+.mobile-list{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+}
+
+/* SPINNER */
+
+.spinner{
+display:none;
+width:30px;
+height:30px;
+border:4px solid #e5e7eb;
+border-top:4px solid #2563eb;
+border-radius:50%;
+animation:spin 1s linear infinite;
+margin:auto;
+margin-top:10px;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg)}
+100%{transform:rotate(360deg)}
+}
+
+/* TOAST */
+
+.toast{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#16a34a;
+color:white;
+padding:12px 20px;
+border-radius:8px;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
+display:none;
+}
+
 </style>
 
 </head>
@@ -272,8 +261,7 @@ margin-top:10px;
 <div class="header-top">
 
 <div class="title">
-Sistem Log Dokumen
-<span id="userDisplay"></span>
+Sistem Log Dokumen - <span id="userDisplay"></span>
 </div>
 
 <button class="logout-btn" onclick="logout()">
@@ -284,23 +272,18 @@ Logout
 
 <div class="nav">
 
-<button onclick="showPage('dashboard')">
-Dashboard
-</button>
-
-<button onclick="showPage('input')">
-Input
-</button>
-
-<button onclick="showPage('log')">
-Log Dokumen
-</button>
+<button onclick="showPage('dashboard')">Dashboard</button>
+<button onclick="showPage('input')">Input</button>
+<button onclick="showPage('log')">Log Dokumen</button>
 
 </div>
 
 </header>
 
+
 <div class="container">
+
+<!-- DASHBOARD -->
 
 <div id="dashboard" class="card">
 
@@ -328,6 +311,8 @@ Selesai
 </div>
 
 
+<!-- INPUT -->
+
 <div id="input" class="card" style="display:none">
 
 <h2>Input Paket</h2>
@@ -344,14 +329,14 @@ Selesai
 
 <input id="pic" readonly>
 
-<button class="primary" onclick="tambah()">
-Tambah
-</button>
+<button class="primary" onclick="tambah()">Tambah</button>
 
 <div id="spinner" class="spinner"></div>
 
 </div>
 
+
+<!-- LOG -->
 
 <div id="log" class="card" style="display:none">
 
@@ -386,9 +371,11 @@ style="display:none"
 </thead>
 
 <tbody id="tableBody"></tbody>
+
 </table>
-  
+
 <div id="mobileList" class="mobile-list"></div>
+
 </div>
 
 </div>
@@ -406,17 +393,16 @@ window.location.href="dokumen.html"
 
 document.getElementById("userDisplay").innerText=currentUser
 
+document.getElementById("pic").value=currentUser
+
 let data=[]
 let selectedRow=null
-
-document.getElementById("pic") && (document.getElementById("pic").value=currentUser)
 
 
 function showPage(p){
 
 ["dashboard","input","log"].forEach(id=>{
-const el=document.getElementById(id)
-if(el) el.style.display="none"
+document.getElementById(id).style.display="none"
 })
 
 document.getElementById(p).style.display="block"
@@ -429,10 +415,7 @@ async function loadData(){
 const res=await fetch(scriptURL)
 const raw=await res.json()
 
-data=raw.map((d,i)=>({
-...d,
-_row:i+2
-}))
+data=raw.map((d,i)=>({...d,_row:i+2}))
 
 render()
 
@@ -464,21 +447,19 @@ data
 if(d.status==="Pending") pending++
 if(d.status==="Selesai") done++
 
-/* TABLE */
-
 tbody.innerHTML+=`
 
 <tr>
 
-<td data-label="Tanggal">${formatTanggal(d.tanggal)}</td>
-<td data-label="Pengirim">${d.pengirim||""}</td>
-<td data-label="Jenis">${d.jenis||""}</td>
-<td data-label="Penerima">${d.penerima||""}</td>
-<td data-label="PIC">${d.pic||""}</td>
-<td data-label="Jam">${d.jam||"-"}</td>
+<td>${formatTanggal(d.tanggal)}</td>
+<td>${d.pengirim||""}</td>
+<td>${d.jenis||""}</td>
+<td>${d.penerima||""}</td>
+<td>${d.pic||""}</td>
+<td>${d.jam||"-"}</td>
 
 <td class="${d.status=="Pending"?"status-pending":"status-done"}">
-${d.status||""}
+${d.status}
 </td>
 
 <td>
@@ -502,9 +483,8 @@ ${d.pic===currentUser
 </td>
 
 </tr>
-`
 
-/* MOBILE CARD */
+`
 
 mobile.innerHTML+=`
 
@@ -517,12 +497,12 @@ mobile.innerHTML+=`
 
 <div class="mobile-row">
 <b>Pengirim</b>
-<span>${d.pengirim||""}</span>
+<span>${d.pengirim}</span>
 </div>
 
 <div class="mobile-row">
 <b>Penerima</b>
-<span>${d.penerima||""}</span>
+<span>${d.penerima}</span>
 </div>
 
 <div class="mobile-row">
@@ -557,10 +537,9 @@ document.getElementById("done").innerText=done
 
 function formatTanggal(t){
 
-if(!t)return""
+if(!t) return ""
 
 const date=new Date(t)
-if(isNaN(date))return t
 
 return date.toLocaleDateString("id-ID",{
 day:"2-digit",
@@ -582,7 +561,7 @@ document.getElementById("cameraInput").click()
 document.getElementById("cameraInput").addEventListener("change",function(){
 
 const file=this.files[0]
-if(!file)return
+if(!file) return
 
 const reader=new FileReader()
 
@@ -688,4 +667,3 @@ Data berhasil ditambahkan
 </body>
 </html>
 ```
-
