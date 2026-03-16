@@ -33,6 +33,13 @@ align-items:center;
 margin-bottom:10px;
 }
 
+thead th{
+position:sticky;
+top:0;
+background:#f1f5f9;
+z-index:2;
+}
+  
 .title{
 font-weight:bold;
 font-size:16px;
@@ -290,19 +297,20 @@ Logout
 
 <div class="stats">
 
-<div class="stat">
+<div class="stat" onclick="filterStatus('all')">
 Total
 <h3 id="total">0</h3>
 </div>
 
-<div class="stat">
+<div class="stat" onclick="filterStatus('Pending')">
 Pending
 <h3 id="pending">0</h3>
 </div>
 
-<div class="stat">
+<div class="stat" onclick="filterStatus('Selesai')">
 Selesai
 <h3 id="done">0</h3>
+</div>
 </div>
 
 </div>
@@ -372,7 +380,16 @@ style="display:none"
 <tbody id="tableBody"></tbody>
 
 </table>
+  
+<div id="pagination" style="margin-top:15px;text-align:center">
 
+<button onclick="prevPage()">Previous</button>
+
+<span id="pageInfo" style="margin:0 10px"></span>
+
+<button onclick="nextPage()">Next</button>
+
+</div>
 <div id="mobileList" class="mobile-list"></div>
 
 </div>
@@ -391,11 +408,14 @@ window.location.href="dokumen.html"
 }
 
 document.getElementById("userDisplay").innerText=currentUser
-
 document.getElementById("pic").value=currentUser
 
 let data=[]
 let selectedRow=null
+
+let currentFilter="all"
+let currentPage=1
+const rowsPerPage=10
 
 
 function showPage(p){
@@ -405,6 +425,21 @@ document.getElementById(id).style.display="none"
 })
 
 document.getElementById(p).style.display="block"
+
+}
+
+
+function filterStatus(status){
+
+if(currentFilter===status){
+currentFilter="all"
+}else{
+currentFilter=status
+}
+
+currentPage=1
+showPage("log")
+render()
 
 }
 
@@ -426,239 +461,7 @@ loadData()
 function render(){
 
 const search=document.getElementById("search").value.toLowerCase()
-const tbody=document.getElementById("tableBody")
-const mobile=document.getElementById("mobileList")
-
-tbody.innerHTML=""
-mobile.innerHTML=""
-
-let pending=0
-let done=0
-
-data
-.filter(d=>
-(d.pengirim||"").toLowerCase().includes(search) ||
-(d.penerima||"").toLowerCase().includes(search)
-)
-
-.forEach(d=>{
-
-if(d.status==="Pending") pending++
-if(d.status==="Selesai") done++
-
-tbody.innerHTML+=`
-
-<tr>
-
-<td>${formatTanggal(d.tanggal)}</td>
-<td>${d.pengirim||""}</td>
-<td>${d.jenis||""}</td>
-<td>${d.penerima||""}</td>
-<td>${d.pic||""}</td>
-<td>${d.jam||"-"}</td>
-
-<td class="${d.status=="Pending"?"status-pending":"status-done"}">
-${d.status}
-</td>
-
-<td>
-${d.foto?`<a href="${d.foto}" target="_blank"><img src="${d.foto}" class="preview-img"></a>`:"-"}
-</td>
-
-<td>
-
-<div class="actions">
-
-${d.status=="Pending"
-?`<button class="btn-green" onclick="openCamera(${d._row})">Diterima</button>`
-:""}
-
-${d.pic===currentUser
-?`<button class="btn-red" onclick="hapus(${d._row})">Delete</button>`
-:""}
-
-</div>
-
-</td>
-
-</tr>
-
-`
-
-mobile.innerHTML+=`
-
-<div class="mobile-card">
-
-<div class="mobile-row">
-<b>Tanggal</b>
-<span>${formatTanggal(d.tanggal)}</span>
-</div>
-
-<div class="mobile-row">
-<b>Pengirim</b>
-<span>${d.pengirim}</span>
-</div>
-
-<div class="mobile-row">
-<b>Penerima</b>
-<span>${d.penerima}</span>
-</div>
-
-<div class="mobile-row">
-<b>Status</b>
-<span>${d.status}</span>
-</div>
-
-<div class="mobile-actions">
-
-${d.status=="Pending"
-?`<button class="btn-green" onclick="openCamera(${d._row})">Diterima</button>`
-:""}
-
-${d.pic===currentUser
-?`<button class="btn-red" onclick="hapus(${d._row})">Delete</button>`
-:""}
-
-</div>
-
-</div>
-
-`
-
-})
-
-document.getElementById("total").innerText=data.length
-document.getElementById("pending").innerText=pending
-document.getElementById("done").innerText=done
-
-}
-
-
-function formatTanggal(t){
-
-if(!t) return ""
-
-const date=new Date(t)
-
-return date.toLocaleDateString("id-ID",{
-day:"2-digit",
-month:"2-digit",
-year:"numeric"
-})
-
-}
-
-
-function openCamera(row){
-
-selectedRow=row
-document.getElementById("cameraInput").click()
-
-}
-
-
-document.getElementById("cameraInput").addEventListener("change",function(){
-
-const file=this.files[0]
-if(!file) return
-
-const reader=new FileReader()
-
-reader.onloadend=async function(){
-
-const base64=reader.result.split(",")[1]
-
-await fetch(scriptURL,{
-method:"POST",
-mode:"no-cors",
-body:JSON.stringify({
-action:"terima",
-row:selectedRow,
-foto:base64
-})
-})
-
-alert("Dokumen diterima")
-
-setTimeout(loadData,1500)
-
-}
-
-reader.readAsDataURL(file)
-
-})
-
-
-async function hapus(row){
-
-if(confirm("Hapus data?")){
-
-await fetch(scriptURL,{
-method:"POST",
-mode:"no-cors",
-body:JSON.stringify({
-action:"delete",
-row:row
-})
-})
-
-setTimeout(loadData,1000)
-
-}
-
-}
-
-
-async function tambah(){
-
-const spinner=document.getElementById("spinner")
-const toast=document.getElementById("toast")
-
-spinner.style.display="block"
-
-const payload={
-action:"add",
-tanggal:new Date().toISOString(),
-pengirim:document.getElementById("pengirim").value,
-jenis:document.getElementById("jenis").value,
-penerima:document.getElementById("penerima").value,
-pic:currentUser
-}
-
-await fetch(scriptURL,{
-method:"POST",
-mode:"no-cors",
-body:JSON.stringify(payload)
-})
-
-document.getElementById("pengirim").value=""
-document.getElementById("penerima").value=""
-
-spinner.style.display="none"
-
-toast.style.display="block"
-
-setTimeout(()=>{toast.style.display="none"},3000)
-
-setTimeout(loadData,1000)
-
-}
-
-
-function logout(){
-
-if(confirm("Keluar dari sistem?")){
-
-localStorage.removeItem("pic_user")
-window.location.href="dokumen.html"
-
-}
-
-}
-
-</script>
-
-
+const tbody=document.getElementBy
 <div id="toast" class="toast">
 Data berhasil ditambahkan
 </div>
