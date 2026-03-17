@@ -620,12 +620,72 @@ document.getElementById("cameraInput").click();
 // UPLOAD FOTO
 cameraInput.addEventListener("change", async function(){
 
-const file = this.files[0];
-if(!file) return;
+const originalFile = this.files[0];
+if(!originalFile) return;
 
+// 🔥 compress dulu
+const file = await compressImage(originalFile);
 const spinner = document.getElementById("uploadSpinner");
 spinner.style.display = "block";
+async function compressImage(file) {
+  return new Promise((resolve) => {
 
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.readAsDataURL(file);
+
+    reader.onload = function(e) {
+      img.src = e.target.result;
+    };
+
+    img.onload = function() {
+
+      const canvas = document.createElement("canvas");
+
+      const MAX_WIDTH = 800;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > MAX_WIDTH) {
+        height *= MAX_WIDTH / width;
+        width = MAX_WIDTH;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+
+      // gambar utama
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // 🔥 BUAT TIMESTAMP
+      const now = new Date();
+      const text = now.toLocaleString("id-ID");
+
+      // style text
+      ctx.font = "bold 20px Arial";
+      ctx.fillStyle = "white";
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 3;
+
+      // posisi (pojok bawah kiri)
+      const x = 10;
+      const y = height - 20;
+
+      // outline biar kebaca
+      ctx.strokeText(text, x, y);
+      ctx.fillText(text, x, y);
+
+      // compress
+      canvas.toBlob((blob) => {
+        resolve(blob);
+      }, "image/jpeg", 0.7);
+
+    };
+  });
+}
 try {
 
   const formData = new FormData();
