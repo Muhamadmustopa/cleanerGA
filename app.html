@@ -283,6 +283,13 @@ left:0;
 width:100%;
 z-index:10;
 }
+.uploadSpinner{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+z-index:999;
+}
 
 </style>
 
@@ -370,7 +377,7 @@ Selesai
 
 </div>
 
-
+<div id="uploadSpinner" class="spinner"></div>
 <!-- LOG -->
 
 <div id="log" class="card" style="display:none">
@@ -660,6 +667,9 @@ document.getElementById("cameraInput").addEventListener("change",function(){
 const file=this.files[0]
 if(!file) return
 
+const spinner=document.getElementById("uploadSpinner")
+spinner.style.display="block"   // 🔥 tampilkan loading
+
 const reader=new FileReader()
 
 reader.onloadend=async function(){
@@ -676,9 +686,11 @@ foto:base64
 })
 })
 
-alert("Dokumen diterima")
+spinner.style.display="none"   // 🔥 sembunyikan loading
 
-setTimeout(loadData,1500)
+alert("Dokumen berhasil diterima ✅")
+
+setTimeout(loadData,1000)
 
 }
 
