@@ -2,17 +2,31 @@
 <html lang="id">
 <head>
 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sistem Log Dokumen</title>
+
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sistem Log Dokumen</title>
+<link rel="icon" href="data:,">
 
 <style>
-/* (CSS kamu tetap — tidak diubah biar singkat) */
+body{font-family:Segoe UI;margin:0;background:#f1f5f9}
+.header{background:#1e3a8a;color:#fff;padding:15px}
+.nav button{margin:5px;padding:8px 12px}
+.container{padding:15px}
+.card{background:#fff;padding:15px;border-radius:10px;margin-bottom:15px}
+input,select{display:block;margin:10px 0;padding:8px;width:100%}
+button{cursor:pointer}
+.primary{background:#1e3a8a;color:#fff;border:none;padding:10px}
+.btn-green{background:green;color:#fff;border:none;padding:5px}
+.btn-red{background:red;color:#fff;border:none;padding:5px}
+table{width:100%;border-collapse:collapse}
+th,td{border:1px solid #ddd;padding:8px}
+.preview-img{width:60px}
 </style>
 
 </head>
@@ -20,11 +34,9 @@
 <body>
 
 <header class="header">
-<div class="header-top">
-<div class="title">
-Sistem Log Dokumen - <span id="userDisplay"></span>
-</div>
-<button class="logout-btn" onclick="logout()">Logout</button>
+<div>
+<b>Sistem Log Dokumen - <span id="userDisplay"></span></b>
+<button onclick="logout()" style="float:right">Logout</button>
 </div>
 
 <div class="nav">
@@ -37,16 +49,14 @@ Sistem Log Dokumen - <span id="userDisplay"></span>
 <div class="container">
 
 <div id="dashboard" class="card">
-<h2>Dashboard</h2>
-<div class="stats">
-<div class="stat" onclick="filterStatus('all')">Total<h3 id="total">0</h3></div>
-<div class="stat" onclick="filterStatus('Pending')">Pending<h3 id="pending">0</h3></div>
-<div class="stat" onclick="filterStatus('Selesai')">Selesai<h3 id="done">0</h3></div>
-</div>
+<h3>Dashboard</h3>
+<div>Total: <b id="total">0</b></div>
+<div>Pending: <b id="pending">0</b></div>
+<div>Selesai: <b id="done">0</b></div>
 </div>
 
 <div id="input" class="card" style="display:none">
-<h2>Input Paket</h2>
+<h3>Input</h3>
 
 <input id="pengirim" placeholder="Pengirim">
 <select id="jenis">
@@ -58,7 +68,6 @@ Sistem Log Dokumen - <span id="userDisplay"></span>
 <input id="pic" readonly>
 
 <button class="primary" onclick="tambah()">Tambah</button>
-<div id="spinner" class="spinner"></div>
 </div>
 
 <div id="log" class="card" style="display:none">
@@ -70,15 +79,18 @@ Sistem Log Dokumen - <span id="userDisplay"></span>
 <table>
 <thead>
 <tr>
-<th>Tanggal</th><th>Pengirim</th><th>Jenis</th>
-<th>Penerima</th><th>PIC</th><th>Status</th>
-<th>Foto</th><th>Aksi</th>
+<th>Tanggal</th>
+<th>Pengirim</th>
+<th>Jenis</th>
+<th>Penerima</th>
+<th>PIC</th>
+<th>Status</th>
+<th>Foto</th>
+<th>Aksi</th>
 </tr>
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
-
-<div id="mobileList" class="mobile-list"></div>
 
 </div>
 
@@ -86,36 +98,7 @@ Sistem Log Dokumen - <span id="userDisplay"></span>
 
 <script>
 
-// 🔥 CONFIG FIREBASE
-const firebaseConfig = {
-apiKey: "AIzaSyDfwgOnJzXn8ESDw-9siMhYP-TFJcuNFx4",
-authDomain: "tracking-doc-96d7f.firebaseapp.com",
-projectId: "tracking-doc-96d7f",
-storageBucket: "Web apps"
-taskga.netlify.app
-Web app
-App nickname
-taskga.netlify.app
-App ID
-1:511985866729:web:68bf00705f680b55159d78
-SDK setup and configuration
-
-npm
-
-CDN
-
-Config
-If you're already using NPM and a module bundler such as webpack or Rollup, you can run the following command to install the latest SDK (Learn more):
-
-npm install firebase
-Then, initialise Firebase and begin using the SDKs for the products that you'd like to use.
-
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
+// 🔥 FIREBASE CONFIG (FIX)
 const firebaseConfig = {
   apiKey: "AIzaSyDfwgOnJzXn8ESDw-9siMhYP-TFJcuNFx4",
   authDomain: "tracking-doc-96d7f.firebaseapp.com",
@@ -125,96 +108,57 @@ const firebaseConfig = {
   appId: "1:511985866729:web:68bf00705f680b55159d78"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-Note: This option uses the modular JavaScript SDK, which provides a reduced SDK size.
+firebase.initializeApp(firebaseConfig);
 
-Learn more about Firebase for web: Get started, Web SDK API Reference, Samples",
-messagingSenderId: "511985866729",
-appId: "1:511985866729:web:68bf00705f680b55159d78"
-}
+const db = firebase.firestore();
+const storage = firebase.storage();
 
-firebase.initializeApp(firebaseConfig)
+// USER
+let currentUser = localStorage.getItem("pic_user");
+if(!currentUser) location.href="dokumen.html";
 
-const db = firebase.firestore()
-const storage = firebase.storage()
-
-// 🔐 USER
-let currentUser = localStorage.getItem("pic_user")
-if(!currentUser) location.href="dokumen.html"
-
-document.getElementById("userDisplay").innerText=currentUser
-document.getElementById("pic").value=currentUser
+document.getElementById("userDisplay").innerText=currentUser;
+document.getElementById("pic").value=currentUser;
 
 // STATE
-let data=[]
-let currentFilter="all"
-let currentPage=1
-const rowsPerPage=10
-let selectedId=null
+let data=[];
+let selectedId=null;
 
 // NAV
 function showPage(p){
 ["dashboard","input","log"].forEach(id=>{
-document.getElementById(id).style.display="none"
-})
-document.getElementById(p).style.display="block"
+document.getElementById(id).style.display="none";
+});
+document.getElementById(p).style.display="block";
 }
 
-// FILTER
-function filterStatus(status){
-currentFilter = currentFilter===status ? "all" : status
-currentPage=1
-showPage("log")
-render()
-}
-
-// 🔥 LOAD DATA (FIREBASE)
+// LOAD DATA
 async function loadData(){
-const snapshot = await db.collection("dokumen")
-.orderBy("tanggal","desc")
-.get()
-
-data = snapshot.docs.map(doc=>({
-id:doc.id,
-...doc.data()
-}))
-
-render()
+const snapshot = await db.collection("dokumen").orderBy("tanggal","desc").get();
+data = snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+render();
 }
-
-loadData()
+loadData();
 
 // RENDER
 function render(){
 
-const search=document.getElementById("search").value.toLowerCase()
-const tbody=document.getElementById("tableBody")
-const mobile=document.getElementById("mobileList")
+const search=document.getElementById("search").value.toLowerCase();
+const tbody=document.getElementById("tableBody");
+tbody.innerHTML="";
 
-tbody.innerHTML=""
-mobile.innerHTML=""
+let pending=0;
+let done=0;
 
-let filtered=data.filter(d=>
+data.forEach(d=>{
+
+if(d.status==="Pending") pending++;
+if(d.status==="Selesai") done++;
+
+if(
 (d.pengirim||"").toLowerCase().includes(search) ||
 (d.penerima||"").toLowerCase().includes(search)
-)
-
-if(currentFilter!=="all"){
-filtered=filtered.filter(d=>d.status===currentFilter)
-}
-
-// pagination
-const start=(currentPage-1)*rowsPerPage
-const pageData=filtered.slice(start,start+rowsPerPage)
-
-let pending=0
-let done=0
-
-pageData.forEach(d=>{
-
-if(d.status==="Pending") pending++
-if(d.status==="Selesai") done++
+){
 
 tbody.innerHTML+=`
 <tr>
@@ -228,31 +172,20 @@ tbody.innerHTML+=`
 <td>
 ${d.status=="Pending"
 ?`<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`:""}
-${d.pic===currentUser
-?`<button class="btn-red" onclick="hapus('${d.id}')">Delete</button>`:""}
 </td>
 </tr>
-`
+`;
+}
 
-mobile.innerHTML+=`
-<div class="mobile-card">
-<div>${d.pengirim} → ${d.penerima}</div>
-<div>${d.status}</div>
-<div class="mobile-actions">
-${d.status=="Pending"
-?`<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`:""}
-</div>
-</div>
-`
-})
+});
 
-document.getElementById("total").innerText=data.length
-document.getElementById("pending").innerText=pending
-document.getElementById("done").innerText=done
+document.getElementById("total").innerText=data.length;
+document.getElementById("pending").innerText=pending;
+document.getElementById("done").innerText=done;
 
 }
 
-// ➕ TAMBAH
+// TAMBAH
 async function tambah(){
 
 await db.collection("dokumen").add({
@@ -263,62 +196,50 @@ penerima:penerima.value,
 pic:currentUser,
 status:"Pending",
 foto:""
-})
+});
 
-pengirim.value=""
-penerima.value=""
+pengirim.value="";
+penerima.value="";
 
-loadData()
+loadData();
 }
 
-// 📷 CAMERA
+// CAMERA
 function openCamera(id){
-selectedId=id
-document.getElementById("cameraInput").click()
+selectedId=id;
+document.getElementById("cameraInput").click();
 }
 
-// 📤 UPLOAD FOTO
+// UPLOAD FOTO
 cameraInput.addEventListener("change", async function(){
 
-const file=this.files[0]
-if(!file) return
+const file=this.files[0];
+if(!file) return;
 
-const ref = storage.ref("foto/"+Date.now())
+const ref = storage.ref("foto/"+Date.now());
 
-await ref.put(file)
+await ref.put(file);
 
-const url = await ref.getDownloadURL()
+const url = await ref.getDownloadURL();
 
 await db.collection("dokumen").doc(selectedId).update({
 status:"Selesai",
 foto:url
-})
+});
 
-alert("Berhasil upload & update")
+alert("Berhasil upload");
 
-loadData()
+loadData();
 
-})
+});
 
-// ❌ DELETE
-async function hapus(id){
-if(confirm("Hapus?")){
-await db.collection("dokumen").doc(id).delete()
-loadData()
-}
-}
-
-// 🚪 LOGOUT
+// LOGOUT
 function logout(){
-localStorage.removeItem("pic_user")
-location.href="dokumen.html"
+localStorage.removeItem("pic_user");
+location.href="dokumen.html";
 }
 
 </script>
-
-<footer class="footer">
-© 2026 - trackingdocmap
-</footer>
 
 </body>
 </html>
