@@ -433,8 +433,9 @@ style="display:none"
 
 </div>
 <script>
-
+// ==========================
 // 🔥 FIREBASE CONFIG
+// ==========================
 const firebaseConfig = {
   apiKey: "AIzaSyDfwgOnJzXn8ESDw-9siMhYP-TFJcuNFx4",
   authDomain: "tracking-doc-96d7f.firebaseapp.com",
@@ -449,197 +450,205 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const storage = firebase.storage();
 
-// USER
+// ==========================
+// 👤 USER CHECK
+// ==========================
 let currentUser = localStorage.getItem("pic_user");
-if(!currentUser) location.href="dokumen.html";
+if (!currentUser) location.href = "dokumen.html";
 
-document.getElementById("userDisplay").innerText=currentUser;
-document.getElementById("pic").value=currentUser;
+document.getElementById("userDisplay").innerText = currentUser;
+document.getElementById("pic").value = currentUser;
 
-// STATE
-let data=[];
-let selectedId=null;
+// ==========================
+//  STATE
+// ==========================
+let data = [];
+let selectedId = null;
 
-let currentFilter="all";
-let currentPage=1;
-const rowsPerPage=10;
+let currentFilter = "all";
+let currentPage = 1;
+const rowsPerPage = 10;
 
-// NAV
-function showPage(p){
-["dashboard","input","log"].forEach(id=>{
-document.getElementById(id).style.display="none";
-});
-document.getElementById(p).style.display="block";
+// ==========================
+//  NAVIGATION
+// ==========================
+function showPage(page) {
+  ["dashboard", "input", "log"].forEach(id => {
+    document.getElementById(id).style.display = "none";
+  });
+  document.getElementById(page).style.display = "block";
 }
 
-// FILTER
-function filterStatus(status){
-currentFilter = currentFilter===status ? "all" : status;
-currentPage=1;
-showPage("log");
-render();
+// ==========================
+// 🔍 FILTER
+// ==========================
+function filterStatus(status) {
+  currentFilter = currentFilter === status ? "all" : status;
+  currentPage = 1;
+  showPage("log");
+  render();
 }
 
-// 🔥 LOAD DATA FIREBASE
-async function loadData(){
-const snapshot = await db.collection("dokumen").orderBy("tanggal","desc").get();
+// ==========================
+// 🔄 LOAD DATA
+// ==========================
+async function loadData() {
+  const snapshot = await db.collection("dokumen")
+    .orderBy("tanggal", "desc")
+    .get();
 
-data = snapshot.docs.map(doc=>({
-id:doc.id,
-...doc.data()
-}));
+  data = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
 
-render();
+  render();
 }
+
 loadData();
 
-// RENDER
-function render(){
+// ==========================
+// 🎨 RENDER TABLE
+// ==========================
+function render() {
 
-const search=document.getElementById("search").value.toLowerCase();
-const tbody=document.getElementById("tableBody");
-const mobile=document.getElementById("mobileList");
+  const search = document.getElementById("search").value.toLowerCase();
+  const tbody = document.getElementById("tableBody");
+  const mobile = document.getElementById("mobileList");
 
-tbody.innerHTML="";
-mobile.innerHTML="";
+  tbody.innerHTML = "";
+  mobile.innerHTML = "";
 
-let pending=0;
-let done=0;
+  let pending = 0;
+  let done = 0;
 
-let filtered=data.filter(d=>
-(d.pengirim||"").toLowerCase().includes(search) ||
-(d.penerima||"").toLowerCase().includes(search)
-);
+  let filtered = data.filter(d =>
+    (d.pengirim || "").toLowerCase().includes(search) ||
+    (d.penerima || "").toLowerCase().includes(search)
+  );
 
-if(currentFilter!=="all"){
-filtered=filtered.filter(d=>d.status===currentFilter);
+  if (currentFilter !== "all") {
+    filtered = filtered.filter(d => d.status === currentFilter);
+  }
+
+  const totalPages = Math.ceil(filtered.length / rowsPerPage);
+  const start = (currentPage - 1) * rowsPerPage;
+  const pageData = filtered.slice(start, start + rowsPerPage);
+
+  pageData.forEach(d => {
+
+    if (d.status === "Pending") pending++;
+    if (d.status === "Selesai") done++;
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${formatTanggal(d.tanggal)}</td>
+        <td>${d.pengirim}</td>
+        <td>${d.jenis}</td>
+        <td>${d.penerima}</td>
+        <td>${d.pic}</td>
+        <td>${d.status}</td>
+        <td>${d.foto ? `<img src="${d.foto}" class="preview-img">` : "-"}</td>
+        <td>
+          ${d.status === "Pending"
+            ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
+            : ""}
+        </td>
+      </tr>
+    `;
+
+    mobile.innerHTML += `
+      <div class="mobile-card">
+        <div>${d.pengirim} → ${d.penerima}</div>
+        <div>${d.status}</div>
+        <div class="mobile-actions">
+          ${d.status === "Pending"
+            ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
+            : ""}
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById("total").innerText = data.length;
+  document.getElementById("pending").innerText = pending;
+  document.getElementById("done").innerText = done;
+
+  document.getElementById("pageInfo").innerText =
+    "Page " + currentPage + " / " + (totalPages || 1);
 }
 
-// PAGINATION
-const totalRows=filtered.length;
-const totalPages=Math.ceil(totalRows/rowsPerPage);
-
-const start=(currentPage-1)*rowsPerPage;
-const pageData=filtered.slice(start,start+rowsPerPage);
-
-pageData.forEach(d=>{
-
-if(d.status==="Pending") pending++;
-if(d.status==="Selesai") done++;
-
-tbody.innerHTML+=`
-<tr>
-<td>${formatTanggal(d.tanggal)}</td>
-<td>${d.pengirim}</td>
-<td>${d.jenis}</td>
-<td>${d.penerima}</td>
-<td>${d.pic}</td>
-<td>${d.status}</td>
-<td>${d.foto?`<img src="${d.foto}" class="preview-img">`:"-"}</td>
-<td>
-${d.status=="Pending"
-?`<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`:""}
-</td>
-</tr>
-`;
-
-mobile.innerHTML+=`
-<div class="mobile-card">
-<div>${d.pengirim} → ${d.penerima}</div>
-<div>${d.status}</div>
-<div class="mobile-actions">
-${d.status=="Pending"
-?`<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`:""}
-</div>
-</div>
-`;
-
-});
-
-document.getElementById("total").innerText=data.length;
-document.getElementById("pending").innerText=pending;
-document.getElementById("done").innerText=done;
-
-document.getElementById("pageInfo").innerText=
-"Page "+currentPage+" / "+(totalPages||1);
-
+// ==========================
+// 📅 FORMAT TANGGAL
+// ==========================
+function formatTanggal(t) {
+  if (!t) return "";
+  if (t.seconds) {
+    return new Date(t.seconds * 1000).toLocaleDateString("id-ID");
+  }
+  return new Date(t).toLocaleDateString("id-ID");
 }
 
-// FORMAT TANGGAL
-function formatTanggal(t){
-if(!t) return "";
-if(t.seconds){
-return new Date(t.seconds*1000).toLocaleDateString("id-ID");
-}
-return new Date(t).toLocaleDateString("id-ID");
-}
-
-// PAGINATION
-function nextPage(){
-currentPage++;
-render();
+// ==========================
+// ➡️ PAGINATION
+// ==========================
+function nextPage() {
+  currentPage++;
+  render();
 }
 
-function prevPage(){
-if(currentPage>1){
-currentPage--;
-render();
-}
-}
-
-// TAMBAH
-async function tambah(){
-
-const spinner=document.getElementById("spinner");
-spinner.style.display="block";
-
-await db.collection("dokumen").add({
-tanggal:new Date(),
-pengirim:pengirim.value,
-jenis:jenis.value,
-penerima:penerima.value,
-pic:currentUser,
-status:"Pending",
-foto:""
-});
-
-pengirim.value="";
-penerima.value="";
-
-spinner.style.display="none";
-
-loadData();
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    render();
+  }
 }
 
-// CAMERA
-function openCamera(id){
-selectedId=id;
-document.getElementById("cameraInput").click();
+// ==========================
+// ➕ TAMBAH DATA
+// ==========================
+async function tambah() {
+
+  document.getElementById("spinner").style.display = "block";
+
+  await db.collection("dokumen").add({
+    tanggal: new Date(),
+    pengirim: pengirim.value,
+    jenis: jenis.value,
+    penerima: penerima.value,
+    pic: currentUser,
+    status: "Pending",
+    foto: ""
+  });
+
+  pengirim.value = "";
+  penerima.value = "";
+
+  document.getElementById("spinner").style.display = "none";
+  loadData();
 }
 
-// UPLOAD FOTO
-cameraInput.addEventListener("change", async function(){
+// ==========================
+// 📸 CAMERA
+// ==========================
+function openCamera(id) {
+  selectedId = id;
+  document.getElementById("cameraInput").click();
+}
 
-const originalFile = this.files[0];
-if(!originalFile) return;
-
-// 🔥 compress dulu
-const file = await compressImage(originalFile);
-const spinner = document.getElementById("uploadSpinner");
-spinner.style.display = "block";
-async function compressImage(file) {
+// ==========================
+// 🖼 COMPRESS IMAGE
+// ==========================
+function compressImage(file) {
   return new Promise((resolve) => {
 
     const img = new Image();
     const reader = new FileReader();
 
+    reader.onload = e => img.src = e.target.result;
     reader.readAsDataURL(file);
 
-    reader.onload = function(e) {
-      img.src = e.target.result;
-    };
-
-    img.onload = function() {
+    img.onload = () => {
 
       const canvas = document.createElement("canvas");
 
@@ -656,86 +665,76 @@ async function compressImage(file) {
       canvas.height = height;
 
       const ctx = canvas.getContext("2d");
-
-      // gambar utama
       ctx.drawImage(img, 0, 0, width, height);
 
-      // 🔥 BUAT TIMESTAMP
-      const now = new Date();
-      const text = now.toLocaleString("id-ID");
-
-      // style text
-      ctx.font = "bold 20px Arial";
-      ctx.fillStyle = "white";
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 3;
-
-      // posisi (pojok bawah kiri)
-      const x = 10;
-      const y = height - 20;
-
-      // outline biar kebaca
-      ctx.strokeText(text, x, y);
-      ctx.fillText(text, x, y);
-
-      // compress
-      canvas.toBlob((blob) => {
-        resolve(blob);
-      }, "image/jpeg", 0.7);
-
+      canvas.toBlob(blob => resolve(blob), "image/jpeg", 0.7);
     };
   });
 }
-try {
 
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", "dokumen_upload"); // pastikan ini benar
+// ==========================
+// ⬆️ UPLOAD FOTO
+// ==========================
+cameraInput.addEventListener("change", async function () {
 
-  const res = await fetch("https://api.cloudinary.com/v1_1/duonehce3/image/upload", {
-    method: "POST",
-    body: formData
-  });
+  const originalFile = this.files[0];
+  if (!originalFile) return;
 
-  const data = await res.json();
+  const spinner = document.getElementById("uploadSpinner");
+  spinner.style.display = "block";
 
-  console.log("CLOUDINARY RESPONSE:", data); // 🔥 penting
+  try {
 
-  if(!data.secure_url){
-    throw new Error(data.error?.message || "Upload gagal ke Cloudinary");
+    const file = await compressImage(originalFile);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "dokumen_upload");
+
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/duonehce3/image/upload",
+      { method: "POST", body: formData }
+    );
+
+    const result = await res.json();
+
+    if (!result.secure_url) {
+      throw new Error(result.error?.message || "Upload gagal");
+    }
+
+    await db.collection("dokumen")
+      .doc(selectedId)
+      .update({
+        status: "Selesai",
+        foto: result.secure_url
+      });
+
+    alert("Berhasil upload");
+
+  } catch (err) {
+    alert("Upload gagal: " + err.message);
   }
 
-  const url = data.secure_url;
-
-  await db.collection("dokumen").doc(selectedId).update({
-    status: "Selesai",
-    foto: url
-  });
-
-  alert("Berhasil upload");
-
-} catch (err) {
-  alert("Upload gagal: " + err.message);
-}
-
-spinner.style.display = "none";
-
-loadData();
-
+  spinner.style.display = "none";
+  loadData();
 });
 
-// DELETE
-async function hapus(id){
-if(confirm("Hapus?")){
-await db.collection("dokumen").doc(id).delete();
-loadData();
-}
+// ==========================
+// 🗑 DELETE
+// ==========================
+async function hapus(id) {
+  if (confirm("Hapus?")) {
+    await db.collection("dokumen").doc(id).delete();
+    loadData();
+  }
 }
 
-// LOGOUT
-function logout(){
-localStorage.removeItem("pic_user");
-location.href="dokumen.html";
+// ==========================
+// 🚪 LOGOUT
+// ==========================
+function logout() {
+  localStorage.removeItem("pic_user");
+  location.href = "dokumen.html";
 }
 
 </script>
