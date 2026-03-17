@@ -672,7 +672,9 @@ ${d.status==="Pending"
 ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
 : ""}
 
-<button class="btn-red" onclick="hapus('${d.id}')">Hapus</button>
+${currentUser === "Topa"
+? `<button class="btn-red" onclick="hapus('${d.id}')">Delete</button>`
+: ""}
 
 </div>
 
@@ -831,7 +833,12 @@ loadData();
 // DELETE
 async function hapus(id){
 
-if(!confirm("Yakin ingin menghapus data ini?")) return;
+if(currentUser !== "Topa"){
+alert("Anda tidak memiliki akses untuk menghapus data");
+return;
+}
+
+if(!confirm("Yakin ingin menghapus data ini ?")) return;
 
 await db.collection("dokumen")
 .doc(id)
