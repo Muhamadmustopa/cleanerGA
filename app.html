@@ -630,7 +630,7 @@ try {
 
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", "dokumen_upload"); 
+  formData.append("upload_preset", "dokumen_upload"); // pastikan ini benar
 
   const res = await fetch("https://api.cloudinary.com/v1_1/duonehce3/image/upload", {
     method: "POST",
@@ -638,6 +638,13 @@ try {
   });
 
   const data = await res.json();
+
+  console.log("CLOUDINARY RESPONSE:", data); // 🔥 penting
+
+  if(!data.secure_url){
+    throw new Error(data.error?.message || "Upload gagal ke Cloudinary");
+  }
+
   const url = data.secure_url;
 
   await db.collection("dokumen").doc(selectedId).update({
