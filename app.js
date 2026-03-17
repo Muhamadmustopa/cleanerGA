@@ -1,5 +1,7 @@
+function loadData(){
+  console.log("data loaded");
+}
 <script>
-
 // FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDfwgOnJzXn8ESDw-9siMhYP-TFJcuNFx4",
