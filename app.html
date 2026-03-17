@@ -622,7 +622,9 @@ ${d.status==="Pending"
 ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
 : ""}
 
-<button class="btn-red" onclick="hapus('${d.id}')">Delete</button>
+${currentUser === "Topa"
+? `<button class="btn-red" onclick="hapus('${d.id}')">Delete</button>`
+: ""}
 
 </td>
 
