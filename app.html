@@ -1,32 +1,298 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sistem Log Dokumen</title>
-
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<link rel="icon" href="data:,">
+<title>Sistem Log Dokumen</title>
 
 <style>
-body{font-family:Segoe UI;margin:0;background:#f1f5f9}
-.header{background:#1e3a8a;color:#fff;padding:15px}
-.nav button{margin:5px;padding:8px 12px}
-.container{padding:15px}
-.card{background:#fff;padding:15px;border-radius:10px;margin-bottom:15px}
-input,select{display:block;margin:10px 0;padding:8px;width:100%}
-button{cursor:pointer}
-.primary{background:#1e3a8a;color:#fff;border:none;padding:10px}
-.btn-green{background:green;color:#fff;border:none;padding:5px}
-.btn-red{background:red;color:#fff;border:none;padding:5px}
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #ddd;padding:8px}
-.preview-img{width:60px}
+
+*{box-sizing:border-box}
+
+body{
+font-family:Segoe UI;
+margin:0;
+background:#f1f5f9;
+padding-bottom:60px;
+}
+  
+button{
+min-height:40px;
+font-size:14px;
+}
+
+/* HEADER */
+
+.header{
+background:#1e3a8a;
+color:white;
+padding:15px;
+}
+
+.header-top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px;
+}
+
+thead th{
+position:sticky;
+top:0;
+background:#f1f5f9;
+z-index:2;
+}
+  
+.title{
+font-weight:bold;
+font-size:16px;
+}
+
+.logout-btn{
+background:#ef4444;
+color:white;
+border:none;
+padding:8px 14px;
+border-radius:8px;
+cursor:pointer;
+font-size:13px;
+}
+
+.nav{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+}
+
+.nav button{
+flex:1;
+min-width:90px;
+}
+
+.nav button{
+background:white;
+color:#1e3a8a;
+border:none;
+padding:8px 14px;
+border-radius:8px;
+cursor:pointer;
+font-weight:500;
+}
+
+  button:active{
+transform:scale(0.96);
+}
+/* CONTAINER */
+
+.container{
+max-width:1000px;
+margin:auto;
+padding:15px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 6px 15px rgba(0,0,0,.08);
+margin-bottom:20px;
+}
+
+input,select{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
+margin-bottom:10px;
+}
+
+button.primary{
+background:#2563eb;
+color:white;
+border:none;
+padding:10px;
+border-radius:8px;
+cursor:pointer;
+}
+
+/* DASHBOARD */
+
+.stats{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+gap:15px;
+}
+
+.stat{
+background:#e2e8f0;
+padding:20px;
+border-radius:10px;
+text-align:center;
+}
+
+.stat h3{
+margin:0;
+font-size:28px;
+}
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #eee;
+text-align:left;
+}
+
+th{
+background:#f1f5f9;
+}
+
+.status-pending{
+color:#dc2626;
+font-weight:bold;
+}
+
+.status-done{
+color:#16a34a;
+font-weight:bold;
+}
+
+.actions{
+display:flex;
+gap:5px;
+flex-wrap:wrap;
+}
+
+.btn-green{
+background:#16a34a;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.btn-red{
+background:#dc2626;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.preview-img{
+width:60px;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* MOBILE CARD */
+
+.mobile-list{
+display:none;
+}
+
+.mobile-card{
+background:white;
+padding:15px;
+border-radius:12px;
+box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+.mobile-row{
+display:flex;
+justify-content:space-between;
+margin-bottom:6px;
+font-size:14px;
+}
+
+.mobile-actions{
+display:flex;
+gap:8px;
+margin-top:10px;
+}
+
+/* MOBILE MODE */
+
+@media(max-width:768px){
+
+table{
+display:none;
+}
+
+.mobile-list{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+}
+
+/* SPINNER */
+
+.spinner{
+display:none;
+width:30px;
+height:30px;
+border:4px solid #e5e7eb;
+border-top:4px solid #2563eb;
+border-radius:50%;
+animation:spin 1s linear infinite;
+margin:auto;
+margin-top:10px;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg)}
+100%{transform:rotate(360deg)}
+}
+
+/* TOAST */
+
+.toast{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#16a34a;
+color:white;
+padding:12px 20px;
+border-radius:8px;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
+display:none;
+}
+  /* FOOTER MOBILE FRIENDLY */
+
+.footer{
+background:#6b7280;
+color:white;
+text-align:center;
+padding:14px;
+font-size:13px;
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+z-index:10;
+}
+.uploadSpinner{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+z-index:999;
+}
+
 </style>
 
 </head>
@@ -34,49 +300,106 @@ th,td{border:1px solid #ddd;padding:8px}
 <body>
 
 <header class="header">
-<div>
-<b>Sistem Log Dokumen - <span id="userDisplay"></span></b>
-<button onclick="logout()" style="float:right">Logout</button>
+
+<div class="header-top">
+
+<div class="title">
+Sistem Log Dokumen - <span id="userDisplay"></span>
+</div>
+
+<button class="logout-btn" onclick="logout()">
+Logout
+</button>
+
 </div>
 
 <div class="nav">
+
 <button onclick="showPage('dashboard')">Dashboard</button>
 <button onclick="showPage('input')">Input</button>
 <button onclick="showPage('log')">Log Dokumen</button>
+
 </div>
+
 </header>
+
 
 <div class="container">
 
+<!-- DASHBOARD -->
+
 <div id="dashboard" class="card">
-<h3>Dashboard</h3>
-<div>Total: <b id="total">0</b></div>
-<div>Pending: <b id="pending">0</b></div>
-<div>Selesai: <b id="done">0</b></div>
+
+<h2>Dashboard</h2>
+
+<div class="stats">
+
+<div class="stat" onclick="filterStatus('all')">
+Total
+<h3 id="total">0</h3>
 </div>
 
+<div class="stat" onclick="filterStatus('Pending')">
+Pending
+<h3 id="pending">0</h3>
+</div>
+
+<div class="stat" onclick="filterStatus('Selesai')">
+Selesai
+<h3 id="done">0</h3>
+</div>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- INPUT -->
+
 <div id="input" class="card" style="display:none">
-<h3>Input</h3>
+
+<h2>Input Paket</h2>
 
 <input id="pengirim" placeholder="Pengirim">
+
 <select id="jenis">
 <option>Surat</option>
 <option>Barang</option>
 <option>Makanan</option>
 </select>
+
 <input id="penerima" placeholder="Penerima">
+
 <input id="pic" readonly>
 
 <button class="primary" onclick="tambah()">Tambah</button>
+
+<div id="spinner" class="spinner"></div>
+
 </div>
+
+<div id="uploadSpinner" class="spinner"></div>
+<!-- LOG -->
 
 <div id="log" class="card" style="display:none">
 
-<input id="search" placeholder="Cari..." onkeyup="render()">
+<input 
+id="search"
+placeholder="Cari dokumen..."
+onkeyup="render()"
+>
 
-<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+<input 
+type="file"
+id="cameraInput"
+accept="image/*"
+capture="environment"
+style="display:none"
+>
 
 <table>
+
 <thead>
 <tr>
 <th>Tanggal</th>
@@ -84,21 +407,34 @@ th,td{border:1px solid #ddd;padding:8px}
 <th>Jenis</th>
 <th>Penerima</th>
 <th>PIC</th>
+<th>Jam</th>
 <th>Status</th>
 <th>Foto</th>
 <th>Aksi</th>
 </tr>
 </thead>
+
 <tbody id="tableBody"></tbody>
+
 </table>
+  
+<div id="pagination" style="margin-top:15px;text-align:center">
+
+<button onclick="prevPage()">Previous</button>
+
+<span id="pageInfo" style="margin:0 10px"></span>
+
+<button onclick="nextPage()">Next</button>
+
+</div>
+<div id="mobileList" class="mobile-list"></div>
 
 </div>
 
 </div>
-
 <script>
 
-// 🔥 FIREBASE CONFIG (FIX)
+// 🔥 FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDfwgOnJzXn8ESDw-9siMhYP-TFJcuNFx4",
   authDomain: "tracking-doc-96d7f.firebaseapp.com",
@@ -124,6 +460,10 @@ document.getElementById("pic").value=currentUser;
 let data=[];
 let selectedId=null;
 
+let currentFilter="all";
+let currentPage=1;
+const rowsPerPage=10;
+
 // NAV
 function showPage(p){
 ["dashboard","input","log"].forEach(id=>{
@@ -132,10 +472,23 @@ document.getElementById(id).style.display="none";
 document.getElementById(p).style.display="block";
 }
 
-// LOAD DATA
+// FILTER
+function filterStatus(status){
+currentFilter = currentFilter===status ? "all" : status;
+currentPage=1;
+showPage("log");
+render();
+}
+
+// 🔥 LOAD DATA FIREBASE
 async function loadData(){
 const snapshot = await db.collection("dokumen").orderBy("tanggal","desc").get();
-data = snapshot.docs.map(doc=>({id:doc.id,...doc.data()}));
+
+data = snapshot.docs.map(doc=>({
+id:doc.id,
+...doc.data()
+}));
+
 render();
 }
 loadData();
@@ -145,24 +498,38 @@ function render(){
 
 const search=document.getElementById("search").value.toLowerCase();
 const tbody=document.getElementById("tableBody");
+const mobile=document.getElementById("mobileList");
+
 tbody.innerHTML="";
+mobile.innerHTML="";
 
 let pending=0;
 let done=0;
 
-data.forEach(d=>{
+let filtered=data.filter(d=>
+(d.pengirim||"").toLowerCase().includes(search) ||
+(d.penerima||"").toLowerCase().includes(search)
+);
+
+if(currentFilter!=="all"){
+filtered=filtered.filter(d=>d.status===currentFilter);
+}
+
+// PAGINATION
+const totalRows=filtered.length;
+const totalPages=Math.ceil(totalRows/rowsPerPage);
+
+const start=(currentPage-1)*rowsPerPage;
+const pageData=filtered.slice(start,start+rowsPerPage);
+
+pageData.forEach(d=>{
 
 if(d.status==="Pending") pending++;
 if(d.status==="Selesai") done++;
 
-if(
-(d.pengirim||"").toLowerCase().includes(search) ||
-(d.penerima||"").toLowerCase().includes(search)
-){
-
 tbody.innerHTML+=`
 <tr>
-<td>${new Date(d.tanggal.seconds*1000).toLocaleDateString()}</td>
+<td>${formatTanggal(d.tanggal)}</td>
 <td>${d.pengirim}</td>
 <td>${d.jenis}</td>
 <td>${d.penerima}</td>
@@ -175,7 +542,17 @@ ${d.status=="Pending"
 </td>
 </tr>
 `;
-}
+
+mobile.innerHTML+=`
+<div class="mobile-card">
+<div>${d.pengirim} → ${d.penerima}</div>
+<div>${d.status}</div>
+<div class="mobile-actions">
+${d.status=="Pending"
+?`<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`:""}
+</div>
+</div>
+`;
 
 });
 
@@ -183,10 +560,38 @@ document.getElementById("total").innerText=data.length;
 document.getElementById("pending").innerText=pending;
 document.getElementById("done").innerText=done;
 
+document.getElementById("pageInfo").innerText=
+"Page "+currentPage+" / "+(totalPages||1);
+
+}
+
+// FORMAT TANGGAL
+function formatTanggal(t){
+if(!t) return "";
+if(t.seconds){
+return new Date(t.seconds*1000).toLocaleDateString("id-ID");
+}
+return new Date(t).toLocaleDateString("id-ID");
+}
+
+// PAGINATION
+function nextPage(){
+currentPage++;
+render();
+}
+
+function prevPage(){
+if(currentPage>1){
+currentPage--;
+render();
+}
 }
 
 // TAMBAH
 async function tambah(){
+
+const spinner=document.getElementById("spinner");
+spinner.style.display="block";
 
 await db.collection("dokumen").add({
 tanggal:new Date(),
@@ -200,6 +605,8 @@ foto:""
 
 pengirim.value="";
 penerima.value="";
+
+spinner.style.display="none";
 
 loadData();
 }
@@ -216,6 +623,9 @@ cameraInput.addEventListener("change", async function(){
 const file=this.files[0];
 if(!file) return;
 
+const spinner=document.getElementById("uploadSpinner");
+spinner.style.display="block";
+
 const ref = storage.ref("foto/"+Date.now());
 
 await ref.put(file);
@@ -227,11 +637,21 @@ status:"Selesai",
 foto:url
 });
 
+spinner.style.display="none";
+
 alert("Berhasil upload");
 
 loadData();
 
 });
+
+// DELETE
+async function hapus(id){
+if(confirm("Hapus?")){
+await db.collection("dokumen").doc(id).delete();
+loadData();
+}
+}
 
 // LOGOUT
 function logout(){
@@ -240,6 +660,3 @@ location.href="dokumen.html";
 }
 
 </script>
-
-</body>
-</html>
