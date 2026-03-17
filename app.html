@@ -620,26 +620,38 @@ document.getElementById("cameraInput").click();
 // UPLOAD FOTO
 cameraInput.addEventListener("change", async function(){
 
-const file=this.files[0];
+const file = this.files[0];
 if(!file) return;
 
-const spinner=document.getElementById("uploadSpinner");
-spinner.style.display="block";
+const spinner = document.getElementById("uploadSpinner");
+spinner.style.display = "block";
 
-const ref = storage.ref("foto/"+Date.now());
+try {
 
-await ref.put(file);
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "dokumen_upload"); 
 
-const url = await ref.getDownloadURL();
+  const res = await fetch("https://api.cloudinary.com/v1_1/duonehce3/image/upload", {
+    method: "POST",
+    body: formData
+  });
 
-await db.collection("dokumen").doc(selectedId).update({
-status:"Selesai",
-foto:url
-});
+  const data = await res.json();
+  const url = data.secure_url;
 
-spinner.style.display="none";
+  await db.collection("dokumen").doc(selectedId).update({
+    status: "Selesai",
+    foto: url
+  });
 
-alert("Berhasil upload");
+  alert("Berhasil upload");
+
+} catch (err) {
+  alert("Upload gagal: " + err.message);
+}
+
+spinner.style.display = "none";
 
 loadData();
 
