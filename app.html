@@ -144,19 +144,44 @@ font-size:28px;
 
 table{
 width:100%;
-border-collapse:collapse;
-}
-
-th,td{
-padding:10px;
-border-bottom:1px solid #eee;
-text-align:left;
+border-collapse:separate;
+border-spacing:0;
+border:1px solid #bfdbfe;
+border-radius:10px;
+overflow:hidden;
+background:white;
 }
 
 th{
-background:#f1f5f9;
+background:#e0f2fe;
+color:#1e3a8a;
+font-weight:600;
+padding:10px;
+text-align:left;
+border-bottom:1px solid #bfdbfe;
 }
 
+td{
+padding:10px;
+border-bottom:1px solid #e0f2fe;
+}
+
+/* Zebra List */
+
+tbody tr:nth-child(even){
+background:#f8fbff;
+}
+
+tbody tr:nth-child(odd){
+background:#ffffff;
+}
+
+/* Hover Effect */
+
+tbody tr:hover{
+background:#e0f2fe;
+transition:0.2s;
+}
 .status-pending{
 color:#dc2626;
 font-weight:bold;
