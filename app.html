@@ -608,6 +608,16 @@ mobile.innerHTML += `
 <div class="mobile-card">
 
 <div class="mobile-row">
+<span>Tanggal</span>
+<span>${formatTanggal(d.tanggal)}</span>
+</div>
+
+<div class="mobile-row">
+<span>Jenis</span>
+<span>${d.jenis}</span>
+</div>
+
+<div class="mobile-row">
 <span>Pengirim</span>
 <span>${d.pengirim}</span>
 </div>
@@ -615,6 +625,11 @@ mobile.innerHTML += `
 <div class="mobile-row">
 <span>Penerima</span>
 <span>${d.penerima}</span>
+</div>
+
+<div class="mobile-row">
+<span>PIC</span>
+<span>${d.pic}</span>
 </div>
 
 <div class="mobile-row">
@@ -630,7 +645,7 @@ ${d.status==="Pending"
 ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
 : ""}
 
-<button class="btn-red" onclick="hapus('${d.id}')">Delete</button>
+<button class="btn-red" onclick="hapus('${d.id}')">Hapus</button>
 
 </div>
 
