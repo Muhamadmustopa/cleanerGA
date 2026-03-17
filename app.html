@@ -144,6 +144,7 @@ font-size:28px;
 
 table{
 width:100%;
+min-width:900px;
 border-collapse:separate;
 border-spacing:0;
 border:1px solid #bfdbfe;
@@ -327,6 +328,27 @@ transition:0.2s;
 .preview-img:hover{
 transform:scale(1.05);
 }
+
+thead th{
+position:sticky;
+top:0;
+background:#f1f5f9;
+z-index:3;
+}
+
+td:first-child,
+th:first-child{
+position:sticky;
+left:0;
+background:#ffffff;
+z-index:2;
+}
+
+ td:first-child,
+th:first-child{
+box-shadow:2px 0 5px rgba(0,0,0,0.05);
+}
+  
 </style>
 
 </head>
