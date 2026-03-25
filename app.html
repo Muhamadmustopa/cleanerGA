@@ -295,7 +295,7 @@ ${d.status}
 </td>
 
 <td>
-${d.foto ? `<img src="${d.foto}" class="preview-img" onclick="window.open('${d.foto}')">` : "-"}
+<img src="${d.foto}" class="preview-img" onclick="openModal('${d.foto}')">
 </td>
 
 <td class="actions">
@@ -537,9 +537,27 @@ localStorage.removeItem("pic_user");
 location.href="dokumen.html";
 }
 
+function openModal(src){
+  document.getElementById("imageModal").style.display = "block";
+  document.getElementById("modalImg").src = src;
+}
+
+function closeModal(){
+  document.getElementById("imageModal").style.display = "none";
+}
+window.onclick = function(event){
+  const modal = document.getElementById("imageModal");
+  if(event.target === modal){
+    modal.style.display = "none";
+  }
+}
 </script>
 <div class="footer">
 © 2026 TrackDocMAP
+</div>
+<div id="imageModal" class="modal">
+  <span class="close" onclick="closeModal()">&times;</span>
+  <img class="modal-content" id="modalImg">
 </div>
 
 </body>
