@@ -128,7 +128,36 @@ text-align:center;
 margin:0;
 font-size:28px;
 }
+/* TOTAL - BIRU LANGIT */
+.stat-total{
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: white;
+}
 
+/* PENDING - KUNING */
+.stat-pending{
+  background: linear-gradient(135deg, #facc15, #eab308);
+  color: #333;
+}
+
+/* SELESAI - HIJAU CERAH */
+.stat-done{
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  color: white;
+}
+
+/* BIAR ADA EFFECT */
+.stat{
+  border-radius:12px;
+  padding:15px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.stat:hover{
+  transform:translateY(-3px);
+  box-shadow:0 8px 20px rgba(0,0,0,0.2);
+}
 /* TABLE */
 
 table{
