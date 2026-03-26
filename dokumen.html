@@ -195,20 +195,29 @@ document.getElementById("d"+(i+1)).classList.add("filled")
 
 function login(){
 
-const user=document.getElementById("user").value
-const pass=input.value
+const user = document.getElementById("user").value;
+const pass = input.value;
 
-if(pass==="1111"){
+// 🔥 daftar password tiap user
+const passwords = {
+  "Abdul Apso": "1111",
+  "Irfan Affandi": "1111",
+  "Evilia Agustin": "1111",
+  "Ahmad Yani": "1111",
+  "Topa": "1807" // 🔥 khusus Topa
+};
 
-localStorage.setItem("pic_user",user)
-window.location.href="app.html"
+if(pass === passwords[user]){
+
+localStorage.setItem("pic_user",user);
+window.location.href="app.html";
 
 }else{
 
-alert("Password salah")
+alert("Password salah");
 
-input.value=""
-document.querySelectorAll(".pin-dot").forEach(d=>d.classList.remove("filled"))
+input.value="";
+document.querySelectorAll(".pin-dot").forEach(d=>d.classList.remove("filled"));
 
 }
 
