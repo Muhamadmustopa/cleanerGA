@@ -393,7 +393,15 @@ render();
 // TAMBAH DATA
 async function tambah(){
 
-document.getElementById("spinner").style.display="block";
+const btn = document.querySelector(".primary");
+const spinner = document.getElementById("spinner");
+
+// 🔥 disable tombol + tampilkan spinner
+btn.disabled = true;
+btn.innerText = "Menyimpan...";
+spinner.style.display="block";
+
+try{
 
 await db.collection("dokumen").add({
 
@@ -407,16 +415,52 @@ foto:""
 
 });
 
+// reset input
 pengirim.value="";
 penerima.value="";
 
-document.getElementById("spinner").style.display="none";
+// 🔥 NOTIF SUKSES
+showNotif("Data berhasil ditambahkan ✅");
+
+}catch(err){
+
+showNotif("Gagal tambah data ❌");
+
+}
+
+// 🔥 balikin tombol normal
+btn.disabled = false;
+btn.innerText = "Tambah";
+spinner.style.display="none";
 
 loadData();
 
 }
 
+  function showNotif(msg){
 
+const notif = document.createElement("div");
+notif.innerText = msg;
+
+notif.style.position = "fixed";
+notif.style.top = "20px";
+notif.style.right = "20px";
+notif.style.background = "#16a34a";
+notif.style.color = "white";
+notif.style.padding = "10px 15px";
+notif.style.borderRadius = "8px";
+notif.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
+notif.style.zIndex = "9999";
+notif.style.fontSize = "14px";
+
+document.body.appendChild(notif);
+
+// hilang otomatis
+setTimeout(()=>{
+notif.remove();
+},2000);
+
+}
 // CAMERA
 function openCamera(id){
 selectedId = id;
