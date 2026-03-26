@@ -38,7 +38,6 @@ Logout
 <button onclick="showPage('log')">Log Dokumen</button>
 
 </div>
-<div id="adminActions" style="margin-bottom:10px;"></div>
 </header>
 
 
@@ -102,11 +101,20 @@ Selesai
 
 <div id="log" class="card" style="display:none">
 
+<div class="filter-bar">
+
 <input 
 id="search"
 placeholder="Cari dokumen..."
 onkeyup="render()"
 >
+
+<input type="date" id="startDate" onchange="render()">
+<input type="date" id="endDate" onchange="render()">
+
+<div id="adminActions"></div>
+
+</div>
 
 <input 
 type="file"
@@ -320,11 +328,27 @@ mobile.innerHTML="";
 let pending=0;
 let done=0;
 
-let filtered = data.filter(d=>
-(d.pengirim||"").toLowerCase().includes(search) ||
-(d.penerima||"").toLowerCase().includes(search)
-);
+const start = document.getElementById("startDate").value;
+const end = document.getElementById("endDate").value;
 
+let filtered = data.filter(d=>{
+
+const matchSearch =
+(d.pengirim||"").toLowerCase().includes(search) ||
+(d.penerima||"").toLowerCase().includes(search);
+
+// 🔥 FILTER TANGGAL
+let matchDate = true;
+
+if(start && end){
+const tgl = new Date(d.tanggal.seconds ? d.tanggal.seconds*1000 : d.tanggal);
+
+matchDate = tgl >= new Date(start) && tgl <= new Date(end);
+}
+
+return matchSearch && matchDate;
+
+});
 if(currentFilter!=="all"){
 filtered = filtered.filter(d=>d.status===currentFilter);
 }
