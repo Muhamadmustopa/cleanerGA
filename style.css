@@ -188,19 +188,42 @@ font-size:28px;
 display:flex;
 gap:10px;
 align-items:center;
+justify-content:space-between;
 flex-wrap:wrap;
 margin-bottom:10px;
 }
 
-.filter-bar input{
-padding:8px;
-border-radius:8px;
+/* SEARCH */
+.filter-search{
+flex:2;
+min-width:200px;
+}
+
+.filter-search input{
+width:100%;
+padding:10px;
+border-radius:10px;
 border:1px solid #ccc;
 }
 
-#search{
+/* DATE */
+.filter-date{
+display:flex;
+gap:10px;
 flex:1;
-min-width:200px;
+}
+
+.filter-date input{
+padding:10px;
+border-radius:10px;
+border:1px solid #ccc;
+}
+
+/* ACTION (ICON) */
+.filter-action{
+display:flex;
+gap:8px;
+align-items:center;
 }
 /* TABLE */
 
