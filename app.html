@@ -5,6 +5,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="style.css">
@@ -34,7 +38,7 @@ Logout
 <button onclick="showPage('log')">Log Dokumen</button>
 
 </div>
-
+<div id="adminActions" style="margin-bottom:10px;"></div>
 </header>
 
 
@@ -196,8 +200,67 @@ currentPage = 1;
 showPage("log");
 render();
 }
+// access export file 
+if(currentUser === "Topa"){
+document.getElementById("adminActions").innerHTML = `
+<button class="icon-btn" onclick="exportExcel()" title="Export Excel">
+<i class="fas fa-file-excel"></i>
+</button>
 
+<button class="icon-btn" onclick="exportPDF()" title="Export PDF">
+<i class="fas fa-file-pdf"></i>
+</button>
+`;
+}
 
+function exportExcel(){
+
+const rows = data.map(d=>({
+Tanggal: formatTanggal(d.tanggal),
+Jam: formatJam(d.tanggal),
+Pengirim: d.pengirim,
+Jenis: d.jenis,
+Penerima: d.penerima,
+PIC: d.pic,
+Status: d.status
+}));
+
+const worksheet = XLSX.utils.json_to_sheet(rows);
+const workbook = XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(workbook, worksheet, "Data Dokumen");
+
+XLSX.writeFile(workbook, "dokumen.xlsx");
+
+}
+
+async function exportPDF(){
+
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+
+let y = 10;
+
+doc.setFontSize(12);
+doc.text("Laporan Dokumen", 10, y);
+y += 10;
+
+data.forEach((d,i)=>{
+
+const text = `${i+1}. ${formatTanggal(d.tanggal)} - ${d.pengirim} → ${d.penerima} (${d.status})`;
+
+doc.text(text, 10, y);
+y += 7;
+
+if(y > 280){
+doc.addPage();
+y = 10;
+}
+
+});
+
+doc.save("dokumen.pdf");
+
+}
 // LOAD DATA
 async function loadData(){
 
