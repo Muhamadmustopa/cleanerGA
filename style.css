@@ -227,17 +227,24 @@ align-items:center;
 }
 /* TABLE */
 
+.table-container{
+max-height:400px;
+overflow-y:auto;
+border-radius:10px;
+}
+
+/* bikin header freeze */
+.table-container thead th{
+position:sticky;
+top:0;
+background:#cfe2ff;
+z-index:2;
+}
+
+/* biar rapi */
 table{
 width:100%;
-border-collapse:separate;
-border-spacing:0;
-border:1px solid #bfdbfe;
-border-radius:10px;
-overflow:hidden;
-background:white;
-width:100%;
-border-collapse:separate;
-border-spacing:0;
+border-collapse:collapse;
 }
 
 th{
