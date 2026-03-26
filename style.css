@@ -325,21 +325,19 @@ gap:12px;
 
 .spinner{
 display:none;
-width:30px;
-height:30px;
-border:4px solid #e5e7eb;
-border-top:4px solid #2563eb;
+margin-top:10px;
+width:25px;
+height:25px;
+border:3px solid #ccc;
+border-top:3px solid #3b82f6;
 border-radius:50%;
 animation:spin 1s linear infinite;
-margin:auto;
-margin-top:10px;
 }
 
 @keyframes spin{
-0%{transform:rotate(0deg)}
-100%{transform:rotate(360deg)}
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
 }
-
 /* TOAST */
 
 .toast{
