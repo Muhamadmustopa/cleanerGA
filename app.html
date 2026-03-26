@@ -328,7 +328,7 @@ mobile.innerHTML="";
 let pending=0;
 let done=0;
 
-const start = document.getElementById("startDate").value;
+const startIndex = document.getElementById("startDate").value;
 const end = document.getElementById("endDate").value;
 
 let filtered = data.filter(d=>{
@@ -359,8 +359,8 @@ if(currentPage>totalPages){
 currentPage = totalPages;
 }
 
-const start = (currentPage-1)*rowsPerPage;
-const pageData = filtered.slice(start,start+rowsPerPage);
+const startIndex = (currentPage-1)*rowsPerPage;
+const pageData = filtered.slice(startIndex,startIndex+rowsPerPage);
 
 pageData.forEach(d=>{
 
