@@ -103,16 +103,16 @@ Selesai
 
 <div class="filter-bar">
 
-<input 
-id="search"
-placeholder="Cari dokumen..."
-onkeyup="render()"
->
+<div class="filter-search">
+<input id="search" placeholder="Cari dokumen..." onkeyup="render()">
+</div>
 
+<div class="filter-date">
 <input type="date" id="startDate" onchange="render()">
 <input type="date" id="endDate" onchange="render()">
+</div>
 
-<div id="adminActions"></div>
+<div class="filter-action" id="adminActions"></div>
 
 </div>
 
