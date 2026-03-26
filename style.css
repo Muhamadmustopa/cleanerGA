@@ -183,6 +183,25 @@ font-size:28px;
   transform:translateY(-3px);
   box-shadow:0 8px 20px rgba(0,0,0,0.2);
 }
+
+.filter-bar{
+display:flex;
+gap:10px;
+align-items:center;
+flex-wrap:wrap;
+margin-bottom:10px;
+}
+
+.filter-bar input{
+padding:8px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+#search{
+flex:1;
+min-width:200px;
+}
 /* TABLE */
 
 table{
