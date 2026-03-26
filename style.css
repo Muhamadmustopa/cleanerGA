@@ -76,6 +76,31 @@ font-weight:500;
   button:active{
 transform:scale(0.96);
 }
+
+.icon-btn{
+border:none;
+background:#1e3a8a;
+color:white;
+font-size:18px;
+padding:10px 12px;
+border-radius:8px;
+cursor:pointer;
+margin-right:5px;
+transition:0.2s;
+}
+
+.icon-btn:hover{
+background:#2563eb;
+transform:scale(1.1);
+}
+
+.icon-btn i.fa-file-excel{
+color:#22c55e;
+}
+
+.icon-btn i.fa-file-pdf{
+color:#ef4444;
+}
 /* CONTAINER */
 
 .container{
