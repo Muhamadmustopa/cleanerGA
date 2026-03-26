@@ -439,7 +439,8 @@ img.onload = ()=>{
 
 const canvas = document.createElement("canvas");
 
-const MAX_WIDTH = 800;
+// 🔥 RESIZE (lebih kecil = lebih hemat)
+const MAX_WIDTH = 600; // sebelumnya 800 → kita kecilin
 
 let width = img.width;
 let height = img.height;
@@ -453,9 +454,32 @@ canvas.width = width;
 canvas.height = height;
 
 const ctx = canvas.getContext("2d");
+
+// gambar
 ctx.drawImage(img,0,0,width,height);
 
-canvas.toBlob(blob=>resolve(blob),"image/jpeg",0.7);
+// 🔥 TIMESTAMP
+const now = new Date();
+const tanggal = now.toLocaleDateString("id-ID");
+const jam = now.toLocaleTimeString("id-ID");
+const text = `${tanggal} ${jam}`;
+
+// background transparan biar kebaca
+ctx.fillStyle = "rgba(0,0,0,0.4)";
+ctx.fillRect(width - 180, height - 35, 170, 25);
+
+// text
+ctx.font = "bold 14px Arial"; // kecilin font biar ringan
+ctx.fillStyle = "white";
+ctx.textAlign = "right";
+ctx.fillText(text, width - 10, height - 15);
+
+// 🔥 COMPRESS (ini paling ngaruh)
+canvas.toBlob(
+(blob)=>resolve(blob),
+"image/jpeg",
+0.6 // sebelumnya 0.7 → lebih kecil
+);
 
 };
 
