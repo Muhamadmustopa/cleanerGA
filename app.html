@@ -328,8 +328,9 @@ mobile.innerHTML="";
 let pending=0;
 let done=0;
 
-const startIndex = document.getElementById("startDate").value;
-const end = document.getElementById("endDate").value;
+// ✅ FIX: nama variable jelas
+const startDate = document.getElementById("startDate").value;
+const endDate = document.getElementById("endDate").value;
 
 let filtered = data.filter(d=>{
 
@@ -337,18 +338,19 @@ const matchSearch =
 (d.pengirim||"").toLowerCase().includes(search) ||
 (d.penerima||"").toLowerCase().includes(search);
 
-// 🔥 FILTER TANGGAL
+// ✅ FIX: pakai startDate & endDate
 let matchDate = true;
 
-if(start && end){
+if(startDate && endDate){
 const tgl = new Date(d.tanggal.seconds ? d.tanggal.seconds*1000 : d.tanggal);
 
-matchDate = tgl >= new Date(start) && tgl <= new Date(end);
+matchDate = tgl >= new Date(startDate) && tgl <= new Date(endDate);
 }
 
 return matchSearch && matchDate;
 
 });
+
 if(currentFilter!=="all"){
 filtered = filtered.filter(d=>d.status===currentFilter);
 }
@@ -359,8 +361,9 @@ if(currentPage>totalPages){
 currentPage = totalPages;
 }
 
-const startIndex = (currentPage-1)*rowsPerPage;
-const pageData = filtered.slice(startIndex,startIndex+rowsPerPage);
+// ✅ FIX: pagination pakai nama beda
+const startIndexPage = (currentPage-1)*rowsPerPage;
+const pageData = filtered.slice(startIndexPage,startIndexPage+rowsPerPage);
 
 pageData.forEach(d=>{
 
@@ -394,7 +397,6 @@ ${d.status==="Pending"
 ${currentUser === "Topa"
 ? `<button class="btn-red" onclick="hapus('${d.id}')">🗑️</button>`
 : ""}
-
 
 </td>
 
@@ -461,7 +463,6 @@ document.getElementById("pageInfo").innerText =
 "Page "+currentPage+" / "+totalPages;
 
 }
-
 
 // PAGINATION
 function nextPage(){
