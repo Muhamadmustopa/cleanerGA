@@ -25,91 +25,45 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:12px;
 }
-.header strong{font-size:16px}
 .logout{
   background:#f44336;
   color:#fff;
   border:none;
   padding:10px 14px;
   border-radius:12px;
-  cursor:pointer;
 }
-label{
-  font-size:14px;
-  font-weight:600;
-}
+label{font-weight:600;font-size:14px}
 select,input{
   width:100%;
   padding:12px;
   border-radius:12px;
   border:1px solid #ccc;
   margin-top:6px;
-  font-size:14px;
 }
 .task-card{
   border:1px solid #e0e0e0;
   border-radius:14px;
   padding:12px;
   margin-top:12px;
-  background:#fff;
 }
-.task-area{
-  font-size:13px;
-  font-weight:600;
-  color:#1976d2;
-  margin-bottom:4px;
-}
-.task-name{
-  font-size:14px;
-  margin-bottom:10px;
-}
-.check-row{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  margin-bottom:8px;
-  font-size:14px;
-}
-.note{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-}
-button.save{
+.task-area{color:#1976d2;font-weight:600}
+.save{
   width:100%;
   margin-top:18px;
   padding:14px;
-  border:none;
-  border-radius:14px;
   background:#4CAF50;
   color:#fff;
-  font-size:16px;
-  font-weight:600;
-  cursor:pointer;
+  border:none;
+  border-radius:14px;
 }
-.loading-overlay{
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:rgba(255,255,255,0.7);
+.loading{
   display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(255,255,255,0.7);
   justify-content:center;
   align-items:center;
-  z-index:9999;
-}
-.spinner{
-  width:60px;height:60px;
-  border:6px solid #ddd;
-  border-top:6px solid #4CAF50;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-}
-@keyframes spin{
-  0%{transform:rotate(0deg);}
-  100%{transform:rotate(360deg);}
 }
 </style>
 </head>
@@ -119,67 +73,54 @@ button.save{
 <div class="card">
   <div class="header">
     <div>
-      <strong>Checklist Cleaner Harian</strong><br>
-      <small>Isi checklist sesuai area kerja</small>
+      <b>Checklist Cleaner Harian</b><br>
+      <small>Upload + Cloudinary</small>
     </div>
     <button class="logout" onclick="logout()">Keluar</button>
   </div>
 
   <label>Nama Cleaner</label>
   <select id="cleaner">
-    <option value="">-- Pilih Cleaner --</option>
-    <option value="Irfan Affandi">Irfan Affandi</option>
-    <option value="Evillia Agustin">Evillia Agustin</option>
+    <option value="">-- Pilih --</option>
+    <option>Irfan Affandi</option>
+    <option>Evillia Agustin</option>
   </select>
 
-  <br><br>
-
-  <label>Lokasi Kerja</label>
+  <label>Lokasi</label>
   <select id="lokasi" onchange="renderTask()">
-    <option value="">-- Pilih Lokasi --</option>
-    <option value="MTH">MTH Square (Head Office)</option>
-    <option value="BIZ">Bizpark 3 (Warehouse)</option>
+    <option value="">-- Pilih --</option>
+    <option value="MTH">MTH</option>
+    <option value="BIZ">BIZ</option>
   </select>
-
-  <br><br>
 
   <label>Tanggal</label>
   <input type="date" id="tanggal">
 
+  <label>Jam Mulai</label>
+  <input type="time" id="jamMulai" value="07:00" min="07:00" max="18:00">
+
+  <label>Jam Selesai</label>
+  <input type="time" id="jamSelesai" value="18:00" min="07:00" max="18:00">
+
   <div id="taskContainer"></div>
 
-  <button class="save" id="saveBtn" onclick="simpan()">Simpan Checklist</button>
+  <button class="save" onclick="simpan()">Simpan</button>
 </div>
 
-<div class="loading-overlay" id="loading">
-  <div class="spinner"></div>
-</div>
+<div class="loading" id="loading">Loading...</div>
 
 <script>
 
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8eTx-XBJtAX9qRyo78I1efad4xA88M82vcKeDmbwpX_LVGzVLCQYEKr3J433O_AZtWw/exec';
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdj8x5eVnC9xGOTOfj-TVc-HN-a5khZtJepv0G4VNqzw_TX__Yle3VXVOySXLc_lY-/exec";
 
-const cleanerSelect = document.getElementById('cleaner');
-const lokasiSelect  = document.getElementById('lokasi');
-const tanggalInput  = document.getElementById('tanggal');
-const taskContainer = document.getElementById('taskContainer');
-const loading       = document.getElementById('loading');
-const saveBtn       = document.getElementById('saveBtn');
+/* 🔥 GANTI INI */
+const CLOUD_NAME = "duonehce3";
+const UPLOAD_PRESET = "cleaner_upload";
 
-tanggalInput.valueAsDate = new Date();
-
-cleanerSelect.addEventListener('change', checkRender);
-lokasiSelect.addEventListener('change', checkRender);
-tanggalInput.addEventListener('change', checkRender);
-
-function checkRender(){
-  if(cleanerSelect.value && lokasiSelect.value && tanggalInput.value){
-    renderTask();
-  }
-}
+document.getElementById("tanggal").valueAsDate = new Date();
 
 const taskByLocation = {
-  MTH:[
+ MTH:[
     {area:'Area Kerja',task:'Sapu & Pel Lantai'},
     {area:'Area Kerja',task:'Vacum Karpet Lantai'},
     {area:'Area Kerja',task:'Lap Pintu Kaca'},
@@ -216,93 +157,99 @@ const taskByLocation = {
 };
 
 function renderTask(){
-  taskContainer.innerHTML='';
-  const lokasi = lokasiSelect.value;
-  if(!lokasi || !taskByLocation[lokasi]) return;
+  const lokasi = document.getElementById('lokasi').value;
+  const container = document.getElementById('taskContainer');
+  container.innerHTML='';
+
+  if(!lokasi) return;
 
   taskByLocation[lokasi].forEach((t,i)=>{
-    taskContainer.innerHTML += `
-      <div class="task-card">
-        <div class="task-area">${t.area}</div>
-        <div class="task-name">${t.task}</div>
-        <label class="check-row">
-          <input type="checkbox" id="check${i}">
-          Selesai
-        </label>
-        <input type="text" id="note${i}" class="note" placeholder="Catatan (opsional)">
-        <input type="file" id="photo${i}" accept="image/*" style="margin-top:8px;">
-      </div>
-    `;
+    container.innerHTML += `
+    <div class="task-card">
+      <div class="task-area">${t.area}</div>
+      <div>${t.task}</div>
+
+      <input type="checkbox" id="check${i}"> Selesai
+
+      <input type="text" id="note${i}" placeholder="Catatan">
+
+      <input type="file" id="photo${i}" accept="image/*">
+    </div>`;
   });
 }
 
-async function simpan(){
-  const cleaner = cleanerSelect.value;
-  const lokasi  = lokasiSelect.value;
-  const tanggal = tanggalInput.value;
+/* 🔥 UPLOAD CLOUDINARY */
+async function uploadToCloudinary(file){
+  const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
 
-  if(!cleaner || !lokasi || !tanggal){
-    alert('Nama cleaner, lokasi, dan tanggal wajib diisi');
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("upload_preset", UPLOAD_PRESET);
+
+  const res = await fetch(url,{method:"POST",body:fd});
+  const data = await res.json();
+  return data.secure_url;
+}
+
+async function simpan(){
+
+  const cleaner = cleaner.value;
+  const lokasi = lokasi.value;
+  const tanggal = tanggal.value;
+  const jamMulai = document.getElementById('jamMulai').value;
+  const jamSelesai = document.getElementById('jamSelesai').value;
+
+  if(!cleaner || !lokasi){
+    alert("Lengkapi data!");
     return;
   }
 
-  loading.style.display = "flex";
-  saveBtn.disabled = true;
+  loading.style.display="flex";
 
-  const payload = [];
+  const payload=[];
 
   for(let i=0;i<taskByLocation[lokasi].length;i++){
-    const fileInput = document.getElementById('photo'+i);
-    let photoBase64 = "";
 
-    if(fileInput.files[0]){
-      photoBase64 = await toBase64(fileInput.files[0]);
-      photoBase64 = photoBase64.split(',')[1];
+    let photoUrl="";
+
+    const file = document.getElementById('photo'+i).files[0];
+
+    if(file){
+      if(file.size > 2000000){
+        alert("Max 2MB");
+        loading.style.display="none";
+        return;
+      }
+      photoUrl = await uploadToCloudinary(file);
     }
 
     payload.push({
       cleaner,
-      tanggal,
       lokasi,
+      tanggal,
+      jamMulai,
+      jamSelesai,
       area:taskByLocation[lokasi][i].area,
       task:taskByLocation[lokasi][i].task,
       status:document.getElementById('check'+i).checked ? 'SELESAI' : 'BELUM',
       catatan:document.getElementById('note'+i).value,
-      photoBase64: photoBase64
+      foto: photoUrl
     });
   }
 
-  fetch(SCRIPT_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: "data=" + encodeURIComponent(JSON.stringify(payload))
-  })
-  .then(res => res.text())
-  .then(res => {
-    console.log("Response:", res);
-    alert("Checklist berhasil disimpan");
-    location.reload();
-  })
-  .catch(err => {
-    console.error(err);
-    alert("Gagal menyimpan data");
+  await fetch(SCRIPT_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:"data="+encodeURIComponent(JSON.stringify(payload))
   });
-}
 
-function toBase64(file){
-  return new Promise((resolve, reject)=>{
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = ()=> resolve(reader.result);
-    reader.onerror = error => reject(error);
-  });
+  alert("Berhasil disimpan");
+  location.reload();
 }
 
 function logout(){
   localStorage.clear();
-  location.href='login.html';
+  location.href="login.html";
 }
 
 </script>
