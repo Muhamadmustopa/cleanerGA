@@ -327,8 +327,16 @@ const mobile = document.getElementById("mobileList");
 tbody.innerHTML="";
 mobile.innerHTML="";
 
-let pending=0;
-let done=0;
+let pending = 0;
+let done = 0;
+
+// ✅ HITUNG DARI SEMUA DATA (bukan pagination)
+filtered.forEach(d=>{
+  const status = (d.status || "").toLowerCase().trim();
+
+  if(status === "pending") pending++;
+  if(status === "selesai") done++;
+});
 
 // ✅ FIX: nama variable jelas
 const startDate = document.getElementById("startDate").value;
@@ -367,7 +375,7 @@ currentPage = totalPages;
 const startIndexPage = (currentPage-1)*rowsPerPage;
 const pageData = filtered.slice(startIndexPage,startIndexPage+rowsPerPage);
 
-pageData.forEach(d=>{
+filtered.forEach(d=>{
 
 const status = (d.status || "").toLowerCase().trim();
 
