@@ -403,6 +403,16 @@ function prevPage(){
 // TAMBAH DATA
 async function tambah(){
 
+  const pengirimVal = pengirim.value.trim();
+  const jenisVal = jenis.value.trim();
+  const penerimaVal = penerima.value.trim();
+
+  // 🚫 VALIDASI WAJIB ISI
+  if(!pengirimVal || !jenisVal || !penerimaVal){
+    showNotif("Semua field wajib diisi ⚠️");
+    return;
+  }
+
   const btn = document.querySelector(".primary");
   const spinner = document.getElementById("spinner");
 
@@ -413,9 +423,9 @@ async function tambah(){
   try{
     await db.collection("dokumen").add({
       tanggal:new Date(),
-      pengirim:pengirim.value,
-      jenis:jenis.value,
-      penerima:penerima.value,
+      pengirim:pengirimVal,
+      jenis:jenisVal,
+      penerima:penerimaVal,
       pic:currentUser,
       status:"Pending",
       foto:""
