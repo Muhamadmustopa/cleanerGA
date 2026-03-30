@@ -456,12 +456,70 @@ function openCamera(id){
   selectedId = id;
   document.getElementById("cameraInput").click();
 }
+function compressImage(file){
 
+return new Promise(resolve=>{
+
+const img = new Image();
+const reader = new FileReader();
+
+reader.onload = e => img.src = e.target.result;
+reader.readAsDataURL(file);
+
+img.onload = ()=>{
+
+const canvas = document.createElement("canvas");
+
+const MAX_WIDTH = 500;
+
+let width = img.width;
+let height = img.height;
+
+if(width > MAX_WIDTH){
+height *= MAX_WIDTH/width;
+width = MAX_WIDTH;
+}
+
+canvas.width = width;
+canvas.height = height;
+
+const ctx = canvas.getContext("2d");
+
+ctx.drawImage(img,0,0,width,height);
+
+// 🔥 TIMESTAMP
+const now = new Date();
+const tanggal = now.toLocaleDateString("id-ID");
+const jam = now.toLocaleTimeString("id-ID");
+const text = `${tanggal} ${jam}`;
+
+// background
+ctx.fillStyle = "rgba(0,0,0,0.5)";
+ctx.fillRect(width - 180, height - 35, 170, 25);
+
+// text
+ctx.font = "bold 14px Arial";
+ctx.fillStyle = "white";
+ctx.textAlign = "right";
+ctx.fillText(text, width - 10, height - 15);
+
+// compress
+canvas.toBlob(
+(blob)=>resolve(blob),
+"image/jpeg",
+0.7
+);
+
+};
+
+});
+}
 // UPLOAD
 cameraInput.addEventListener("change",async function(){
 
-  const file = this.files[0];
-  if(!file) return;
+ const originalFile = this.files[0];
+if(!originalFile) return;
+const file = await compressImage(originalFile);
 
   const spinner = document.getElementById("uploadSpinner");
   spinner.style.display="block";
