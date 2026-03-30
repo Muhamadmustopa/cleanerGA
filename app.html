@@ -13,7 +13,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="style.css">
 <title>Sistem Log Dokumen</title>
-</head>
+</head>  
 
 <body>
 
@@ -369,9 +369,10 @@ const pageData = filtered.slice(startIndexPage,startIndexPage+rowsPerPage);
 
 pageData.forEach(d=>{
 
-if(d.status==="Pending") pending++;
-if(d.status==="Selesai") done++;
+const status = (d.status || "").toLowerCase().trim();
 
+if(status === "pending") pending++;
+if(status === "selesai") done++;
 tbody.innerHTML += `
 <tr>
 
@@ -457,7 +458,7 @@ ${currentUser === "Topa"
 
 });
 
-document.getElementById("total").innerText = data.length;
+document.getElementById("total").innerText = filtered.length;
 document.getElementById("pending").innerText = pending;
 document.getElementById("done").innerText = done;
 
