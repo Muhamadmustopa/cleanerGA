@@ -333,60 +333,70 @@ function render(){
   const pageData = filtered.slice(startIndex,startIndex+rowsPerPage);
 
   // RENDER TABLE
-  pageData.forEach(d=>{
+  // RENDER TABLE
+pageData.forEach(d => {
 
-    tbody.innerHTML += `
-    <tr>
-      <td>${formatTanggal(d.tanggal)}</td>
-      <td>${d.pengirim}</td>
-      <td>${d.jenis}</td>
-      <td>${d.penerima}</td>
-      <td>${d.pic}</td>
-      <td>${formatJam(d.tanggal)}</td>
-      <td class="${d.status==="Pending"?"status-pending":"status-done"}">${d.status}</td>
-      <td>
-        <img src="${d.foto}" class="preview-img" onclick="openModal('${d.foto}')">
-      </td>
-     <td class="actions">
-  ${d.status==="Pending"
-    ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
-    : ""}
-
-  ${currentUser === "Topa"
-    ? `<button class="btn-blue" onclick="editData('${d.id}','${d.pengirim}','${d.penerima}')">✏️</button>`
-    : ""}
-
-  ${currentUser === "Topa"
-    ? `<button class="btn-red" onclick="hapus('${d.id}')">🗑️</button>`
-    : ""}
-</td>
-
-    mobile.innerHTML += `
-    <div class="mobile-card">
-      <div class="mobile-row"><span>Tanggal</span><span>${formatTanggal(d.tanggal)}</span></div>
-      <div class="mobile-row"><span>Jenis</span><span>${d.jenis}</span></div>
-      <div class="mobile-row"><span>Pengirim</span><span>${d.pengirim}</span></div>
-      <div class="mobile-row"><span>Penerima</span><span>${d.penerima}</span></div>
-      <div class="mobile-row"><span>PIC</span><span>${d.pic}</span></div>
-      <div class="mobile-row"><span>Status</span><span>${d.status}</span></div>
+  // TABLE
+  tbody.innerHTML += `
+  <tr>
+    <td>${formatTanggal(d.tanggal)}</td>
+    <td>${d.pengirim}</td>
+    <td>${d.jenis}</td>
+    <td>${d.penerima}</td>
+    <td>${d.pic}</td>
+    <td>${formatJam(d.tanggal)}</td>
+    <td class="${d.status==="Pending"?"status-pending":"status-done"}">${d.status}</td>
+    <td>
       ${d.foto ? `<img src="${d.foto}" class="preview-img" onclick="openModal('${d.foto}')">` : ""}
-      <div class="mobile-actions">
+    </td>
+    <td class="actions">
 
-  ${d.status==="Pending"
-    ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
-    : ""}
-  ${currentUser === "Topa"
-    ? `<button class="btn-blue" onclick="editData('${d.id}','${d.pengirim}','${d.penerima}')">Edit</button>`
-    : ""}
-  ${currentUser === "Topa"
-    ? `<button class="btn-red" onclick="hapus('${d.id}')">Hapus</button>`
-    : ""}
+      ${d.status==="Pending"
+        ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
+        : ""}
 
-</div>
+      ${currentUser === "Topa"
+        ? `<button class="btn-blue" onclick="editData('${d.id}','${d.pengirim}','${d.penerima}')">✏️</button>`
+        : ""}
+
+      ${currentUser === "Topa"
+        ? `<button class="btn-red" onclick="hapus('${d.id}')">🗑️</button>`
+        : ""}
+
+    </td>
+  </tr>
+  `;
+
+  // MOBILE
+  mobile.innerHTML += `
+  <div class="mobile-card">
+    <div class="mobile-row"><span>Tanggal</span><span>${formatTanggal(d.tanggal)}</span></div>
+    <div class="mobile-row"><span>Jenis</span><span>${d.jenis}</span></div>
+    <div class="mobile-row"><span>Pengirim</span><span>${d.pengirim}</span></div>
+    <div class="mobile-row"><span>Penerima</span><span>${d.penerima}</span></div>
+    <div class="mobile-row"><span>PIC</span><span>${d.pic}</span></div>
+    <div class="mobile-row"><span>Status</span><span>${d.status}</span></div>
+
+    ${d.foto ? `<img src="${d.foto}" class="preview-img" onclick="openModal('${d.foto}')">` : ""}
+
+    <div class="mobile-actions">
+
+      ${d.status==="Pending"
+        ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
+        : ""}
+
+      ${currentUser === "Topa"
+        ? `<button class="btn-blue" onclick="editData('${d.id}','${d.pengirim}','${d.penerima}')">Edit</button>`
+        : ""}
+
+      ${currentUser === "Topa"
+        ? `<button class="btn-red" onclick="hapus('${d.id}')">Hapus</button>`
+        : ""}
+
     </div>
-    `;
-  });
-
+  </div>
+  `;
+});
   // UPDATE KPI
   document.getElementById("total").innerText = filtered.length;
   document.getElementById("pending").innerText = pending;
