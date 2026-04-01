@@ -347,16 +347,19 @@ function render(){
       <td>
         <img src="${d.foto}" class="preview-img" onclick="openModal('${d.foto}')">
       </td>
-      <td class="actions">
-        ${d.status==="Pending"
-          ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
-          : ""}
-        ${currentUser === "Topa"
-          ? `<button class="btn-red" onclick="hapus('${d.id}')">🗑️</button>`
-          : ""}
-      </td>
-    </tr>
-    `;
+     <td class="actions">
+  ${d.status==="Pending"
+    ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
+    : ""}
+
+  ${currentUser === "Topa"
+    ? `<button class="btn-blue" onclick="editData('${d.id}','${d.pengirim}','${d.penerima}')">✏️</button>`
+    : ""}
+
+  ${currentUser === "Topa"
+    ? `<button class="btn-red" onclick="hapus('${d.id}')">🗑️</button>`
+    : ""}
+</td>
 
     mobile.innerHTML += `
     <div class="mobile-card">
@@ -368,13 +371,18 @@ function render(){
       <div class="mobile-row"><span>Status</span><span>${d.status}</span></div>
       ${d.foto ? `<img src="${d.foto}" class="preview-img" onclick="openModal('${d.foto}')">` : ""}
       <div class="mobile-actions">
-        ${d.status==="Pending"
-          ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
-          : ""}
-        ${currentUser === "Topa"
-          ? `<button class="btn-red" onclick="hapus('${d.id}')">Hapus</button>`
-          : ""}
-      </div>
+
+  ${d.status==="Pending"
+    ? `<button class="btn-green" onclick="openCamera('${d.id}')">Diterima</button>`
+    : ""}
+  ${currentUser === "Topa"
+    ? `<button class="btn-blue" onclick="editData('${d.id}','${d.pengirim}','${d.penerima}')">Edit</button>`
+    : ""}
+  ${currentUser === "Topa"
+    ? `<button class="btn-red" onclick="hapus('${d.id}')">Hapus</button>`
+    : ""}
+
+</div>
     </div>
     `;
   });
@@ -562,6 +570,34 @@ const file = await compressImage(originalFile);
   loadData();
 });
 
+ // EDIT 
+ async function editData(id, pengirimLama, penerimaLama){
+
+  if(currentUser !== "Topa"){
+    alert("Tidak ada akses");
+    return;
+  }
+
+  let pengirimBaru = prompt("Edit Pengirim:", pengirimLama);
+  if(pengirimBaru === null) return;
+
+  let penerimaBaru = prompt("Edit Penerima:", penerimaLama);
+  if(penerimaBaru === null) return;
+
+  try{
+    await db.collection("dokumen").doc(id).update({
+      pengirim: pengirimBaru,
+      penerima: penerimaBaru
+    });
+
+    alert("Data berhasil diupdate ✅");
+    loadData();
+
+  }catch(err){
+    alert("Gagal update ❌");
+  }
+
+}
 // DELETE
 async function hapus(id){
   if(currentUser !== "Topa") return alert("Tidak ada akses");
