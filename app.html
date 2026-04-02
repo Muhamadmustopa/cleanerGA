@@ -355,7 +355,7 @@ pageData.forEach(d => {
   <tr>
     <td>${formatTanggal(d.tanggal)}</td>
     <td>${d.pengirim}</td>
-    <td>${d.jenis}</td>
+    <td onclick="editJenis(this,'${d.id}','${d.jenis}')">${d.jenis}</td>
     <td>${d.penerima}</td>
     <td>${d.pic}</td>
     <td>${formatJam(d.tanggal)}</td>
@@ -436,9 +436,9 @@ function prevPage(){
 // TAMBAH DATA
 async function tambah(){
 
-  const pengirimVal = pengirim.value.trim();
-  const jenisVal = jenis.value.trim();
-  const penerimaVal = penerima.value.trim();
+const pengirimVal = document.getElementById("pengirim").value.trim();
+const jenisVal = document.getElementById("jenis").value.trim();
+const penerimaVal = document.getElementById("penerima").value.trim();
 
   // 🚫 VALIDASI WAJIB ISI
   if(!pengirimVal || !jenisVal || !penerimaVal){
@@ -622,6 +622,28 @@ const file = await compressImage(originalFile);
   }
 
 }
+function editJenis(td, id, currentValue){
+
+  if(currentUser !== "Topa") return;
+
+  // cegah double klik
+  if(td.querySelector("select")) return;
+
+  td.innerHTML = `
+    <select 
+      onchange="saveJenis(this,'${id}')"
+      onblur="loadData()"
+      style="width:100%"
+    >
+      <option ${currentValue==="Dokumen"?"selected":""}>Dokumen</option>
+      <option ${currentValue==="Barang"?"selected":""}>Barang</option>
+      <option ${currentValue==="Makanan"?"selected":""}>Makanan</option>
+    </select>
+  `;
+
+  td.querySelector("select").focus();
+}
+
 // DELETE
 async function hapus(id){
   if(currentUser !== "Topa") return alert("Tidak ada akses");
@@ -630,7 +652,24 @@ async function hapus(id){
   await db.collection("dokumen").doc(id).delete();
   loadData();
 }
+  // Save Jenis
+async function saveJenis(select, id){
 
+  const value = select.value;
+
+  try{
+    await db.collection("dokumen").doc(id).update({
+      jenis: value
+    });
+
+    showNotif("Jenis berhasil diupdate ✅");
+
+  }catch(err){
+    alert("Gagal update ❌");
+  }
+
+  loadData();
+}
 // LOGOUT
 function logout(){
   localStorage.removeItem("pic_user");
@@ -653,6 +692,7 @@ window.onclick = function(event){
     modal.style.display = "none";
   }
 }
+
 </script>
 <div class="footer">
 © 2026 TrackDocMAP
