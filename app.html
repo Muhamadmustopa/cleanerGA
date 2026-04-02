@@ -226,15 +226,28 @@ function exportExcel(){
     Jenis: d.jenis,
     Penerima: d.penerima,
     PIC: d.pic,
-    Status: d.status
+    Status: d.status,
+    Foto: d.foto ? d.foto : "-"
   }));
 
   const worksheet = XLSX.utils.json_to_sheet(rows);
+
+  // 🔥 Bikin link bisa diklik
+  Object.keys(rows).forEach((_, i) => {
+    const rowIndex = i + 2; // karena header di baris 1
+    const cell = worksheet["H" + rowIndex]; // kolom H = Foto
+
+    if(cell && cell.v !== "-"){
+      cell.l = { Target: cell.v }; // bikin hyperlink
+      cell.v = "Lihat Foto"; // teks di Excel
+    }
+  });
+
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Data Dokumen");
+
   XLSX.writeFile(workbook, "dokumen.xlsx");
 }
-
 // EXPORT PDF
 async function exportPDF(){
   const { jsPDF } = window.jspdf;
