@@ -3,287 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checklist K3</title>
+<title>Inspeksi GA</title>
 
 <style>
 *{box-sizing:border-box}
-  body{
-  margin:0;
-  padding:14px;
-  font-family:Segoe UI,Arial;
-  min-height:100vh;
-  background:
-    linear-gradient(rgba(255,255,255,0.85), rgba(255,255,255,0.85)),
-    url('safety.png') no-repeat center center fixed;
-  background-size:cover;
-}
-.card{
-  max-width:480px;
-  margin:auto;
-  background:#fff;
-  border-radius:16px;
-  padding:18px;
-  box-shadow:0 6px 14px rgba(0,0,0,.12)
-}
-h3{text-align:center;margin:6px 0 14px}
-label{font-size:14px;font-weight:600}
-select,input,textarea,button{
-  width:100%;
-  margin-top:8px;
-  padding:12px;
-  border-radius:12px;
-  border:1px solid #ccc;
-  font-size:14px
-}
-textarea{resize:none}
-.task{
-  border:1px solid #e0e0e0;
-  border-radius:12px;
-  padding:12px;
-  margin-top:12px
-}
-.task-title{
-  font-weight:600;
-  margin-bottom:8px
-}
-.task-row{
-  display:flex;
-  align-items:center;
-  gap:10px
-}
-.task-row input[type=checkbox]{
-  width:20px;height:20px
-}
-button{
-  background:#4169E1;
-  color:#fff;
-  border:none;
-  font-size:16px;
-  font-weight:600;
-  margin-top:18px
-}
-.small{
-  font-size:12px;
-  color:#666;
-  text-align:center;
-  margin-top:8px
-}
-.hidden{display:none}
 
-.top-btn{
-  position:fixed;
-  top:14px;
-  right:14px;
-  background:#FF0000;
-  color:#fff;
-  padding:10px 16px;
-  border-radius:999px;
-  font-size:14px;
-  font-weight:600;
-  text-decoration:none;
-  box-shadow:0 4px 10px rgba(0,0,0,.25);
-  transition:.2s ease;
-  z-index:999;
-  display:flex;
-  align-items:center;
-  gap:6px;
+body{
+margin:0;
+font-family:Segoe UI;
+background:#f1f5f9;
 }
-.top-btn:hover{
-  background:#0D47A1;
-  transform:scale(1.05);
+
+/* HEADER */
+.header{
+background:#1e293b;
+color:white;
+padding:15px;
+font-size:18px;
+font-weight:600;
 }
-@media(max-width:600px){
-  .top-btn{
-    padding:12px;
-    border-radius:50%;
-    width:46px;
-    height:46px;
-    justify-content:center;
-    font-size:20px;
-  }
-  .top-btn span{display:none}
+
+/* CONTAINER */
+.container{
+padding:15px;
 }
+
+/* CARD */
+.card{
+background:white;
+border-radius:14px;
+padding:15px;
+margin-bottom:12px;
+box-shadow:0 4px 10px rgba(0,0,0,.08);
+}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+}
+
+/* BIG CARD */
+.big{
+grid-column:span 2;
+}
+
+/* TITLE */
+.title{
+font-size:13px;
+color:#666;
+}
+
+.value{
+font-size:20px;
+font-weight:bold;
+margin-top:5px;
+}
+
+/* QUICK ACTION */
+.menu{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px;
+margin-top:10px;
+}
+
+.menu a{
+text-decoration:none;
+}
+
+.menu-box{
+background:white;
+padding:12px;
+border-radius:12px;
+text-align:center;
+font-size:13px;
+box-shadow:0 3px 8px rgba(0,0,0,.08);
+}
+
+.menu-box:hover{
+background:#e2e8f0;
+}
+
+/* BOTTOM NAV (OPTIONAL) */
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:8px 0;
+box-shadow:0 -2px 10px rgba(0,0,0,.1);
+}
+
+.bottom-nav a{
+text-decoration:none;
+color:#333;
+font-size:12px;
+text-align:center;
+}
+
 </style>
 </head>
 
 <body>
 
-<a href="index.html" class="top-btn" title="Laporan K3">
-  <span>Keluar</span>
-</a>
-
-<div class="card">
-  <h3>Checklist K3 Harian</h3>
-
-  <label>Lokasi</label>
-  <select id="lokasi">
-    <option value="">-- Pilih Lokasi --</option>
-    <option value="MTH">MTH Square (Head Office)</option>
-    <option value="BIZ">Bizpark 3 (Warehouse)</option>
-  </select>
-
-  <label>Tanggal</label> 
-  <input type="date" id="tanggal">
-
-  <div id="taskList" class="hidden"></div>
-
-  <button onclick="simpan()">Simpan Checklist</button>
-  <div class="small">Data otomatis tersimpan ke Google Sheet</div>
+<div class="header">
+Inspection General Affair 
 </div>
 
-<script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyknd3VCdFnL_Ut9YAKE1giBptIV_KUbt9FcQ71i7vic5UzK4tAxffF8e4A3_lWhnygfw/exec';
+<div class="container">
 
-const taskByLocation = {
-  MTH: [
-    'Pengecekan APAR (Tekanan, Handle, Pengunci, Pengait, Label EXP)',
-    'Jalur evakuasi aman / tidak terhalang',
-    'Stok obat P3K tersedia (beri keterangan bila kosong)',
-    'Lantai tidak licin',
-    'Pencahayaan lampu berfungsi',
-    'Panel listrik tertutup',
-    'Colokan listrik berfungsi baik',
-    'Perawatan pest control',
-    'Stok air minum tersedia (qty terakhir)',
-    'Kursi dan meja kerja / ruang meeting',
-    'CCTV berfungsi baik'
-  ],
-  BIZ: [
-    'APAR area gudang tersedia',
-    'Pengecekan APAR (Tekanan, Handle, Pengunci, Pengait, Label EXP)',
-    'Hand pallet berfungsi baik',
-    'Rak penyimpanan stabil dan rapi',
-    'Lantai gudang tidak licin',
-    'Inspeksi sepatu safety karyawan gudang',
-    'Area loading bersih',
-    'Kursi dan meja kerja / ruang meeting',
-    'CCTV berfungsi baik',
-    'Pencahayaan lampu berfungsi',
-    'Panel listrik tertutup',
-    'Colokan listrik berfungsi baik'
-  ]
-};
+<!-- SUMMARY -->
+<div class="grid">
 
-const taskList = document.getElementById('taskList');
-const lokasiSelect = document.getElementById('lokasi');
+<div class="card">
+<div class="title">Inspection Head Office</div>
+<div class="value">5</div>
+</div>
 
-/* SET TANGGAL KERJA */
-function setToday(){
-  let d=new Date();
-  while(d.getDay()==0||d.getDay()==6){
-    d.setDate(d.getDate()+1);
-  }
-  document.getElementById('tanggal').valueAsDate=d;
-}
-setToday();
+<div class="card">
+<div class="title">Inspection Warehouse</div>
+<div class="value">3</div>
+</div>
 
-/* RENDER TASK */
-lokasiSelect.addEventListener('change',()=>{
-  const loc = lokasiSelect.value;
-  taskList.innerHTML='';
-  taskList.classList.add('hidden');
+<div class="card">
+<div class="title">Inspection Vehicle Operational</div>
+<div class="value">2</div>
+</div>
 
-  if(!loc) return;
+<div class="card">
+<div class="title">Inspection K3 Safety</div>
+<div class="value">Not yet Clear</div>
+</div>
 
-  const tasks = taskByLocation[loc];
+<div class="card">
+<div class="title">Preventive Maintenance</div>
+<div class="value">Done</div>
+</div>
 
-  tasks.forEach((t,i)=>{
-    taskList.innerHTML+=`
-      <div class="task">
-        <div class="task-title">${i+1}. ${t}</div>
+</div>
 
-        <div class="task-row">
-          <label>
-            <input type="checkbox" id="check${i}">
-            Aman
-          </label>
-        </div>
+<!-- QUICK ACTION -->
+<div class="card big">
+<div class="title">Quick Menu</div>
 
-        <textarea id="note${i}" rows="2"
-          placeholder="Keterangan (jika ada)"></textarea>
+<div class="menu">
+<a href="k3.html">
+<div class="menu-box"> Inspection Head Office</div>
+</a>
 
-        <input type="file" 
-          accept="image/*" 
-          capture="environment"
-          onchange="previewImage(event, ${i})">
+<a href="maintenance.html">
+<div class="menu-box"> Inspection Warehouse</div>
+</a>
 
-        <img id="preview${i}" 
-          style="display:none;margin-top:10px;width:100%;border-radius:12px;">
-      </div>
-    `;
-  });
+<a href="atk.html">
+<div class="menu-box">Inspection Vehicle Operational</div>
+</a>
 
-  taskList.classList.remove('hidden');
-});
+<a href="inspeksi-ho.html">
+<div class="menu-box">Inspection K3 Safety</div>
+</a>
 
-/* PREVIEW & COMPRESS */
-function previewImage(event,index){
-  const file = event.target.files[0];
-  if(!file) return;
+<a href="inspeksi-warehouse.html">
+<div class="menu-box">Preventive Maintenance</div>
+</a>
 
-  const reader = new FileReader();
+<a href="reporting.html">
+<div class="menu-box">📊 Report</div>
+</a>
+</div>
 
-  reader.onload = function(e){
-    const img = new Image();
-    img.src = e.target.result;
+</div>
 
-    img.onload = function(){
-      const canvas = document.createElement("canvas");
-      const maxWidth = 1200;
-      const scale = maxWidth / img.width;
+</div>
 
-      canvas.width = maxWidth;
-      canvas.height = img.height * scale;
-
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      const compressed = canvas.toDataURL("image/jpeg", 0.7);
-
-      const preview = document.getElementById("preview"+index);
-      preview.src = compressed;
-      preview.style.display = "block";
-      preview.dataset.image = compressed;
-    };
-  };
-
-  reader.readAsDataURL(file);
-}
-
-/* SIMPAN */
-function simpan(){
-  const lokasiText = lokasiSelect.options[lokasiSelect.selectedIndex].text;
-  const tanggal = document.getElementById('tanggal').value;
-  const locKey = lokasiSelect.value;
-
-  if(!locKey || !tanggal){
-    alert('Lokasi dan tanggal wajib diisi');
-    return;
-  }
-
-  const tasks = taskByLocation[locKey];
-
-  const detail = tasks.map((t,i)=>({
-    task: t,
-    status: document.getElementById('check'+i).checked ? 'AMAN' : 'TIDAK AMAN',
-    catatan: document.getElementById('note'+i).value,
-    foto: document.getElementById('preview'+i)?.dataset.image || ''
-  }));
-
-  fetch(SCRIPT_URL,{
-    method:'POST',
-    body: JSON.stringify({ lokasi: lokasiText, tanggal, detail })
-  })
-  .then(r=>r.text())
-  .then(()=>{
-    alert('Checklist K3 tersimpan');
-    location.reload();
-  })
-  .catch(()=>{
-    alert('Gagal kirim data');
-  });
-}
-</script>
+<!-- OPTIONAL NAV -->
+<div class="bottom-nav">
+<a href="#">🏠<br>Home</a>
+<a href="#">📋<br>Task</a>
+<a href="#">📊<br>Report</a>
+<a href="#">⚙️<br>Setting</a>
+</div>
 
 </body>
 </html>
