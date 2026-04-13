@@ -153,6 +153,16 @@ box-shadow:0 3px 8px rgba(0,0,0,.08);
 .menu-box:hover{
 background:#e2e8f0;
 }
+
+/* FOOTER */
+.footer{
+background:#1f2937;
+color:#fff;
+text-align:center;
+padding:12px;
+font-size:13px;
+margin-top:20px;
+}
 </style>
 </head>
 
@@ -197,47 +207,43 @@ Inspection General Affair
 
 <div class="grid">
 
+<a href="inspeksi-warehouse.html" style="text-decoration:none;color:inherit;">
 <div class="card">
 <div class="title">Inspection Head Office</div>
-<div class="value">5</div>
+<div class="value" id="headofficeTotal">0</div>
 </div>
+</a>
 
+<a href="inspeksi-warehouse.html" style="text-decoration:none;color:inherit;">
 <div class="card">
 <div class="title">Inspection Warehouse</div>
-<div class="value">3</div>
+<div class="value" id="warehouseTotal">0</div>
 </div>
+</a>
 
+<a href="inspeksi-warehouse.html" style="text-decoration:none;color:inherit;">
 <div class="card">
-<div class="title">Inspection Vehicle</div>
-<div class="value">2</div>
+<div class="title">Inspection Vehicle Operational </div>
+<div class="value" id="vehicleTotal">0</div>
 </div>
+</a>
 
+<a href="inspeksi-warehouse.html" style="text-decoration:none;color:inherit;">
 <div class="card">
-<div class="title">Inspection K3</div>
-<div class="value">Not yet</div>
+<div class="title">Inspection K3 Safety</div>
+<div class="value" id="k3Total">0</div>
 </div>
+</a>
 
+<a href="inspeksi-warehouse.html" style="text-decoration:none;color:inherit;">
 <div class="card">
-<div class="title">Maintenance</div>
-<div class="value">Done</div>
+<div class="title">Preventif Maintenance</div>
+<div class="value" id="maintenanceTotal">0</div>
 </div>
+</a>
 
 </div>
 
-<div class="card big">
-<div class="title">Inspection</div>
-
-<div class="menu">
-<a href="inspeksi-ho.html"><div class="menu-box">Inspection Head Office</div></a>
-<a href="inspeksi-warehouse.html"><div class="menu-box">Inspection Warehouse</div></a>
-<a href="inspeksi-kendaraan.html"><div class="menu-box">Inspection Vehicle</div></a>
-<a href="k3.html"><div class="menu-box">Inspection K3 Safety</div></a>
-<a href="maintenance.html"><div class="menu-box">Preventive Maintenance</div></a>
-</div>
-
-</div>
-
-</div>
 
 <script>
 function openMenu(){
@@ -250,6 +256,8 @@ document.getElementById("sidebar").classList.remove("active");
 document.getElementById("overlay").classList.remove("active");
 }
 </script>
-
+<div class="footer">
+© 2026 Inspection General Affair
+</div>
 </body>
 </html>
