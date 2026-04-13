@@ -32,7 +32,7 @@ font-size:22px;
 cursor:pointer;
 }
 
-/* SIDEBAR KIRI */
+/* SIDEBAR */
 .sidebar{
 position:fixed;
 top:0;
@@ -53,10 +53,23 @@ left:0;
 .sidebar h2{
 font-size:18px;
 margin-bottom:20px;
+display:flex;
+align-items:center;
+gap:10px;
 }
 
+/* ICON IMAGE */
+.icon{
+width:20px;
+height:20px;
+object-fit:contain;
+}
+
+/* MENU */
 .sidebar a{
-display:block;
+display:flex;
+align-items:center;
+gap:10px;
 padding:10px;
 margin-bottom:8px;
 color:white;
@@ -153,16 +166,27 @@ Inspection General Affair
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-<h2>Inspection</h2>
 
-<a href="dashboard.html">Dashboard</a>
-<a href="inspeksi-ho.html">Inspeksi HO MTHS</a>
-<a href="inspeksi-warehouse.html">Inspeksi Warehouse</a>
-<a href="inspeksi-kendaraan.html">Inspeksi Kendaraan</a>
-<a href="k3.html">Inspeksi K3</a>
-<a href="maintenance.html">Maintenance</a>
-<a href="reporting.html">Reporting</a>
+<h2>
+<img src="do.png" class="icon">Inspection</h2>
 
+<a href="dashboard.html">
+<img src="do.png" class="icon"> Dashboard</a>
+
+<a href="inspeksi-ho.html">
+<img src="do.png" class="icon"> Inspeksi Head Office</a>
+
+<a href="inspeksi-warehouse.html">
+<img src="do.png" class="icon"> Inspeksi Warehouse</a>
+
+<a href="inspeksi-kendaraan.html">
+<img src="do.png" class="icon"> Inspeksi Kendaraan</a>
+
+<a href="k3.html">
+<img src="do.png" class="icon"> Inspeksi K3</a>
+
+<a href="maintenance.html">
+<img src="do.png" class="icon"> Maintenance</a>
 </div>
 
 <!-- OVERLAY -->
@@ -208,7 +232,7 @@ Inspection General Affair
 <a href="inspeksi-warehouse.html"><div class="menu-box">Inspection Warehouse</div></a>
 <a href="inspeksi-kendaraan.html"><div class="menu-box">Inspection Vehicle</div></a>
 <a href="k3.html"><div class="menu-box">Inspection K3 Safety</div></a>
-<a href="maintenance.html"><div class="menu-box">Preventife Maintenance</div></a>
+<a href="maintenance.html"><div class="menu-box">Preventive Maintenance</div></a>
 </div>
 
 </div>
