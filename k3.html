@@ -21,6 +21,67 @@ color:white;
 padding:15px;
 font-size:18px;
 font-weight:600;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+/* MENU BUTTON */
+.menu-btn{
+font-size:22px;
+cursor:pointer;
+}
+
+/* SIDEBAR RIGHT */
+.sidebar{
+position:fixed;
+top:0;
+right:-260px;
+width:260px;
+height:100%;
+background:#1e293b;
+color:white;
+padding:20px;
+transition:0.3s;
+z-index:1000;
+}
+
+.sidebar.active{
+right:0;
+}
+
+.sidebar h2{
+font-size:18px;
+margin-bottom:20px;
+}
+
+.sidebar a{
+display:block;
+padding:10px;
+margin-bottom:8px;
+color:white;
+text-decoration:none;
+border-radius:6px;
+}
+
+.sidebar a:hover{
+background:#334155;
+}
+
+/* OVERLAY */
+.overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.3);
+display:none;
+z-index:900;
+}
+
+.overlay.active{
+display:block;
 }
 
 /* CONTAINER */
@@ -44,33 +105,27 @@ grid-template-columns:1fr 1fr;
 gap:10px;
 }
 
-/* BIG CARD */
 .big{
 grid-column:span 2;
 }
 
-/* TITLE */
 .title{
 font-size:13px;
 color:#666;
 }
 
 .value{
-font-size:20px;
+font-size:18px;
 font-weight:bold;
 margin-top:5px;
 }
 
-/* QUICK ACTION */
+/* MENU GRID */
 .menu{
 display:grid;
-grid-template-columns:repeat(3,1fr);
+grid-template-columns:repeat(2,1fr);
 gap:10px;
 margin-top:10px;
-}
-
-.menu a{
-text-decoration:none;
 }
 
 .menu-box{
@@ -85,39 +140,37 @@ box-shadow:0 3px 8px rgba(0,0,0,.08);
 .menu-box:hover{
 background:#e2e8f0;
 }
-
-/* BOTTOM NAV (OPTIONAL) */
-.bottom-nav{
-position:fixed;
-bottom:0;
-left:0;
-width:100%;
-background:white;
-display:flex;
-justify-content:space-around;
-padding:8px 0;
-box-shadow:0 -2px 10px rgba(0,0,0,.1);
-}
-
-.bottom-nav a{
-text-decoration:none;
-color:#333;
-font-size:12px;
-text-align:center;
-}
-
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
 Inspection General Affair 
+<span class="menu-btn" onclick="openMenu()">☰</span>
 </div>
 
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+<h2>Checklist Inspection</h2>
+
+<a href="dashboard.html">Dashboard</a>
+<a href="inspeksi-ho.html">Inspeksi HO MTHS</a>
+<a href="inspeksi-warehouse.html">Inspeksi Warehouse</a>
+<a href="inspeksi-kendaraan.html">Inspeksi Kendaraan</a>
+<a href="k3.html">Inspeksi K3</a>
+<a href="maintenance.html">Maintenance</a>
+<a href="reporting.html">Reporting</a>
+
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+<!-- CONTENT -->
 <div class="container">
 
-<!-- SUMMARY -->
 <div class="grid">
 
 <div class="card">
@@ -131,63 +184,48 @@ Inspection General Affair
 </div>
 
 <div class="card">
-<div class="title">Inspection Vehicle Operational</div>
+<div class="title">Inspection Vehicle</div>
 <div class="value">2</div>
 </div>
 
 <div class="card">
-<div class="title">Inspection K3 Safety</div>
-<div class="value">Not yet Clear</div>
+<div class="title">Inspection K3</div>
+<div class="value">Not yet</div>
 </div>
 
 <div class="card">
-<div class="title">Preventive Maintenance</div>
+<div class="title">Maintenance</div>
 <div class="value">Done</div>
 </div>
 
 </div>
 
-<!-- QUICK ACTION -->
 <div class="card big">
-<div class="title">Quick Menu</div>
+<div class="title">Inspection</div>
 
 <div class="menu">
-<a href="k3.html">
-<div class="menu-box"> Inspection Head Office</div>
-</a>
-
-<a href="maintenance.html">
-<div class="menu-box"> Inspection Warehouse</div>
-</a>
-
-<a href="atk.html">
-<div class="menu-box">Inspection Vehicle Operational</div>
-</a>
-
-<a href="inspeksi-ho.html">
-<div class="menu-box">Inspection K3 Safety</div>
-</a>
-
-<a href="inspeksi-warehouse.html">
-<div class="menu-box">Preventive Maintenance</div>
-</a>
-
-<a href="reporting.html">
-<div class="menu-box">📊 Report</div>
-</a>
+<a href="inspeksi-ho.html"><div class="menu-box">Inspection Head Office</div></a>
+<a href="inspeksi-warehouse.html"><div class="menu-box">Inspection WHO</div></a>
+<a href="inspeksi-kendaraan.html"><div class="menu-box">Inspection Vehicle</div></a>
+<a href="k3.html"><div class="menu-box">Inspection K3 Safety </div></a>
+<a href="maintenance.html"><div class="menu-box">Preventive Maintenance</div></a>
 </div>
 
 </div>
 
 </div>
 
-<!-- OPTIONAL NAV -->
-<div class="bottom-nav">
-<a href="#">🏠<br>Home</a>
-<a href="#">📋<br>Task</a>
-<a href="#">📊<br>Report</a>
-<a href="#">⚙️<br>Setting</a>
-</div>
+<script>
+function openMenu(){
+document.getElementById("sidebar").classList.add("active");
+document.getElementById("overlay").classList.add("active");
+}
+
+function closeMenu(){
+document.getElementById("sidebar").classList.remove("active");
+document.getElementById("overlay").classList.remove("active");
+}
+</script>
 
 </body>
 </html>
