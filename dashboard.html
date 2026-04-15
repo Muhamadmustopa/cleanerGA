@@ -260,7 +260,50 @@ function closeMenu(){sidebar.classList.remove("active");overlay.classList.remove
 function toggleNotif(){
   notifPanel.style.display = notifPanel.style.display==="block"?"none":"block";
 }
+// 🌍 DATA BAHASA GLOBAL
+const langData = {
+  id:{
+    title:"Inspection General Affair",
+    issue:"🛠️ Issue",
+    news:"📰 News",
+    out:"⏳ Outstanding"
+  },
+  en:{
+    title:"Inspection General Affair",
+    issue:"🛠️ Issues",
+    news:"📰 News",
+    out:"⏳ Outstanding"
+  },
+  cn:{
+    title:"综合事务检查",
+    issue:"🛠️ 问题",
+    news:"📰 新闻",
+    out:"⏳ 待处理"
+  }
+};
 
+// APPLY LANGUAGE
+function applyLang(l){
+  headerTitle.innerText = langData[l].title;
+  issueTitle.innerText = langData[l].issue;
+  newsTitle.innerText = langData[l].news;
+  outTitle.innerText = langData[l].out;
+}
+
+// GANTI BAHASA
+function changeLang(){
+  let l = document.getElementById("langSelect").value;
+
+  // 🔥 SIMPAN GLOBAL
+  localStorage.setItem("lang", l);
+
+  applyLang(l);
+}
+
+// LOAD SAAT MASUK
+const savedLang = localStorage.getItem("lang") || "id";
+document.getElementById("langSelect").value = savedLang;
+applyLang(savedLang);
 const langData={
 id:{title:"Inspection General Affair",issue:"🛠️ Issue",news:"📰 News",out:"⏳ Outstanding"},
 en:{title:"Inspection General Affair",issue:"🛠️ Issues",news:"📰 News",out:"⏳ Outstanding"},
