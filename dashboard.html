@@ -181,8 +181,52 @@ margin-top:20px;
 
 <!-- HEADER -->
 <div class="header">
-<span class="menu-btn" onclick="openMenu()">☰</span>
-Inspection General Affair
+  <span class="menu-btn" onclick="openMenu()">☰</span>
+
+  <div style="flex:1;">Inspection General Affair</div>
+
+  <!-- 🌍 LANGUAGE -->
+  <select id="langSelect" onchange="changeLang()" style="margin-right:10px;border-radius:5px;">
+    <option value="id">ID</option>
+    <option value="en">EN</option>
+    <option value="cn">中文</option>
+  </select>
+
+  <!-- 🔔 NOTIF -->
+  <div style="position:relative; cursor:pointer;" onclick="toggleNotif()">
+    🔔
+    <span id="notifCount" style="
+      position:absolute;
+      top:-5px;
+      right:-5px;
+      background:red;
+      color:white;
+      font-size:10px;
+      padding:2px 5px;
+      border-radius:50%;
+    ">3</span>
+  </div>
+</div>
+  <div id="notifPanel" style="
+display:none;
+position:absolute;
+top:60px;
+right:10px;
+background:white;
+width:250px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+z-index:2000;
+padding:10px;
+">
+
+<b>Notifikasi</b>
+<ul style="padding-left:15px;font-size:13px;">
+  <li>AC ruang meeting rusak</li>
+  <li>Audit K3 minggu depan</li>
+  <li>Maintenance belum selesai</li>
+</ul>
+
 </div>
 
 <div class="sidebar" id="sidebar">
@@ -366,6 +410,45 @@ onAuthStateChanged(auth, async (user) => {
     }
   }
 });
+
+// 🔔 toggle notif
+function toggleNotif(){
+  const panel = document.getElementById("notifPanel");
+  panel.style.display = panel.style.display === "block" ? "none" : "block";
+}
+
+// 🌍 DATA BAHASA
+const langData = {
+  id: {
+    title: "Inspection General Affair",
+    issue: "🛠️ Issue",
+    news: "📰 News",
+    outstanding: "⏳ Outstanding"
+  },
+  en: {
+    title: "Inspection General Affair",
+    issue: "🛠️ Issues",
+    news: "📰 News",
+    outstanding: "⏳ Outstanding"
+  },
+  cn: {
+    title: "综合事务检查",
+    issue: "🛠️ 问题",
+    news: "📰 新闻",
+    outstanding: "⏳ 待处理"
+  }
+};
+
+// 🌍 ganti bahasa
+function changeLang(){
+  const lang = document.getElementById("langSelect").value;
+
+  document.querySelector(".header div").innerText = langData[lang].title;
+
+  document.querySelectorAll(".card .title")[5].innerText = langData[lang].issue;
+  document.querySelectorAll(".card .title")[6].innerText = langData[lang].news;
+  document.querySelectorAll(".card .title")[7].innerText = langData[lang].outstanding;
+}
 
 // 🔥 LOGOUT
 function logout() {
