@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inspection GA - Login</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:Segoe UI, sans-serif;
+background:#eef1f5;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+/* CONTAINER */
+.container{
+width:90%;
+max-width:360px;
+background:#fff;
+padding:30px 25px;
+border-radius:16px;
+box-shadow:0 6px 20px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+/* LOGO */
+.logo{
+width:80px;
+margin-bottom:15px;
+}
+
+/* TITLE */
+h2{
+margin:10px 0 20px;
+color:#1e293b;
+}
+
+/* BUTTON */
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:8px;
+background:#4285F4;
+color:#fff;
+font-size:15px;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+background:#3367d6;
+}
+
+/* LOADING TEXT */
+.loading{
+font-size:13px;
+color:#666;
+margin-top:10px;
+display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <!-- GANTI logo.png dengan logo kamu -->
+  <img src="logo.png" class="logo">
+
+  <h2>Inspection GA</h2>
+
+  <button onclick="loginGoogle()">Login dengan Google</button>
+
+  <div class="loading" id="loading">Memproses login...</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import { 
+  getFirestore, 
+  doc, 
+  setDoc 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAtL2blKhlPFE111CViktAfoRal5iVkZkg",
+  authDomain: "login-41f28.firebaseapp.com",
+  projectId: "login-41f28",
+  storageBucket: "login-41f28.firebasestorage.app",
+  messagingSenderId: "455710485013",
+  appId: "1:455710485013:web:392e8638a0ddaf5c197c1c"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// 🔥 SIMPAN USER KE FIRESTORE
+async function saveUser(user){
+  await setDoc(doc(db, "users", user.uid), {
+    name: user.displayName,
+    email: user.email,
+    role: "user" // default role
+  }, { merge: true });
+}
+
+// 🔐 LOGIN GOOGLE
+function loginGoogle(){
+  document.getElementById("loading").style.display = "block";
+
+  const provider = new GoogleAuthProvider();
+
+  signInWithPopup(auth, provider)
+    .then(async (result) => {
+      await saveUser(result.user);
+      window.location.href = "dashboard.html";
+    })
+    .catch(error => {
+      alert(error.message);
+      document.getElementById("loading").style.display = "none";
+    });
+}
+
+// 🔁 AUTO LOGIN
+onAuthStateChanged(auth, (user)=>{
+  if(user){
+    window.location.href = "dashboard.html";
+  }
+});
+
+// biar bisa dipanggil dari HTML
+window.loginGoogle = loginGoogle;
+</script>
+
+</body>
+</html>
