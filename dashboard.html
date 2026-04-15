@@ -118,10 +118,6 @@ grid-template-columns:1fr 1fr;
 gap:10px;
 }
 
-.big{
-grid-column:span 2;
-}
-
 .title{
 font-size:13px;
 color:#666;
@@ -133,38 +129,6 @@ font-weight:bold;
 margin-top:5px;
 }
 
-/* MENU GRID */
-.menu{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-margin-top:10px;
-}
-
-.menu-box{
-background:white;
-padding:12px;
-border-radius:12px;
-text-align:center;
-font-size:13px;
-box-shadow:0 3px 8px rgba(0,0,0,.08);
-}
-
-.menu-box:hover{
-background:#e2e8f0;
-}
-
-.list{
-padding-left:18px;
-margin-top:10px;
-font-size:13px;
-color:#444;
-}
-
-.list li{
-margin-bottom:6px;
-}
-
 /* FOOTER */
 .footer{
 background:#1f2937;
@@ -173,6 +137,20 @@ text-align:center;
 padding:12px;
 font-size:13px;
 margin-top:20px;
+}
+
+/* NOTIF */
+#notifPanel{
+display:none;
+position:absolute;
+top:60px;
+right:10px;
+background:white;
+width:250px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+z-index:2000;
+padding:10px;
 }
 </style>
 </head>
@@ -183,16 +161,14 @@ margin-top:20px;
 <div class="header">
   <span class="menu-btn" onclick="openMenu()">☰</span>
 
-  <div style="flex:1;">Inspection General Affair</div>
+  <div id="headerTitle" style="flex:1;">Inspection General Affair</div>
 
-  <!-- 🌍 LANGUAGE -->
   <select id="langSelect" onchange="changeLang()" style="margin-right:10px;border-radius:5px;">
     <option value="id">ID</option>
     <option value="en">EN</option>
     <option value="cn">中文</option>
   </select>
 
-  <!-- 🔔 NOTIF -->
   <div style="position:relative; cursor:pointer;" onclick="toggleNotif()">
     🔔
     <span id="notifCount" style="
@@ -207,257 +183,129 @@ margin-top:20px;
     ">3</span>
   </div>
 </div>
-  <div id="notifPanel" style="
-display:none;
-position:absolute;
-top:60px;
-right:10px;
-background:white;
-width:250px;
-border-radius:10px;
-box-shadow:0 5px 15px rgba(0,0,0,0.2);
-z-index:2000;
-padding:10px;
-">
 
+<!-- NOTIF -->
+<div id="notifPanel">
 <b>Notifikasi</b>
 <ul style="padding-left:15px;font-size:13px;">
-  <li>AC ruang meeting rusak</li>
-  <li>Audit K3 minggu depan</li>
-  <li>Maintenance belum selesai</li>
+<li>AC ruang meeting rusak</li>
+<li>Audit K3 minggu depan</li>
+<li>Maintenance belum selesai</li>
 </ul>
-
 </div>
 
+<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
 
-<!-- USER INFO -->
 <div style="text-align:center; margin-bottom:20px;">
   <img id="fotoUser" style="width:70px;height:70px;border-radius:50%;"><br>
   <small id="namaUser"></small>
 </div>
 
-<h2>
-<img src="do.png" class="icon">Inspection
-</h2>
+<h2><img src="do.png" class="icon">Inspection</h2>
 
-<a href="dashboard.html">
-<img src="biz.png" class="icon"> Dashboard</a>
+<a href="dashboard.html"><img src="biz.png" class="icon"> Dashboard</a>
+<a href="inspeksi-ho.html"><img src="mthss.png" class="icon"> Inspeksi Head Office</a>
+<a href="inspeksi-warehouse.html"><img src="biz.png" class="icon"> Inspeksi Warehouse</a>
+<a href="inspeksi-kendaraan.html"><img src="vhcl.png" class="icon"> Inspeksi Kendaraan</a>
+<a href="k3.html"><img src="list.png" class="icon"> Inspeksi K3</a>
+<a href="maintenance.html"><img src="mtc.png" class="icon"> Maintenance</a>
 
-<a href="inspeksi-ho.html">
-<img src="mthss.png" class="icon"> Inspeksi Head Office</a>
-
-<a href="inspeksi-warehouse.html">
-<img src="biz.png" class="icon"> Inspeksi Warehouse</a>
-
-<a href="inspeksi-kendaraan.html">
-<img src="vhcl.png" class="icon"> Inspeksi Kendaraan</a>
-
-<a href="k3.html">
-<img src="mtc" class="icon"> Inspeksi K3</a>
-
-<a href="maintenance.html">
-<img src="mtc.png" class="icon"> Maintenance</a>
-
-<!-- 🔥 ADMIN MENU -->
 <div id="adminMenu" style="display:none;">
-  <hr>
-  <a href="admin.html">⚙️ Kelola User</a></div>
+<hr>
+<a href="admin.html">⚙️ Kelola User</a>
+</div>
 
 <hr>
-
 <a href="#" onclick="logout()">🚪 Logout</a>
 
 </div>
 
-<!-- OVERLAY -->
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
 
 <!-- CONTENT -->
 <div class="container">
 
 <div class="grid">
-
-<a href="inspeksi-warehouse.html" style="text-decoration:none;color:inherit;">
-<div class="card">
-<div class="title">Inspection Head Office</div>
-<div class="value" id="headofficeTotal">0</div>
-</div>
-</a>
-
-<a href="inspeksi-warehouse.html" style="text-decoration:none;color:inherit;">
-<div class="card">
-<div class="title">Inspection Warehouse</div>
-<div class="value" id="warehouseTotal">0</div>
-</div>
-</a>
-
-<a href="inspeksi-warehouse.html" style="text-decoration:none;color:inherit;">
-<div class="card">
-<div class="title">Inspection Vehicle Operational </div>
-<div class="value" id="vehicleTotal">0</div>
-</div>
-</a>
-
-<a href="inspeksi-warehouse.html" style="text-decoration:none;color:inherit;">
-<div class="card">
-<div class="title">Inspection K3 Safety</div>
-<div class="value" id="k3Total">0</div>
-</div>
-</a>
-
-<a href="inspeksi-warehouse.html" style="text-decoration:none;color:inherit;">
-<div class="card">
-<div class="title">Preventif Maintenance</div>
-<div class="value" id="maintenanceTotal">0</div>
-</div>
-</a>
-
-</div>
-
-<!-- SECTION TAMBAHAN -->
-<div class="card">
-<div class="title">🛠️ Issue</div>
-
-<ul list="padding-left:18px;margin-top:10px">
-<li>AC ruang meeting rusak</li>
-<li>Lampu gudang mati</li>
-</ul>
-
+<div class="card"><div class="title">Inspection Head Office</div><div class="value">0</div></div>
+<div class="card"><div class="title">Inspection Warehouse</div><div class="value">0</div></div>
+<div class="card"><div class="title">Inspection Vehicle Operational</div><div class="value">0</div></div>
+<div class="card"><div class="title">Inspection K3 Safety</div><div class="value">0</div></div>
+<div class="card"><div class="title">Preventif Maintenance</div><div class="value">0</div></div>
 </div>
 
 <div class="card">
-<div class="title">📰 News</div>
-
-<ul list="padding-left:18px;margin-top:10px">
-<li>Audit K3 minggu depan</li>
-<li>Maintenance lift hari Jumat</li>
-</ul>
-
+<div class="title" id="issueTitle">🛠️ Issue</div>
+<ul><li>AC ruang meeting rusak</li></ul>
 </div>
 
 <div class="card">
-<div class="title">⏳ Outstanding</div>
+<div class="title" id="newsTitle">📰 News</div>
+<ul><li>Audit K3 minggu depan</li></ul>
+</div>
 
-<ul list="padding-left:18px;margin-top:10px">
-<li>Checklist warehouse belum selesai</li>
-<li>Approval ATK pending</li>
-</ul>
+<div class="card">
+<div class="title" id="outTitle">⏳ Outstanding</div>
+<ul><li>Checklist belum selesai</li></ul>
+</div>
 
 </div>
+
+<div class="footer">© 2026 Inspection General Affair</div>
+
 <script>
-function openMenu(){
-document.getElementById("sidebar").classList.add("active");
-document.getElementById("overlay").classList.add("active");
+function openMenu(){sidebar.classList.add("active");overlay.classList.add("active");}
+function closeMenu(){sidebar.classList.remove("active");overlay.classList.remove("active");}
+
+function toggleNotif(){
+  notifPanel.style.display = notifPanel.style.display==="block"?"none":"block";
 }
 
-function closeMenu(){
-document.getElementById("sidebar").classList.remove("active");
-document.getElementById("overlay").classList.remove("active");
+const langData={
+id:{title:"Inspection General Affair",issue:"🛠️ Issue",news:"📰 News",out:"⏳ Outstanding"},
+en:{title:"Inspection General Affair",issue:"🛠️ Issues",news:"📰 News",out:"⏳ Outstanding"},
+cn:{title:"综合事务检查",issue:"🛠️ 问题",news:"📰 新闻",out:"⏳ 待处理"}
+};
+
+function changeLang(){
+  let l=langSelect.value;
+  headerTitle.innerText=langData[l].title;
+  issueTitle.innerText=langData[l].issue;
+  newsTitle.innerText=langData[l].news;
+  outTitle.innerText=langData[l].out;
 }
 </script>
-<div class="footer">
-© 2026 Inspection General Affair
-</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-  getAuth, 
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore,doc,getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import { 
-  getFirestore, 
-  doc, 
-  getDoc 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAtL2blKhlPFE111CViktAfoRal5iVkZkg",
-  authDomain: "login-41f28.firebaseapp.com",
-  projectId: "login-41f28",
-  storageBucket: "login-41f28.firebasestorage.app",
-  messagingSenderId: "455710485013",
-  appId: "1:455710485013:web:392e8638a0ddaf5c197c1c"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// 🔥 CEK LOGIN
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "logine.html";
-    return;
-  }
-
-  // tampil user
-  document.getElementById("namaUser").innerText = user.displayName;
-  document.getElementById("fotoUser").src = user.photoURL;
-
-  // 🔥 ambil role dari Firestore
-  const docRef = doc(db, "users", user.uid);
-  const docSnap = await getDoc(docRef);
-
-  if (docSnap.exists()) {
-    const role = docSnap.data().role;
-
-    // tampilkan admin menu
-    if (role === "admin") {
-      document.getElementById("adminMenu").style.display = "block";
-    }
-  }
+const app=initializeApp({
+apiKey:"AIzaSyAtL2blKhlPFE111CViktAfoRal5iVkZkg",
+authDomain:"login-41f28.firebaseapp.com",
+projectId:"login-41f28",
+storageBucket:"login-41f28.firebasestorage.app",
+messagingSenderId:"455710485013",
+appId:"1:455710485013:web:392e8638a0ddaf5c197c1c"
 });
 
-// 🔔 toggle notif
-function toggleNotif(){
-  const panel = document.getElementById("notifPanel");
-  panel.style.display = panel.style.display === "block" ? "none" : "block";
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+onAuthStateChanged(auth,async user=>{
+if(!user){location.href="login.html";return;}
+namaUser.innerText=user.displayName;
+fotoUser.src=user.photoURL;
+
+const snap=await getDoc(doc(db,"users",user.uid));
+if(snap.exists() && snap.data().role==="admin"){
+adminMenu.style.display="block";
 }
+});
 
-// 🌍 DATA BAHASA
-const langData = {
-  id: {
-    title: "Inspection General Affair",
-    issue: "🛠️ Issue",
-    news: "📰 News",
-    outstanding: "⏳ Outstanding"
-  },
-  en: {
-    title: "Inspection General Affair",
-    issue: "🛠️ Issues",
-    news: "📰 News",
-    outstanding: "⏳ Outstanding"
-  },
-  cn: {
-    title: "综合事务检查",
-    issue: "🛠️ 问题",
-    news: "📰 新闻",
-    outstanding: "⏳ 待处理"
-  }
-};
-
-// 🌍 ganti bahasa
-function changeLang(){
-  const lang = document.getElementById("langSelect").value;
-
-  document.querySelector(".header div").innerText = langData[lang].title;
-
-  document.querySelectorAll(".card .title")[5].innerText = langData[lang].issue;
-  document.querySelectorAll(".card .title")[6].innerText = langData[lang].news;
-  document.querySelectorAll(".card .title")[7].innerText = langData[lang].outstanding;
-}
-
-// 🔥 LOGOUT
-function logout() {
-  signOut(auth).then(() => {
-    window.location.href = "index.html";
-  });
-}
-
-window.logout = logout;
+window.logout=()=>signOut(auth).then(()=>location.href="login.html");
 </script>
+
 </body>
 </html>
