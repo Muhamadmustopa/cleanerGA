@@ -271,13 +271,18 @@ async function exportPDF(){
 }
 
 // LOAD DATA
-async function loadData(){
-  const snapshot = await db.collection("dokumen").orderBy("tanggal","desc").get();
-  data = snapshot.docs.map(doc=>({
-    id:doc.id,
-    ...doc.data()
-  }));
-  render();
+function loadData(){
+  db.collection("dokumen")
+    .orderBy("tanggal","desc")
+    .onSnapshot(snapshot => {
+
+      data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      render(); // otomatis update semua tampilan
+    });
 }
 loadData();
 
