@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inspection Head Office</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI;
+  background:#f1f5f9;
+}
+
+/* HEADER */
+.header{
+  background:#1e293b;
+  color:#fff;
+  padding:15px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.menu-btn{font-size:22px;cursor:pointer}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed;
+  left:-260px;
+  width:260px;
+  height:100%;
+  background:#1e293b;
+  color:white;
+  padding:20px;
+  transition:.3s;
+}
+.sidebar.active{left:0}
+
+.overlay{
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,.3);
+  display:none;
+}
+.overlay.active{display:block}
+
+/* CONTENT */
+.container{
+  padding:15px;
+}
+
+/* CARD */
+.card{
+  background:white;
+  border-radius:12px;
+  padding:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,.08);
+  overflow:auto;
+}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+
+th,td{
+  border:1px solid #ccc;
+  padding:6px;
+  text-align:left;
+}
+
+th{
+  background:#22c55e;
+  color:#000;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+  table{font-size:10px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <span class="menu-btn" onclick="openMenu()">☰</span>
+  <div>Inspection Head Office</div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <a href="dashboard.html">Dashboard</a>
+  <a href="headoffice.html">Head Office</a>
+  <a href="#" onclick="logout()">Logout</a>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+<!-- CONTENT -->
+<div class="container">
+
+<div class="card">
+
+<label>Tanggal:</label>
+<input type="date" id="tanggal">
+
+<br><br>
+
+<table id="tabel">
+<thead>
+<tr>
+<th>No</th>
+<th>Location</th>
+<th>Indicator</th>
+<th>Checklist</th>
+<th>Perlu Perbaikan</th>
+<th>Lampiran</th>
+</tr>
+</thead>
+
+<tbody id="tbody"></tbody>
+</table>
+
+<br>
+<button onclick="simpan()">💾 Simpan</button>
+
+</div>
+</div>
+
+<script>
+// SIDEBAR
+function openMenu(){sidebar.classList.add("active");overlay.classList.add("active");}
+function closeMenu(){sidebar.classList.remove("active");overlay.classList.remove("active");}
+
+// DATA TEMPLATE (SESUAI GAMBAR)
+const data = [
+{loc:"Receptionist / Lobby", ind:"Lantai bersih dan tidak licin"},
+{loc:"Receptionist / Lobby", ind:"Dinding bersih dan tidak ada sarang laba-laba"},
+{loc:"Receptionist / Lobby", ind:"Sofa & meja bersih"},
+{loc:"Ruang Meeting", ind:"Karpet tidak bau"},
+{loc:"Ruang Meeting", ind:"Meja & kursi bersih"}
+];
+
+// RENDER TABLE
+const tbody=document.getElementById("tbody");
+
+data.forEach((d,i)=>{
+  tbody.innerHTML+=`
+  <tr>
+    <td>${i+1}</td>
+    <td>${d.loc}</td>
+    <td>${d.ind}</td>
+    <td>
+      <select>
+        <option value="OK">OK</option>
+        <option value="NG">NG</option>
+      </select>
+    </td>
+    <td><input type="text"></td>
+    <td><input type="file"></td>
+  </tr>`;
+});
+
+</script>
+
+<!-- FIREBASE + CLOUDINARY -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"API_KEY_KAMU",
+  authDomain:"xxxx.firebaseapp.com",
+  projectId:"xxxx"
+});
+
+const db = getFirestore(app);
+
+// CLOUDINARY CONFIG
+const CLOUD_NAME = "douneche3";
+const UPLOAD_PRESET = "cleaner_upload";
+
+// UPLOAD FOTO
+async function uploadCloudinary(file){
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", UPLOAD_PRESET);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,{
+    method:"POST",
+    body:formData
+  });
+
+  const data = await res.json();
+  return data.secure_url;
+}
+
+// SIMPAN DATA
+window.simpan = async ()=>{
+  const rows = document.querySelectorAll("#tbody tr");
+  const tanggal = document.getElementById("tanggal").value;
+
+  let hasil=[];
+
+  for (let row of rows){
+    const loc=row.children[1].innerText;
+    const ind=row.children[2].innerText;
+    const check=row.children[3].querySelector("select").value;
+    const perbaikan=row.children[4].querySelector("input").value;
+    const file=row.children[5].querySelector("input").files[0];
+
+    let foto="";
+    if(file){
+      foto = await uploadCloudinary(file);
+    }
+
+    hasil.push({loc,ind,check,perbaikan,foto});
+  }
+
+  await addDoc(collection(db,"inspeksi_ho"),{
+    tanggal,
+    data:hasil,
+    createdAt:new Date()
+  });
+
+  alert("Data berhasil disimpan!");
+};
+</script>
+
+</body>
+</html>
