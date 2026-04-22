@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Inspeksi GA</title>
 
 <style>
@@ -10,23 +10,22 @@
 
 body{
 margin:0;
-font-family:Segoe UI;
+font-family:Segoe UI,Arial,sans-serif;
 background:#f1f5f9;
 }
 
 /* HEADER */
 .header{
 background:#1e293b;
-color:white;
+color:#fff;
 padding:15px;
-font-size:18px;
-font-weight:600;
 display:flex;
 align-items:center;
 gap:10px;
+font-size:18px;
+font-weight:600;
 }
 
-/* MENU BUTTON */
 .menu-btn{
 font-size:22px;
 cursor:pointer;
@@ -40,10 +39,11 @@ left:-260px;
 width:260px;
 height:100%;
 background:#1e293b;
-color:white;
+color:#fff;
 padding:20px;
-transition:0.3s;
+transition:.3s;
 z-index:1000;
+overflow-y:auto;
 }
 
 .sidebar.active{
@@ -58,22 +58,20 @@ align-items:center;
 gap:10px;
 }
 
-/* ICON IMAGE */
 .icon{
 width:20px;
 height:20px;
 object-fit:contain;
 }
 
-/* MENU */
 .sidebar a{
 display:flex;
 align-items:center;
 gap:10px;
 padding:10px;
 margin-bottom:8px;
-color:white;
 text-decoration:none;
+color:white;
 border-radius:6px;
 }
 
@@ -88,7 +86,7 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-background:rgba(0,0,0,0.3);
+background:rgba(0,0,0,.35);
 display:none;
 z-index:900;
 }
@@ -97,12 +95,11 @@ z-index:900;
 display:block;
 }
 
-/* CONTAINER */
+/* CONTENT */
 .container{
 padding:15px;
 }
 
-/* CARD */
 .card{
 background:white;
 border-radius:14px;
@@ -111,7 +108,6 @@ margin-bottom:12px;
 box-shadow:0 4px 10px rgba(0,0,0,.08);
 }
 
-/* GRID */
 .grid{
 display:grid;
 grid-template-columns:1fr 1fr;
@@ -139,7 +135,7 @@ font-size:13px;
 margin-top:20px;
 }
 
-/* NOTIF */
+/* NOTIFICATION PANEL */
 #notifPanel{
 display:none;
 position:absolute;
@@ -148,186 +144,281 @@ right:10px;
 background:white;
 width:250px;
 border-radius:10px;
-box-shadow:0 5px 15px rgba(0,0,0,0.2);
+box-shadow:0 5px 15px rgba(0,0,0,.2);
 z-index:2000;
 padding:10px;
 }
+
+/* MOBILE */
+@media(max-width:600px){
+.grid{
+grid-template-columns:1fr;
+}
+.header{
+font-size:15px;
+}
+}
 </style>
 </head>
-
 <body>
+
 
 <!-- HEADER -->
 <div class="header">
-  <span class="menu-btn" onclick="openMenu()">☰</span>
 
-  <div id="headerTitle" style="flex:1;">Inspection General Affair</div>
+<span class="menu-btn" onclick="openMenu()">☰</span>
 
-  <select id="langSelect" onchange="changeLang()" style="margin-right:10px;border-radius:5px;">
-    <option value="id">ID</option>
-    <option value="en">EN</option>
-    <option value="cn">中文</option>
-  </select>
-
-  <div style="position:relative; cursor:pointer;" onclick="toggleNotif()">
-    🔔
-    <span id="notifCount" style="
-      position:absolute;
-      top:-5px;
-      right:-5px;
-      background:red;
-      color:white;
-      font-size:10px;
-      padding:2px 5px;
-      border-radius:50%;
-    ">3</span>
-  </div>
+<div id="headerTitle" style="flex:1">
+Inspection General Affair
 </div>
+
+<select id="langSelect" onchange="changeLang()" style="border-radius:6px">
+<option value="id">ID</option>
+<option value="en">EN</option>
+<option value="cn">中文</option>
+</select>
+
+<div style="position:relative;cursor:pointer" onclick="toggleNotif()">
+🔔
+<span id="notifCount"
+style="
+position:absolute;
+top:-5px;
+right:-5px;
+background:red;
+color:white;
+font-size:10px;
+padding:2px 5px;
+border-radius:50%;
+">
+3
+</span>
+</div>
+
+</div>
+
 
 <!-- NOTIF -->
 <div id="notifPanel">
 <b>Notifikasi</b>
-<ul style="padding-left:15px;font-size:13px;">
+<ul style="padding-left:15px;font-size:13px">
 <li>AC ruang meeting rusak</li>
 <li>Audit K3 minggu depan</li>
 <li>Maintenance belum selesai</li>
 </ul>
 </div>
 
+
+
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
 
-<div style="text-align:center; margin-bottom:20px;">
-  <img id="fotoUser" style="width:70px;height:70px;border-radius:50%;"><br>
-  <small id="namaUser"></small>
+<div style="text-align:center;margin-bottom:20px">
+<img id="fotoUser"
+style="width:70px;height:70px;border-radius:50%">
+<br>
+<small id="namaUser"></small>
 </div>
 
-<h2><img src="do.png" class="icon">Inspection</h2>
-
-<a href="dashboard.html"><img src="biz.png" class="icon"> Dashboard</a>
-<a href="headoffice.html"><img src="mthss.png" class="icon"> Inspeksi Head Office</a>
-<a href="inspeksi-warehouse.html"><img src="biz.png" class="icon"> Inspeksi Warehouse</a>
-<a href="inspeksi-kendaraan.html"><img src="vhcl.png" class="icon"> Inspeksi Kendaraan</a>
-<a href="k3.html"><img src="list.png" class="icon"> Inspeksi K3</a>
-<a href="maintenance.html"><img src="mtc.png" class="icon"> Maintenance</a>
-
-<div id="adminMenu" style="display:none;">
+<h2>
+<img src="do.png" class="icon">Inspection</h2>
+<a href="dashboard.html"><img src="biz.png" class="icon">Dashboard</a>
+<a href="headoffice.html"><img src="mthss.png" class="icon">Inspeksi Head Office</a>
+<a href="inspeksi-warehouse.html"><img src="biz.png" class="icon">Inspeksi Warehouse</a>
+<a href="inspeksi-kendaraan.html"><img src="vhcl.png" class="icon">Inspeksi Kendaraan</a>
+<a href="k3.html"><img src="list.png" class="icon">Inspeksi K3</a>
+<a href="maintenance.html"><img src="mtc.png" class="icon">Maintenance</a>
+<div id="adminMenu" style="display:none">
 <hr>
-<a href="admin.html">⚙️ Kelola User</a>
+<a href="admin.html">
+⚙️ Kelola User
+</a>
 </div>
 
 <hr>
-<a href="#" onclick="logout()">🚪 Logout</a>
+
+<a href="#" onclick="logout()">
+🚪 Logout
+</a>
 
 </div>
+
 
 <div class="overlay" id="overlay" onclick="closeMenu()"></div>
+
+
 
 <!-- CONTENT -->
 <div class="container">
 
 <div class="grid">
-<div class="card"><div class="title">Inspection Head Office</div><div class="value">0</div></div>
-<div class="card"><div class="title">Inspection Warehouse</div><div class="value">0</div></div>
-<div class="card"><div class="title">Inspection Vehicle Operational</div><div class="value">0</div></div>
-<div class="card"><div class="title">Inspection K3 Safety</div><div class="value">0</div></div>
-<div class="card"><div class="title">Preventif Maintenance</div><div class="value">0</div></div>
+
+<div class="card">
+<div class="title">Inspection Head Office</div>
+<div class="value">0</div>
 </div>
 
 <div class="card">
-<div class="title" id="issueTitle">🛠️ Issue</div>
-<ul><li>AC ruang meeting rusak</li></ul>
+<div class="title">Inspection Warehouse</div>
+<div class="value">0</div>
 </div>
 
 <div class="card">
-<div class="title" id="newsTitle">📰 News</div>
-<ul><li>Audit K3 minggu depan</li></ul>
+<div class="title">Inspection Vehicle Operational</div>
+<div class="value">0</div>
 </div>
 
 <div class="card">
-<div class="title" id="outTitle">⏳ Outstanding</div>
-<ul><li>Checklist belum selesai</li></ul>
+<div class="title">Inspection K3 Safety</div>
+<div class="value">0</div>
+</div>
+
+<div class="card">
+<div class="title">Preventif Maintenance</div>
+<div class="value">0</div>
 </div>
 
 </div>
 
-<div class="footer">© 2026 Inspection General Affair</div>
+
+<div class="card">
+<div class="title" id="issueTitle">
+🛠️ Issue
+</div>
+<ul>
+<li>AC ruang meeting rusak</li>
+</ul>
+</div>
+
+
+<div class="card">
+<div class="title" id="newsTitle">
+📰 News
+</div>
+<ul>
+<li>Audit K3 minggu depan</li>
+</ul>
+</div>
+
+
+<div class="card">
+<div class="title" id="outTitle">
+⏳ Outstanding
+</div>
+<ul>
+<li>Checklist belum selesai</li>
+</ul>
+</div>
+
+</div>
+
+<div class="footer">
+© 2026 Inspection General Affair
+</div>
+
+
 
 <script>
-/* ambil element */
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlay");
-const notifPanel = document.getElementById("notifPanel");
+const sidebar=document.getElementById("sidebar");
+const overlay=document.getElementById("overlay");
+const notifPanel=document.getElementById("notifPanel");
 
-const headerTitle = document.getElementById("headerTitle");
-const issueTitle = document.getElementById("issueTitle");
-const newsTitle = document.getElementById("newsTitle");
-const outTitle = document.getElementById("outTitle");
+const headerTitle=document.getElementById("headerTitle");
+const issueTitle=document.getElementById("issueTitle");
+const newsTitle=document.getElementById("newsTitle");
+const outTitle=document.getElementById("outTitle");
 
-/* SIDEBAR */
+
 function openMenu(){
- sidebar.classList.add("active");
- overlay.classList.add("active");
+sidebar.classList.add("active");
+overlay.classList.add("active");
 }
 
 function closeMenu(){
- sidebar.classList.remove("active");
- overlay.classList.remove("active");
+sidebar.classList.remove("active");
+overlay.classList.remove("active");
 }
 
-/* NOTIF */
 function toggleNotif(){
- notifPanel.style.display =
-   notifPanel.style.display === "block"
-   ? "none"
-   : "block";
+notifPanel.style.display=
+notifPanel.style.display==="block"
+? "none"
+: "block";
 }
 
-/* LANGUAGE */
-const langData = {
- id:{
-   title:"Inspection General Affair",
-   issue:"🛠️ Issue",
-   news:"📰 News",
-   out:"⏳ Outstanding"
- },
- en:{
-   title:"Inspection General Affair",
-   issue:"🛠️ Issues",
-   news:"📰 News",
-   out:"⏳ Outstanding"
- },
- cn:{
-   title:"综合事务检查",
-   issue:"🛠️ 问题",
-   news:"📰 新闻",
-   out:"⏳ 待处理"
- }
+
+/* language */
+const langData={
+id:{
+title:"Inspection General Affair",
+issue:"🛠️ Issue",
+news:"📰 News",
+out:"⏳ Outstanding"
+},
+en:{
+title:"Inspection General Affair",
+issue:"🛠️ Issues",
+news:"📰 News",
+out:"⏳ Outstanding"
+},
+cn:{
+title:"综合事务检查",
+issue:"🛠️ 问题",
+news:"📰 新闻",
+out:"⏳ 待处理"
+}
 };
 
 function applyLang(l){
- headerTitle.innerText = langData[l].title;
- issueTitle.innerText = langData[l].issue;
- newsTitle.innerText = langData[l].news;
- outTitle.innerText = langData[l].out;
+headerTitle.innerText=langData[l].title;
+issueTitle.innerText=langData[l].issue;
+newsTitle.innerText=langData[l].news;
+outTitle.innerText=langData[l].out;
 }
 
 function changeLang(){
- let l = document.getElementById("langSelect").value;
- localStorage.setItem("lang", l);
- applyLang(l);
+let l=document.getElementById("langSelect").value;
+localStorage.setItem("lang",l);
+applyLang(l);
 }
 
-/* LOAD LANGUAGE */
-const savedLang = localStorage.getItem("lang") || "id";
-document.getElementById("langSelect").value = savedLang;
+const savedLang=localStorage.getItem("lang") || "id";
+document.getElementById("langSelect").value=savedLang;
 applyLang(savedLang);
+
+
+/* klik luar notif tutup */
+document.addEventListener("click",function(e){
+if(
+!e.target.closest("#notifPanel")
+&& !e.target.closest("#notifCount")
+&& e.target.innerText!=="🔔"
+){
+notifPanel.style.display="none";
+}
+});
 </script>
 
+
+
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth,onAuthStateChanged,signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore,doc,getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+import {
+getAuth,
+onAuthStateChanged,
+signOut
+}
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import {
+getFirestore,
+doc,
+getDoc
+}
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 
 const app=initializeApp({
 apiKey:"AIzaSyAtL2blKhlPFE111CViktAfoRal5iVkZkg",
@@ -341,18 +432,39 @@ appId:"1:455710485013:web:392e8638a0ddaf5c197c1c"
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-onAuthStateChanged(auth,async user=>{
-if(!user){location.href="login.html";return;}
-namaUser.innerText=user.displayName;
+const namaUser=document.getElementById("namaUser");
+const fotoUser=document.getElementById("fotoUser");
+const adminMenu=document.getElementById("adminMenu");
+
+
+onAuthStateChanged(auth,async(user)=>{
+
+if(!user){
+location.href="login.html";
+return;
+}
+
+namaUser.innerText=user.displayName || "User";
+
+if(user.photoURL){
 fotoUser.src=user.photoURL;
+}
 
 const snap=await getDoc(doc(db,"users",user.uid));
+
 if(snap.exists() && snap.data().role==="admin"){
 adminMenu.style.display="block";
 }
+
 });
 
-window.logout=()=>signOut(auth).then(()=>location.href="index.html");
+
+window.logout=()=>{
+signOut(auth)
+.then(()=>{
+location.href="index.html";
+});
+};
 </script>
 
 </body>
