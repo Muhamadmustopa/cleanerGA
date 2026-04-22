@@ -254,69 +254,74 @@ padding:10px;
 <div class="footer">© 2026 Inspection General Affair</div>
 
 <script>
-function openMenu(){sidebar.classList.add("active");overlay.classList.add("active");}
-function closeMenu(){sidebar.classList.remove("active");overlay.classList.remove("active");}
+/* ambil element */
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+const notifPanel = document.getElementById("notifPanel");
 
-function toggleNotif(){
-  notifPanel.style.display = notifPanel.style.display==="block"?"none":"block";
+const headerTitle = document.getElementById("headerTitle");
+const issueTitle = document.getElementById("issueTitle");
+const newsTitle = document.getElementById("newsTitle");
+const outTitle = document.getElementById("outTitle");
+
+/* SIDEBAR */
+function openMenu(){
+ sidebar.classList.add("active");
+ overlay.classList.add("active");
 }
-// 🌍 DATA BAHASA GLOBAL
+
+function closeMenu(){
+ sidebar.classList.remove("active");
+ overlay.classList.remove("active");
+}
+
+/* NOTIF */
+function toggleNotif(){
+ notifPanel.style.display =
+   notifPanel.style.display === "block"
+   ? "none"
+   : "block";
+}
+
+/* LANGUAGE */
 const langData = {
-  id:{
-    title:"Inspection General Affair",
-    issue:"🛠️ Issue",
-    news:"📰 News",
-    out:"⏳ Outstanding"
-  },
-  en:{
-    title:"Inspection General Affair",
-    issue:"🛠️ Issues",
-    news:"📰 News",
-    out:"⏳ Outstanding"
-  },
-  cn:{
-    title:"综合事务检查",
-    issue:"🛠️ 问题",
-    news:"📰 新闻",
-    out:"⏳ 待处理"
-  }
+ id:{
+   title:"Inspection General Affair",
+   issue:"🛠️ Issue",
+   news:"📰 News",
+   out:"⏳ Outstanding"
+ },
+ en:{
+   title:"Inspection General Affair",
+   issue:"🛠️ Issues",
+   news:"📰 News",
+   out:"⏳ Outstanding"
+ },
+ cn:{
+   title:"综合事务检查",
+   issue:"🛠️ 问题",
+   news:"📰 新闻",
+   out:"⏳ 待处理"
+ }
 };
 
-// APPLY LANGUAGE
 function applyLang(l){
-  headerTitle.innerText = langData[l].title;
-  issueTitle.innerText = langData[l].issue;
-  newsTitle.innerText = langData[l].news;
-  outTitle.innerText = langData[l].out;
+ headerTitle.innerText = langData[l].title;
+ issueTitle.innerText = langData[l].issue;
+ newsTitle.innerText = langData[l].news;
+ outTitle.innerText = langData[l].out;
 }
 
-// GANTI BAHASA
 function changeLang(){
-  let l = document.getElementById("langSelect").value;
-
-  // 🔥 SIMPAN GLOBAL
-  localStorage.setItem("lang", l);
-
-  applyLang(l);
+ let l = document.getElementById("langSelect").value;
+ localStorage.setItem("lang", l);
+ applyLang(l);
 }
 
-// LOAD SAAT MASUK
+/* LOAD LANGUAGE */
 const savedLang = localStorage.getItem("lang") || "id";
 document.getElementById("langSelect").value = savedLang;
 applyLang(savedLang);
-const langData={
-id:{title:"Inspection General Affair",issue:"🛠️ Issue",news:"📰 News",out:"⏳ Outstanding"},
-en:{title:"Inspection General Affair",issue:"🛠️ Issues",news:"📰 News",out:"⏳ Outstanding"},
-cn:{title:"综合事务检查",issue:"🛠️ 问题",news:"📰 新闻",out:"⏳ 待处理"}
-};
-
-function changeLang(){
-  let l=langSelect.value;
-  headerTitle.innerText=langData[l].title;
-  issueTitle.innerText=langData[l].issue;
-  newsTitle.innerText=langData[l].news;
-  outTitle.innerText=langData[l].out;
-}
 </script>
 
 <script type="module">
